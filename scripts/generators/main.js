@@ -11,10 +11,8 @@ const FOLDERS = [
   'controllers/http',
   // 'controllers/microservice',
   'dtos',
-  'entities',
   'repositories',
   'services',
-  'types',
 ];
 
 const slugify = (string) => {
