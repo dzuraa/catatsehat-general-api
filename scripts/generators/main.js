@@ -77,7 +77,7 @@ async function main() {
     },
   ];
   term.prompt(questions).then((answers) => {
-    const pluralizeText = pluralize(answers.name);
+    const pluralizeText = answers.name;
     const modelName = answers.model;
     const className = startCase(pluralizeText).replace(/ /g, '');
     const variableName = modelName.toLowerCase();
