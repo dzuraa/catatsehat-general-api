@@ -10,10 +10,10 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { {{className}}Service } from 'src/app/{{fileName}}/services';
+import { {{className}}Service } from '{{importPath}}/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
-import { Create{{className}}Dto, Update{{className}}Dto } from 'src/app/{{fileName}}/dtos';
+import { Create{{className}}Dto, Update{{className}}Dto } from '{{importPath}}/dtos';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('{{className}}')

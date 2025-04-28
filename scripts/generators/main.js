@@ -1,20 +1,19 @@
 // @ts-check
 const fs = require('fs');
+const path = require('path');
 const hbs = require('handlebars');
 const { cwd } = require('process');
 const pluralize = require('pluralize');
-const { startCase } = require('lodash');
+const { startCase, get } = require('lodash');
 
-const DEST_PATH = (mod) => cwd() + '/src/app/' + mod;
 const ORIGIN_PATH = cwd() + '/scripts/generators/resources';
+
 const FOLDERS = [
   'controllers/http',
-  'controllers/microservice',
+  // 'controllers/microservice',
   'dtos',
-  'entities',
   'repositories',
   'services',
-  'types',
 ];
 
 const slugify = (string) => {
@@ -50,41 +49,84 @@ const toCamelCase = (/** @type {string} */ str) => {
 
 const compile = (
   /** @type {string} */ content,
-  { className, variableName, fileName, modelName },
+  { className, variableName, fileName, modelName, importPath },
 ) => {
   const template = hbs.compile(content)({
     className: className,
     variableName: variableName,
     fileName: fileName,
     modelName,
+    importPath,
   });
   return template;
 };
 
+function getPrismaModel() {
+  const prismaSchemaPath = path.join(cwd(), 'prisma', 'schema.prisma');
+  const schemaContent = fs.readFileSync(prismaSchemaPath, 'utf-8');
+
+  // Regex to match model definitions
+  const modelRegex = /model\s+(\w+)\s+\{/g;
+
+  const model = [];
+  let match;
+  while ((match = modelRegex.exec(schemaContent)) !== null) {
+    model.push(match[1]);
+  }
+  return model;
+}
+
 async function main() {
   const term = (await import('inquirer')).default;
+  const model = getPrismaModel();
 
   const questions = [
+    {
+      type: 'confirm',
+      name: 'isBaseModule',
+      message:
+        'Is the feature related to base module (children/mother/elderly)?',
+    },
+    {
+      type: 'list',
+      name: 'baseModule',
+      message: 'Please choose the preferred module:',
+      choices: ['children', 'mother', 'elderly'],
+      when: (answers) => answers.isBaseModule,
+    },
     {
       type: 'input',
       name: 'name',
       message: "What's your feature name?",
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'model',
-      message: "What's your model name?",
+      message: 'Choose your Prisma model:',
+      choices: model,
     },
   ];
   term.prompt(questions).then((answers) => {
-    const pluralizeText = pluralize(answers.name);
+    const pluralizeText = answers.name;
     const modelName = answers.model;
     const className = startCase(pluralizeText).replace(/ /g, '');
-    const variableName = modelName.toLowerCase();
-
+    const variableName =
+      answers.model.charAt(0).toLowerCase() + answers.model.slice(1);
     const fileName = slugify(pluralizeText);
 
-    const dest = DEST_PATH(fileName);
+    // Set destination path
+    let basePath = '/src/app/';
+    if (answers.isBaseModule) {
+      basePath += `${answers.baseModule}/`;
+    }
+    const dest = cwd() + basePath + fileName;
+
+    // Create import path for templates
+    let importPath = 'src/app/';
+    if (answers.isBaseModule) {
+      importPath += `${answers.baseModule}/`;
+    }
+    importPath += fileName;
 
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
@@ -119,20 +161,13 @@ async function main() {
           'utf8',
         ),
       },
-      {
-        path: `${dest}/controllers/http/${fileName}.controller.spec.ts`,
-        content: fs.readFileSync(
-          `${ORIGIN_PATH}/controllers/http/test.hbs`,
-          'utf8',
-        ),
-      },
-      {
-        path: `${dest}/controllers/microservice/${fileName}.controller.ts`,
-        content: fs.readFileSync(
-          `${ORIGIN_PATH}/controllers/microservice/controller.hbs`,
-          'utf8',
-        ),
-      },
+      // {
+      //   path: `${dest}/controllers/microservice/${fileName}.controller.ts`,
+      //   content: fs.readFileSync(
+      //     `${ORIGIN_PATH}/controllers/microservice/controller.hbs`,
+      //     'utf8',
+      //   ),
+      // },
       {
         path: `${dest}/services/index.ts`,
         content: fs.readFileSync(`${ORIGIN_PATH}/services/index.hbs`, 'utf8'),
@@ -175,10 +210,15 @@ async function main() {
         variableName,
         fileName,
         modelName,
+        importPath,
       });
 
       fs.writeFileSync(file.path, out);
     });
+
+    console.log(
+      `✅ Feature '${pluralizeText}' generated successfully at '${dest}'`,
+    );
   });
 }
 

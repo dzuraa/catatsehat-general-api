@@ -1,10 +1,10 @@
 import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
-import { {{className}}Repository, type Filter } from 'src/app/{{fileName}}/repositories';
-import { {{className}}Service } from 'src/app/{{fileName}}/services';
+import { {{className}}Repository, type Filter } from '{{importPath}}/repositories';
+import { {{className}}Service } from '{{importPath}}/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
-import { Create{{className}}Dto, Update{{className}}Dto } from 'src/app/{{fileName}}/dtos';
+import { Create{{className}}Dto, Update{{className}}Dto } from '{{importPath}}/dtos';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('{{className}}')
