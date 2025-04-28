@@ -9,7 +9,7 @@ const DEST_PATH = (mod) => cwd() + '/src/app/' + mod;
 const ORIGIN_PATH = cwd() + '/scripts/generators/resources';
 const FOLDERS = [
   'controllers/http',
-  'controllers/microservice',
+  // 'controllers/microservice',
   'dtos',
   'entities',
   'repositories',
@@ -126,13 +126,13 @@ async function main() {
           'utf8',
         ),
       },
-      {
-        path: `${dest}/controllers/microservice/${fileName}.controller.ts`,
-        content: fs.readFileSync(
-          `${ORIGIN_PATH}/controllers/microservice/controller.hbs`,
-          'utf8',
-        ),
-      },
+      // {
+      //   path: `${dest}/controllers/microservice/${fileName}.controller.ts`,
+      //   content: fs.readFileSync(
+      //     `${ORIGIN_PATH}/controllers/microservice/controller.hbs`,
+      //     'utf8',
+      //   ),
+      // },
       {
         path: `${dest}/services/index.ts`,
         content: fs.readFileSync(`${ORIGIN_PATH}/services/index.hbs`, 'utf8'),
