@@ -49,13 +49,14 @@ const toCamelCase = (/** @type {string} */ str) => {
 
 const compile = (
   /** @type {string} */ content,
-  { className, variableName, fileName, modelName },
+  { className, variableName, fileName, modelName, importPath },
 ) => {
   const template = hbs.compile(content)({
     className: className,
     variableName: variableName,
     fileName: fileName,
     modelName,
+    importPath,
   });
   return template;
 };
@@ -113,12 +114,19 @@ async function main() {
       answers.model.charAt(0).toLowerCase() + answers.model.slice(1);
     const fileName = slugify(pluralizeText);
 
-    // Set destionation path
+    // Set destination path
     let basePath = '/src/app/';
     if (answers.isBaseModule) {
       basePath += `${answers.baseModule}/`;
     }
     const dest = cwd() + basePath + fileName;
+
+    // Create import path for templates
+    let importPath = 'src/app/';
+    if (answers.isBaseModule) {
+      importPath += `${answers.baseModule}/`;
+    }
+    importPath += fileName;
 
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
@@ -202,6 +210,7 @@ async function main() {
         variableName,
         fileName,
         modelName,
+        importPath,
       });
 
       fs.writeFileSync(file.path, out);
