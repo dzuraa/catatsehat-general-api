@@ -30,7 +30,8 @@ export class {{className}}HttpController {
       const data = await this.{{variableName}}Service.create(create{{className}}Dto);
       return new ResponseEntity({
         data,
-        message: 'success',
+        status: HttpStatus.CREATED,
+        message: 'Data created successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -43,7 +44,8 @@ export class {{className}}HttpController {
       const data = await this.{{variableName}}Service.paginate(paginateDto);
       return new ResponseEntity({
         data,
-        message: 'success',
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
@@ -57,7 +59,8 @@ export class {{className}}HttpController {
 
       return new ResponseEntity({
         data,
-        message: 'success',
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
@@ -70,7 +73,8 @@ export class {{className}}HttpController {
       const data = await this.{{variableName}}Service.destroy(id);
       return new ResponseEntity({
         data,
-        message: 'success',
+        status: HttpStatus.OK,
+        message: 'Data deleted successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -86,7 +90,8 @@ export class {{className}}HttpController {
       const data = await this.{{variableName}}Service.update(id, update{{className}}Dto);
       return new ResponseEntity({
         data,
-        message: 'success',
+        status: HttpStatus.OK,
+        message: 'Data updated successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
