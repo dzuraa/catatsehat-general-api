@@ -61,18 +61,20 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Test
+## Project Structure
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
+src/
+└── app/
+    └── <module-name>/
+        ├── controller/         # Handle route & HTTP Request
+        │   └── <module>.controller.ts
+        ├── dto/                # Structure & input validation (Data Transfer Objects)
+        │   └── *.dto.ts
+        ├── service/            # Business logic
+        │   └── <module>.service.ts
+        ├── repository/         # Database access / Prisma layer
+        │   └── <module>.repository.ts
+        └── <module>.module.ts  # Module declaration for NestJS
 
 ## Support
 
