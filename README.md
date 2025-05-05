@@ -62,7 +62,7 @@ $ pnpm run start:prod
 ```
 
 ## Project Structure
-
+```
 src/
 └── app/
     └── <module-name>/
@@ -75,6 +75,7 @@ src/
         ├── repository/         # Database access / Prisma layer
         │   └── <module>.repository.ts
         └── <module>.module.ts  # Module declaration for NestJS
+```
 
 ## Support
 
