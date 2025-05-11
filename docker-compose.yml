@@ -3,6 +3,8 @@ services:
     container_name: catatsehat-dev
     image: yudhapwa/catat-sehat:dev
     pull_policy: always
+    ports:
+      - "3000:3005"
     env_file:
       - /home/wawan/catatsehat/.env.dev
     networks:

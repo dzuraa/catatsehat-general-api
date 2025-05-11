@@ -20,6 +20,7 @@ COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
 RUN pnpm db:generate
 RUN pnpm build
+RUN cp -R node_modules/.bin ./.bin
 RUN pnpm prune --prod --config.ignore-scripts=true
 
 FROM base AS deploy
@@ -29,6 +30,7 @@ COPY --from=build /app/dist/ ./dist/
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package.json ./
+COPY --from=build /app/.bin ./node_modules/.bin
 
 COPY scripts/cmd/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
