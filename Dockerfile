@@ -1,7 +1,7 @@
 FROM node:22-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:/app/node_modules/.bin:$PATH"
+ENV PATH="$PNPM_HOME:$PATH"
 ENV APP_PORT 3000
 
 RUN apk add --no-cache openssl
@@ -20,7 +20,8 @@ COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
 RUN pnpm db:generate
 RUN pnpm build
-RUN cp -R node_modules/.bin ./.bin
+RUN pnpm add prisma
+
 RUN pnpm prune --prod --config.ignore-scripts=true
 
 FROM base AS deploy
