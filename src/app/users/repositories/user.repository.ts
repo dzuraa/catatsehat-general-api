@@ -10,10 +10,11 @@ type Filter = {
   cursor?: Prisma.UserWhereUniqueInput;
   take?: number;
   skip?: number;
+  include?: Prisma.UserInclude;
 };
 
 @Injectable()
-export class UsersRepository {
+export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   public async paginate(paginateDto: PaginationQueryDto, filter?: Filter) {
@@ -24,6 +25,12 @@ export class UsersRepository {
         skip: (+page - 1) * +limit,
         take: +limit,
         ...filter,
+        // include: {
+        //   regency: true,
+        //   district: true,
+        //   province: true,
+        //   subDistrict: true,
+        // },
       }),
       this.prismaService.user.count(),
     ]);
@@ -43,7 +50,10 @@ export class UsersRepository {
     where: Prisma.UserWhereUniqueInput,
     data: Prisma.UserUpdateInput,
   ) {
-    return this.prismaService.user.update({ where, data });
+    return this.prismaService.user.update({
+      where,
+      data,
+    });
   }
 
   public async delete(where: Prisma.UserWhereUniqueInput) {
@@ -55,22 +65,47 @@ export class UsersRepository {
 
   public async first(
     where: Partial<Prisma.UserWhereUniqueInput>,
-    select?: Prisma.UserSelect,
+    include?: Prisma.UserInclude,
   ) {
-    return this.prismaService.user.findFirst({ where, select });
+    return this.prismaService.user.findFirst({
+      where,
+      include: {
+        Otp: {
+          take: 1,
+        },
+        ...include,
+      },
+    });
   }
 
   public async firstOrThrow(
     where: Partial<Prisma.UserWhereUniqueInput>,
-    select?: Prisma.UserSelect,
+    include?: Prisma.UserInclude,
   ) {
-    const data = await this.prismaService.user.findFirst({ where, select });
-    if (!data) throw new Error('data.not_found');
+    const data = await this.prismaService.user.findFirst({
+      where,
+      include: {
+        Otp: {
+          take: 1,
+        },
+        ...include,
+      },
+    });
+    if (!data) throw new Error('err.not_found');
     return data;
   }
 
   public async find(filter: Omit<Filter, 'include'>) {
     return this.prismaService.user.findMany(filter);
+  }
+
+  public async findUniqueOrThrow(
+    where: Prisma.UserWhereUniqueInput,
+    select?: Prisma.UserSelect,
+  ) {
+    const data = await this.prismaService.user.findUnique({ where, select });
+    if (!data) throw new Error('err.not_found');
+    return data;
   }
 
   public async count(filter: Omit<Filter, 'include'>) {

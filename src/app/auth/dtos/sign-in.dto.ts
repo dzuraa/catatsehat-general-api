@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsPhoneNumber,
+  IsString,
+  Length,
+} from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class SignInDto {
@@ -7,17 +13,30 @@ export class SignInDto {
   @IsString({
     message: i18nValidationMessage('validation.string'),
   })
-  @IsEmail(
+  @IsNumberString(
     {},
     {
-      message: i18nValidationMessage('validation.email'),
+      message: i18nValidationMessage('validation.numberString'),
     },
   )
-  email: string;
+  @IsPhoneNumber('ID', {
+    message: i18nValidationMessage('validation.phoneNumber'),
+  })
+  @Length(10, 15, {
+    message: i18nValidationMessage('validation.length', { min: 8, max: 13 }),
+  })
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.notEmpty'),
+  })
+  phone: string;
 
   @ApiProperty()
-  @IsString({
-    message: i18nValidationMessage('validation.string'),
+  @IsString()
+  @Length(6, 6, {
+    message: 'err.pin_length',
   })
-  password: string;
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.notEmpty'),
+  })
+  pin: string;
 }

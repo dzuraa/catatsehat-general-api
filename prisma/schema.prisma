@@ -10,14 +10,146 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String  @id @default(uuid())
-  email    String
-  username String
-  fullName String?
-  password String
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
 
-  deletedAt DateTime?
+enum FileType {
+  IMAGE
+  DOCUMENT
+}
+
+enum AdminType {
+  SUPER_ADMIN
+  KADER
+}
+
+model User {
+  id           String     @id @unique @default(uuid())
+  name         String
+  phone        String
+  pin          String
+  address      String?
+  dateOfBirth  DateTime?
+  placeOfBirth String?
+  status       UserStatus @default(INACTIVE)
+
+  userPictureId String?
+  userPicture   File?   @relation(fields: [userPictureId], references: [id])
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Otp Otp[]
+}
+
+model Admin {
+  id       String    @id @unique @default(uuid())
+  name     String
+  email    String
+  password String
+  phone    String
+  type     AdminType
+
+  healthPostId String
+  healthPost   HealthPost @relation(fields: [healthPostId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Otp Otp[]
+}
+
+model HealthPost {
+  id      String @id @unique @default(uuid())
+  name    String
+  address String
+
+  subDistrictId String
+  subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Admin Admin[]
+}
+
+model SubDistrict {
+  id   String @id @unique @default(uuid())
+  name String
+
+  districtId String
+  district   District @relation(fields: [districtId], references: [id])
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  HealthPost HealthPost[]
+}
+
+model District {
+  id   String @id @unique @default(uuid())
+  name String
+
+  regencyId String
+  regency   Regency @relation(fields: [regencyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SubDistrict SubDistrict[]
+}
+
+model Regency {
+  id   String @id @unique @default(uuid())
+  name String
+
+  provinceId String
+  province   Province @relation(fields: [provinceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  District District[]
+}
+
+model Province {
+  id   String @id @unique @default(uuid())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Regency Regency[]
+}
+
+model File {
+  id       String   @id @unique @default(uuid())
+  fileName String
+  path     String
+  mimeType String
+  size     Int
+  type     FileType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User[]
+}
+
+model Otp {
+  id  String @id @unique @default(uuid())
+  otp String
+
+  userId  String?
+  user    User?   @relation(fields: [userId], references: [id])
+  adminId String?
+  admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  isVerified Boolean  @default(false)
 }
