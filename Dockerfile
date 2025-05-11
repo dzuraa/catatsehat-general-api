@@ -1,8 +1,10 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV APP_PORT 3000
+
+RUN apk add --no-cache openssl
 RUN corepack enable
 
 FROM base AS dependencies
@@ -25,7 +27,9 @@ FROM base AS deploy
 WORKDIR /app
 COPY --from=build /app/dist/ ./dist/
 COPY --from=build /app/node_modules ./node_modules
-COPY prisma ./prisma
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/package.json ./
+
 COPY scripts/cmd/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
