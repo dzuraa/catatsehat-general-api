@@ -20,7 +20,7 @@ FROM base AS build
 WORKDIR /app
 COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
-# RUN pnpm db:generate
+# RUN pnpm db:generate #
 RUN pnpm build
 RUN pnpm prune --prod --config.ignore-scripts=true
 
