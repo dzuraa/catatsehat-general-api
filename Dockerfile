@@ -1,7 +1,7 @@
 FROM node:22-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PATH="$PNPM_HOME:/app/node_modules/.bin:$PATH"
 ENV APP_PORT 3000
 
 RUN apk add --no-cache openssl
