@@ -26,21 +26,26 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto): Promise<{
     token?: string;
-    user?: User;
+    user: Pick<User, 'id' | 'name' | 'phone' | 'status'>;
   }> {
     const user = await this.userRepository.firstOrThrow({
       phone: signInDto.phone,
       deletedAt: null,
     });
-    if (!user) throw new Error('err.user_not_found');
-    if (user.phone != signInDto.phone) throw new Error('err.user_not_found');
+
     if (!verifySync(signInDto.pin, user.pin))
       throw new Error('err.pin_is_incorrect');
+
+    const userResponse: Pick<User, 'id' | 'name' | 'phone' | 'status'> = pick(
+      user,
+      ['id', 'name', 'phone', 'status'],
+    );
+
     if (user.status === 'INACTIVE') {
       // const otp = generateOtp();
       const otp = '123456'; // For testing purposes, use a fixed OTP
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
-      const otpData = await this.otpRepository.createOtp(
+      const userOtp = await this.otpRepository.createOtp(
         user.id,
         otp,
         expiresAt,
@@ -52,7 +57,7 @@ export class AuthService {
         {
           Otp: {
             connect: {
-              id: otpData.id,
+              id: userOtp.id,
             },
           },
         },
@@ -73,14 +78,9 @@ export class AuthService {
       expiresIn: ENV.JWT_EXPIRES_IN,
     });
 
-    const userPick: Pick<User, 'id' | 'name' | 'phone' | 'status'> = pick(
-      user,
-      ['id', 'name', 'phone', 'status'],
-    );
-
     return {
       token,
-      user: userPick as User,
+      user: userResponse,
     };
   }
 

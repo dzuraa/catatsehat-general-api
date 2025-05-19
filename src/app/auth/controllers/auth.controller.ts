@@ -34,10 +34,14 @@ export class AuthController {
   async signIn(@Body() createAuthDto: SignInDto) {
     try {
       const data = await this.authService.signIn(createAuthDto);
+      const message =
+        data.user.status === 'INACTIVE'
+          ? 'User inactive, proceed to registration'
+          : 'Sign in success';
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
-        message: 'sign in success',
+        message,
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
