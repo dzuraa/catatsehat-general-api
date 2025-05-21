@@ -56,7 +56,7 @@ jobs:
             cd /home/emokids/tugas-akhir/catatsehat/tmp
 
             echo "🚀 Deploy stack..."
-            docker stack deploy -c catatsehat-stack.yml catatsehat
+            docker stack deploy --with-registry-auth -c catatsehat-stack.yml catatsehat
 
             echo "🧹 Membersihkan image yang tidak terpakai..."
             docker image prune -af --filter "label!=keep"
