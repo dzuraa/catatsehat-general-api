@@ -4,8 +4,9 @@ services:
     image: yudhapwa/catat-sehat:dev
     ports:
       - "8081:3000"
-    env_file:
-      - /home/emokids/tugas-akhir/catatsehat/.env.dev
+    configs:
+      - source: catatsehat-envdev
+        target: /app/.env
     networks:
       - minio-network
       - postgres-network
