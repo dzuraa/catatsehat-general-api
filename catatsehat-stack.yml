@@ -1,23 +1,17 @@
 services:
   catatsehat:
+    container_name: catatsehat-dev
     image: yudhapwa/catat-sehat:dev
+    restart: unless-stopped
     ports:
       - "8081:3000"
-    configs:
-      - source: catatsehat-envdev
-        target: /app/.env
-        mode: 0444
+    secrets:
+      - catatsehat-secret
     networks:
       - minio-network
       - postgres-network
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
-      restart_policy:
-        condition: on-failure
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -27,7 +21,6 @@ networks:
   minio-network:
     name: minio-network
     external: true
-
   postgres-network:
     name: postgres-network
     external: true
