@@ -55,9 +55,6 @@ jobs:
           script: |
             cd /home/emokids/tugas-akhir/catatsehat/tmp
 
-            echo "✅ Pull image terbaru..."
-            docker pull yudhapwa/catat-sehat:dev
-
             echo "🚀 Deploy stack..."
             docker stack deploy -c catatsehat-stack.yml catatsehat
 
