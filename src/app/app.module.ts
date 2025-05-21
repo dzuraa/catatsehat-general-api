@@ -3,10 +3,10 @@ import { UsersModule } from './users/users.module';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthModule } from './auth';
-import { SubdistrictModule } from './subdistrict';
-import { DistrictModule } from './district';
-import { RegencyModule } from './regency';
-import { ProvinceModule } from './province';
+import { SubdistrictModule } from './region/subdistrict';
+import { DistrictModule } from './region/district';
+import { RegencyModule } from './region/regency';
+import { ProvinceModule } from './region/province';
 
 @ApiTags('App Spec')
 @Controller()

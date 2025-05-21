@@ -6,7 +6,7 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { RegencyService } from 'src/app/regency/services';
+import { RegencyService } from '../../services';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { RegencyFilterDto } from '../../dtos';

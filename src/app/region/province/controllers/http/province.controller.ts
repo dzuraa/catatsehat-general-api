@@ -6,23 +6,23 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { DistrictService } from 'src/app/district/services';
+import { ProvinceService } from '../../services';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { ApiTags } from '@nestjs/swagger';
-import { DistrictFilterDto } from '../../dtos';
+import { ProvinceFilterDto } from '../../dtos';
 
-@ApiTags('[API Region] District')
+@ApiTags('[API Region] Province')
 @Controller({
-  path: 'district',
+  path: 'province',
   version: '1',
 })
-export class DistrictHttpController {
-  constructor(private readonly districtService: DistrictService) {}
+export class ProvinceHttpController {
+  constructor(private readonly provinceService: ProvinceService) {}
 
   @Get()
-  public async index(@Query() districtFilterDto: DistrictFilterDto) {
+  public async index(@Query() provinceFilterDto: ProvinceFilterDto) {
     try {
-      const data = await this.districtService.findMany(districtFilterDto);
+      const data = await this.provinceService.findMany(provinceFilterDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -36,7 +36,7 @@ export class DistrictHttpController {
   @Get(':id')
   public async detail(@Param('id') id: string) {
     try {
-      const data = await this.districtService.detail(id);
+      const data = await this.provinceService.detail(id);
 
       return new ResponseEntity({
         data,
