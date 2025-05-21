@@ -55,8 +55,8 @@ jobs:
           script: |
             cd /home/emokids/tugas-akhir/catatsehat/tmp
 
-            docker compose down
+            docker stack deploy -c catatsehat-stack.yml catatsehat
+            
             docker rmi -f yudhapwa/catat-sehat:dev
-            docker compose up -d
 
             rm -rf /home/emokids/tugas-akhir/catatsehat/tmp/*

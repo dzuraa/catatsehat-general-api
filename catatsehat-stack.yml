@@ -10,7 +10,12 @@ services:
     networks:
       - minio-network
       - postgres-network
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
       interval: 30s
