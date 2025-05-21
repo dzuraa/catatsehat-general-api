@@ -1,12 +1,12 @@
 services:
-  app-dev:
-    container_name: catatsehat-dev
+  catatsehat:
     image: yudhapwa/catat-sehat:dev
     ports:
       - "8081:3000"
     configs:
       - source: catatsehat-envdev
         target: /app/.env
+        mode: 0444
     networks:
       - minio-network
       - postgres-network
