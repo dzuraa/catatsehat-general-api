@@ -1,6 +1,5 @@
 services:
   catatsehat:
-    container_name: catatsehat-dev
     image: yudhapwa/catat-sehat:dev
     restart: unless-stopped
     ports:
