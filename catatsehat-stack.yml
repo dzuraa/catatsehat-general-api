@@ -4,8 +4,10 @@ services:
     restart: unless-stopped
     ports:
       - "8081:3000"
-    secrets:
-      - catatsehat-secret
+    # secrets:
+    #   - catatsehat-secret
+    env_file:
+      - /home/emokids/tugas-akhir/catatsehat/.env.dev
     networks:
       - minio-network
       - postgres-network
