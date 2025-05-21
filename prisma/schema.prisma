@@ -53,8 +53,8 @@ model Admin {
   phone    String
   type     AdminType
 
-  healthPostId String
-  healthPost   HealthPost @relation(fields: [healthPostId], references: [id])
+  healthPostId String?
+  healthPost   HealthPost? @relation(fields: [healthPostId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
