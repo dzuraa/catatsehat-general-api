@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { AppModule } from './app/app.module';
 import { DatabaseModule } from './platform/database/database.module';
-import { I18nModule } from 'nestjs-i18n';
+import { I18nModule, HeaderResolver } from 'nestjs-i18n';
 import { join } from 'path';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/exception.filter';
@@ -17,6 +17,7 @@ import { HttpExceptionFilter } from './common/filters/exception.filter';
         path: join(__dirname, '/i18n/'),
         watch: true,
       },
+      resolvers: [new HeaderResolver(['x-lang'])],
     }),
   ],
   controllers: [],
