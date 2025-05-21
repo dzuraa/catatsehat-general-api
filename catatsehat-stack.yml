@@ -5,7 +5,7 @@ services:
     ports:
       - "8081:3000"
     env_file:
-      - /home/wawan/catatsehat/.env.dev
+      - /home/emokids/tugas-akhir/catatsehat/.env.dev
     networks:
       - minio-network
       - postgres-network
