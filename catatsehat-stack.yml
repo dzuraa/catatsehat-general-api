@@ -1,7 +1,18 @@
 services:
   catatsehat:
     image: yudhapwa/catat-sehat:dev
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
     ports:
       - "8081:3000"
     env_file:
