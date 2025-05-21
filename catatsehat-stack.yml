@@ -14,7 +14,7 @@ services:
         parallelism: 1
         delay: 10s
     ports:
-      - "8081:3000"
+      - "8080:3000"
     env_file:
       - /home/emokids/tugas-akhir/catatsehat/.env.dev
     networks:
@@ -23,8 +23,6 @@ services:
 
 networks:
   minio-network:
-    name: minio-network
     external: true
   postgres-network:
-    name: postgres-network
     external: true
