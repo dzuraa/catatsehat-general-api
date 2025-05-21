@@ -6,23 +6,23 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ProvinceService } from 'src/app/province/services';
+import { SubdistrictService } from '../../services';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { SubDistrictFilterDto } from '../../dtos';
 import { ApiTags } from '@nestjs/swagger';
-import { ProvinceFilterDto } from '../../dtos';
 
-@ApiTags('[API Region] Province')
+@ApiTags('[API Region] Sub District')
 @Controller({
-  path: 'province',
+  path: 'subDistrict',
   version: '1',
 })
-export class ProvinceHttpController {
-  constructor(private readonly provinceService: ProvinceService) {}
+export class SubdistrictHttpController {
+  constructor(private readonly subDistrictService: SubdistrictService) {}
 
   @Get()
-  public async index(@Query() provinceFilterDto: ProvinceFilterDto) {
+  public async index(@Query() subDistrictFilterDto: SubDistrictFilterDto) {
     try {
-      const data = await this.provinceService.findMany(provinceFilterDto);
+      const data = await this.subDistrictService.findMany(subDistrictFilterDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -36,12 +36,11 @@ export class ProvinceHttpController {
   @Get(':id')
   public async detail(@Param('id') id: string) {
     try {
-      const data = await this.provinceService.detail(id);
+      const data = await this.subDistrictService.detail(id);
 
       return new ResponseEntity({
         data,
-        status: HttpStatus.OK,
-        message: 'Data fetched successfully',
+        message: 'success',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
