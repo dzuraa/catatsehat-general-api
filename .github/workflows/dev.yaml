@@ -41,8 +41,9 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.PORT }}
           source: "."
-          target: "/home/wawan/catatsehat/tmp"
+          target: "/home/emokids/tugas-akhir/catatsehat/tmp"
 
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.0
@@ -51,10 +52,10 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /home/wawan/catatsehat/tmp
+            cd /home/emokids/tugas-akhir/catatsehat/tmp
 
             docker compose down
             docker rmi -f yudhapwa/catat-sehat:dev
             docker compose up -d
 
-            rm -rf /home/wawan/catatsehat/tmp/*
+            rm -rf /home/emokids/tugas-akhir/catatsehat/tmp/*
