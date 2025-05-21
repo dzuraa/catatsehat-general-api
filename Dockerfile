@@ -5,7 +5,12 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 ENV APP_PORT=3000
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache \
+    libstdc++ \
+    libcrypto1.1 \
+    libssl1.1 \
+    openssl
+
 RUN corepack enable
 
 WORKDIR /app
