@@ -55,8 +55,14 @@ jobs:
           script: |
             cd /home/emokids/tugas-akhir/catatsehat/tmp
 
-            docker stack deploy -c catatsehat-stack.yml catatsehat
-            
-            docker rmi -f yudhapwa/catat-sehat:dev
+            echo "✅ Pull image terbaru..."
+            docker pull yudhapwa/catat-sehat:dev
 
+            echo "🚀 Deploy stack..."
+            docker stack deploy -c catatsehat-stack.yml catatsehat
+
+            echo "🧹 Membersihkan image yang tidak terpakai..."
+            docker image prune -af --filter "label!=keep"
+
+            echo "🗑️ Hapus sementara file pipeline..."
             rm -rf /home/emokids/tugas-akhir/catatsehat/tmp/*

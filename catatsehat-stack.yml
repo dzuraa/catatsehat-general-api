@@ -2,7 +2,6 @@ services:
   app-dev:
     container_name: catatsehat-dev
     image: yudhapwa/catat-sehat:dev
-    pull_policy: always
     ports:
       - "8081:3000"
     env_file:
