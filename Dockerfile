@@ -31,9 +31,6 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package.json ./
 
-COPY scripts/cmd/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT ["node dist/main.js"]
 
 EXPOSE 3000
