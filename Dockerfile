@@ -1,50 +1,36 @@
-# Base image 
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 ENV APP_PORT=3000
 
-RUN apk add --no-cache \
-    libstdc++ \
-    libcrypto1.1 \
-    libssl1.1 \
-    openssl
-
-RUN corepack enable
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    curl \
+    && corepack enable \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . .
 
-# Dependencies Layer (install dependencies + generate Prisma Client)
 FROM base AS dependencies
-
 WORKDIR /app
-COPY package.json pnpm-lock.yaml prisma ./ 
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm prisma generate  # generate Prisma Client dengan binaryTarget linux-musl
+COPY package.json pnpm-lock.yaml prisma ./
+RUN pnpm install --frozen-lockfile
+RUN pnpm prisma generate
 
-# Build Layer
 FROM base AS build
-
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=dependencies /app/prisma ./prisma
 COPY . .
 RUN pnpm build
 
-# Deploy Layer
-FROM node:22-alpine AS deploy
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="${PNPM_HOME}:${PATH}"
-ENV APP_PORT=3000
-
+FROM base AS deploy
 WORKDIR /app
-
 COPY --from=build /app/dist ./dist
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=base /app/package.json ./ 
+COPY --from=base /app/package.json ./
 COPY --from=base /app/prisma ./prisma
 
 EXPOSE 3000
