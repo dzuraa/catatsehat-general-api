@@ -14,7 +14,7 @@ services:
         parallelism: 1
         delay: 10s
     ports:
-      - "8082:3000"
+      - "5000:3000"
     env_file:
       - /home/emokids/tugas-akhir/catatsehat/.env.dev
     networks:
