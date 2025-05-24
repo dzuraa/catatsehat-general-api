@@ -82,6 +82,7 @@ model Admin {
 
   Otp            Otp[]
   CheckupElderly CheckupElderly[]
+  Article        Article[]
 }
 
 model Elderly {
@@ -98,13 +99,37 @@ model Elderly {
 
   user User? @relation(fields: [userId], references: [id])
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   CheckupElderly CheckupElderly[]
-  Otp     Otp[]
-  Article Article[]
+}
+
+model CheckupElderly {
+  id           String        @id @default(uuid())
+  height       Float
+  weight       Float
+  bmi          Float
+  bloodTension Float
+  bloodSugar   Float
+  attend       DateTime
+  month        Int?
+  bmiStatus    BMIStatus?
+  status       CheckupStatus @default(UNVERIFIED)
+
+  adminId           String?
+  elderlyId         String?
+  healthPostId      String?
+  lungsConclutionId String?
+
+  healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
+  admin      Admin?      @relation(fields: [adminId], references: [id])
+  elderly    Elderly?    @relation(fields: [elderlyId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model Article {
@@ -146,6 +171,7 @@ model SubDistrict {
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+  
   HealthPost HealthPost[]
 }
 
@@ -211,30 +237,4 @@ model Otp {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   isVerified Boolean  @default(false)
-}
-
-model CheckupElderly {
-  id           String        @id @default(uuid())
-  height       Float
-  weight       Float
-  bmi          Float
-  bloodTension Float
-  bloodSugar   Float
-  attend       DateTime
-  month        Int?
-  bmiStatus    BMIStatus?
-  status       CheckupStatus @default(UNVERIFIED)
-
-  adminId           String?
-  elderlyId         String?
-  healthPostId      String?
-  lungsConclutionId String?
-
-  healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
-  admin      Admin?      @relation(fields: [adminId], references: [id])
-  elderly    Elderly?    @relation(fields: [elderlyId], references: [id])
-
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-  deletedAt DateTime?
 }
