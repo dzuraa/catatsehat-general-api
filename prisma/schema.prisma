@@ -103,6 +103,22 @@ model Elderly {
   deletedAt DateTime?
 
   CheckupElderly CheckupElderly[]
+  Otp     Otp[]
+  Article Article[]
+}
+
+model Article {
+  id        String @id @unique @default(uuid())
+  title     String
+  newsMaker String
+  content   String
+
+  adminId String?
+  admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model HealthPost {
