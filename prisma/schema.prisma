@@ -25,6 +25,23 @@ enum AdminType {
   SUPER_ADMIN
   KADER
 }
+enum BMIStatus {
+  MALNUTRITION
+  UNDERNUTRITION
+  NORMAL
+  OVERWEIGHT
+  OBESITY
+}
+
+enum CheckupStatus {
+  VERIFIED
+  UNVERIFIED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
 
 model User {
   id           String     @id @unique @default(uuid())
@@ -44,6 +61,7 @@ model User {
   deletedAt DateTime?
 
   Otp Otp[]
+  Elderly Elderly[]
 }
 
 model Admin {
@@ -61,7 +79,30 @@ model Admin {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  Otp            Otp[]
+  CheckupElderly CheckupElderly[]
+}
+model Elderly {
+  id           String   @id @unique @default(uuid())
+  userId       String
+  name         String
+  gender       Gender
+  dateOfBirth  DateTime
+  placeOfBirth String
+  age          Int?
+  childOrder   Int
+  bloodType    String?
+  address      String?
+
+
+  user                User? @relation(fields: [userId], references: [id])
   Otp Otp[]
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  CheckupElderly CheckupElderly[]
 }
 
 model HealthPost {
@@ -77,6 +118,7 @@ model HealthPost {
   deletedAt DateTime?
 
   Admin Admin[]
+  CheckupElderly CheckupElderly[]
 }
 
 model SubDistrict {
@@ -153,4 +195,29 @@ model Otp {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   isVerified Boolean  @default(false)
+}
+model CheckupElderly {
+  id           String        @id @default(uuid())
+  height       Float
+  weight       Float
+  bmi          Float
+  bloodTension Float
+  bloodSugar   Float
+  attend       DateTime
+  month        Int?
+  bmiStatus    BMIStatus?
+  status       CheckupStatus @default(UNVERIFIED)
+
+  adminId           String?
+  elderlyId         String?
+  healthPostId      String?
+  lungsConclutionId String?
+
+  healthPost    HealthPost? @relation(fields: [healthPostId], references: [id])
+  admin         Admin?      @relation(fields: [adminId], references: [id])
+  elderly       Elderly?    @relation(fields: [elderlyId], references: [id])
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
 }
