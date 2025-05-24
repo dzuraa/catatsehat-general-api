@@ -8,16 +8,20 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from '../services';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { SignInDto } from '../dtos/sign-in.dto';
+import { Admin, User as Auth } from '@prisma/client';
 import { ResponseEntity } from '@src/common/entities/response.entity';
-import { AuthGuard } from '../guards';
-import { User } from '../decorators';
-import { User as Auth } from '@prisma/client';
-import { SignUpDto } from '../dtos';
-import { VerifyOtpDto } from '../dtos/verify-otp.dto';
-import { AccountRegistrationDto } from '../dtos/account-regis.dto';
+import { AdminGuard, AuthGuard } from '../guards';
+import { AuthService, AuthAdminService } from '../services';
+import { AdminDecorator, UserDecorator } from '../decorators';
+import {
+  SignInDto,
+  SignInAdminDto,
+  SignUpDto,
+  VerifyOtpDto,
+  AccountRegistrationDto,
+  ChangePinDto,
+} from '../dtos';
 
 @ApiTags('[USER] Auth')
 @Controller({
@@ -71,13 +75,9 @@ export class AuthController {
   @ApiSecurity('JWT')
   @UseGuards(AuthGuard)
   @Post('verify-otp')
-  async otpVerify(
-    @User() user: Auth, // Access the request object to get user information
-    @Body() body: VerifyOtpDto, // Contains only the OTP
-  ) {
+  async otpVerify(@UserDecorator() user: Auth, @Body() body: VerifyOtpDto) {
     try {
-      const data = await this.authService.verifyOtp(user.id, body.otp); // Pass user ID and OTP
-      console.log(data);
+      const data = await this.authService.verifyOtp(user.id, body.otp);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -98,18 +98,17 @@ export class AuthController {
     summary: 'Resend OTP',
   })
   @ApiSecurity('JWT')
-  @UseGuards(AuthGuard) // Use the AuthGuard to ensure the user is authenticated
+  @UseGuards(AuthGuard)
   @Post('resend-otp')
-  async resendOtp(@User() user: Auth) {
+  async resendOtp(@UserDecorator() user: Auth) {
     try {
-      const data = await this.authService.resendOtp(user); // Pass the user object directly
+      const data = await this.authService.resendOtp(user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
         message: 'succ.otp_resend',
       });
     } catch (error) {
-      console.error('Error resending OTP:', error); // Log the error for debugging
       throw new HttpException(
         new ResponseEntity({
           message: error.message,
@@ -120,11 +119,11 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @ApiSecurity('JWT')
+  @UseGuards(AuthGuard)
   @Put('account-registration')
   public async update(
-    @User() user: Auth,
+    @UserDecorator() user: Auth,
     @Body() accountRegistrationDto: AccountRegistrationDto,
   ) {
     try {
@@ -144,9 +143,68 @@ export class AuthController {
 
   @ApiSecurity('JWT')
   @UseGuards(AuthGuard)
+  @Put('change-pin')
+  public async changePin(
+    @UserDecorator() user: Auth,
+    @Body() changePinDto: ChangePinDto,
+  ) {
+    console.log(user);
+    try {
+      const data = await this.authService.changePin(user.id, changePinDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Pin changed successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ApiSecurity('JWT')
+  @UseGuards(AuthGuard)
   @Get('profile')
-  async profile(@User() user: Auth) {
+  async profile(@UserDecorator() user: Auth) {
     const data = await this.authService.profile(user);
+
+    return new ResponseEntity({
+      data,
+      status: HttpStatus.OK,
+      message: 'Data fetched successfully',
+    });
+  }
+}
+
+@ApiTags('[ADMIN] Auth')
+@Controller({
+  path: 'admin/auth',
+  version: '1',
+})
+export class AuthAdminController {
+  constructor(private readonly authAdminService: AuthAdminService) {}
+
+  @Post('sign-in')
+  @ApiOperation({
+    summary: 'Admin Sign in',
+  })
+  async signInAdmin(@Body() signInAdminDto: SignInAdminDto) {
+    try {
+      const data = await this.authAdminService.signIn(signInAdminDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'admin signed in successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  @ApiSecurity('JWT')
+  @UseGuards(AdminGuard)
+  @Get('profile')
+  async profileAdmin(@AdminDecorator() admin: Admin) {
+    const data = await this.authAdminService.profile(admin);
 
     return new ResponseEntity({
       data: data,
