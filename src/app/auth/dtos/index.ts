@@ -1,2 +1,6 @@
 export * from './sign-in.dto';
+export * from './sign-in-admin.dto';
 export * from './sign-up.dto';
+export * from './verify-otp.dto';
+export * from './account-regis.dto';
+export * from './change-pin.dto';

@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { AuthController } from './controllers';
+import { AuthAdminController, AuthController } from './controllers';
 import { AuthService, ZenzivaService } from './services';
 import { UsersModule } from '../users';
 import { JwtModule } from '@nestjs/jwt';
@@ -7,10 +7,13 @@ import { AuthGuard } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { OtpModule } from '../otp';
 import { AdminGuard } from './guards/admin.guard';
+import { AuthAdminService } from './services/auth-admin.service';
+import { AdminModule } from '../admin';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
+    forwardRef(() => AdminModule),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -19,8 +22,14 @@ import { AdminGuard } from './guards/admin.guard';
     HttpModule,
     OtpModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, AuthGuard, AdminGuard, ZenzivaService],
-  exports: [AuthGuard],
+  controllers: [AuthController, AuthAdminController],
+  providers: [
+    AuthService,
+    AuthAdminService,
+    AuthGuard,
+    AdminGuard,
+    ZenzivaService,
+  ],
+  exports: [AuthGuard, AdminGuard],
 })
 export class AuthModule {}

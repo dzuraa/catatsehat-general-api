@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from 'src/app/users/services';
-import { SignInDto } from '../dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Otp, Prisma, User } from '@prisma/client';
-import { SignUpDto } from '../dtos';
 import { generateOtp } from '@src/common/functions/otp.function';
 import { hashSync, verifySync } from '@node-rs/bcrypt';
 import { JwtPayload } from 'jsonwebtoken';
 import { ENV } from '@src/config/env';
-import { pick } from 'lodash';
+import { omit, pick } from 'lodash';
 import { ZenzivaService } from './zenziva.service';
-import { UserRepository } from '@src/app/users/repositories';
-import { OtpRepository } from '@src/app/otp/repositories';
-import { AccountRegistrationDto } from '../dtos/account-regis.dto';
+import { UsersService } from '@app/users/services';
+import { UserRepository } from '@app/users/repositories';
+import { OtpRepository } from '@app/otp/repositories';
+import {
+  SignUpDto,
+  SignInDto,
+  AccountRegistrationDto,
+  ChangePinDto,
+} from '../dtos';
 
 @Injectable()
 export class AuthService {
@@ -26,21 +29,26 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto): Promise<{
     token?: string;
-    user?: User;
+    user: Pick<User, 'id' | 'name' | 'phone' | 'status'>;
   }> {
     const user = await this.userRepository.firstOrThrow({
       phone: signInDto.phone,
       deletedAt: null,
     });
-    if (!user) throw new Error('err.user_not_found');
-    if (user.phone != signInDto.phone) throw new Error('err.user_not_found');
+
     if (!verifySync(signInDto.pin, user.pin))
       throw new Error('err.pin_is_incorrect');
+
+    const userResponse: Pick<User, 'id' | 'name' | 'phone' | 'status'> = pick(
+      user,
+      ['id', 'name', 'phone', 'status'],
+    );
+
     if (user.status === 'INACTIVE') {
       // const otp = generateOtp();
       const otp = '123456'; // For testing purposes, use a fixed OTP
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
-      const otpData = await this.otpRepository.createOtp(
+      const userOtp = await this.otpRepository.createOtp(
         user.id,
         otp,
         expiresAt,
@@ -52,7 +60,7 @@ export class AuthService {
         {
           Otp: {
             connect: {
-              id: otpData.id,
+              id: userOtp.id,
             },
           },
         },
@@ -73,14 +81,9 @@ export class AuthService {
       expiresIn: ENV.JWT_EXPIRES_IN,
     });
 
-    const userPick: Pick<User, 'id' | 'name' | 'phone' | 'status'> = pick(
-      user,
-      ['id', 'name', 'phone', 'status'],
-    );
-
     return {
       token,
-      user: userPick as User,
+      user: userResponse,
     };
   }
 
@@ -150,13 +153,58 @@ export class AuthService {
     }
   }
 
-  async profile(user: User): Promise<User> {
-    return this.userService.detail(user.id);
+  async profile(user: User): Promise<{
+    user: Omit<User, 'pin' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+  }> {
+    const userProfile = await this.userService.detail(user.id);
+    const userResponse = omit(userProfile, [
+      'pin',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ]);
+    return {
+      user: userResponse,
+    };
   }
 
-  async verifyOtp(userId: string, otp: string): Promise<{ user: User }> {
+  public async changePin(
+    userId: string,
+    changePinDto: ChangePinDto,
+  ): Promise<{ success: boolean }> {
+    const { currentPin, newPin } = changePinDto;
+    const user = await this.userRepository.findUniqueOrThrow({
+      id: userId,
+    });
+
+    // Verify the current password
+    const isPinValid = verifySync(currentPin, user.pin);
+    if (!isPinValid) {
+      throw new Error('err.current_pin_is_incorrect');
+    }
+
+    // Step 3: Check if the new password is the same as the current password
+    const isNewPinSame = verifySync(newPin, user.pin);
+    if (isNewPinSame) {
+      throw new Error('err.pin_is_same');
+    }
+
+    // Hash the new password
+    const hashedNewPin = hashSync(newPin, 10);
+
+    // Update the user's pin in the database
+    await this.userRepository.update({ id: userId }, { pin: hashedNewPin });
+    return {
+      success: true,
+    };
+  }
+
+  async verifyOtp(
+    userId: string,
+    otp: string,
+  ): Promise<{ user: Pick<User, 'id' | 'name' | 'phone' | 'status'> }> {
     // Lookup the user by ID
-    const userVerify = await this.userRepository.firstOrThrow(
+    const user = await this.userRepository.firstOrThrow(
       {
         id: userId,
         deletedAt: null,
@@ -207,18 +255,18 @@ export class AuthService {
       },
     );
 
-    // Return user data
-    const userPick: Pick<User, 'id' | 'phone' | 'name' | 'status'> = pick(
-      userVerify,
-      ['id', 'phone', 'name', 'status'],
-    );
+    // Return user for response
+    const userResponse = pick(user, ['id', 'phone', 'name', 'status']);
 
     return {
-      user: userPick as User,
+      user: userResponse,
     };
   }
 
-  async resendOtp(user: User): Promise<{ user: User; otpData: Otp }> {
+  async resendOtp(user: User): Promise<{
+    user: Pick<User, 'id' | 'name' | 'phone' | 'status'>;
+    otpData: Otp;
+  }> {
     // Generate new OTP
     const otp = generateOtp();
     // const otp = '123456';
@@ -265,8 +313,10 @@ export class AuthService {
     // Send OTP using Zenziva API
     await this.zenzivaService.sendOtpMessage(user.phone, otp);
 
+    const userResponse = pick(user, ['id', 'name', 'phone', 'status']);
+
     return {
-      user,
+      user: userResponse,
       otpData,
     };
   }

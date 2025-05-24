@@ -13,7 +13,7 @@ import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@app/auth';
+import { AuthGuard } from '../../auth';
 
 @ApiTags('Users')
 @ApiSecurity('JWT')

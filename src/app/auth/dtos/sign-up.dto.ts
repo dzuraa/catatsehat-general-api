@@ -7,7 +7,7 @@ import {
   Length,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { Match } from '../decorators/match-pin.decorator';
+import { Match } from '../decorators/match-constraint.decorator';
 
 export class SignUpDto {
   @ApiProperty()

@@ -8,18 +8,20 @@ import {
 
 @ValidatorConstraint({ async: false })
 export class MatchConstraint implements ValidatorConstraintInterface {
-  validate(value: string, args: ValidationArguments): boolean {
-    // Ambil nama properti terkait (contoh: 'password')
-    const [relatedPropertyName] = args.constraints;
-    // Ambil nilai properti terkait dari objek DTO (contoh: password)
-    const relatedValue = (args.object as { pin: string })[relatedPropertyName];
-    // Bandingkan nilai properti yang sedang divalidasi (repeatPassword) dengan nilai password
+  validate(value: any, args: ValidationArguments): boolean {
+    const [relatedPropertyName] = args.constraints; // misal 'newPin' atau 'password'
+    const relatedValue = (args.object as any)[relatedPropertyName]; // ambil nilai properti terkait
     return value === relatedValue;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints;
+    return `${args.property} must match ${relatedPropertyName}`;
   }
 }
 
 export function Match(property: string, validationOptions?: ValidationOptions) {
-  return function (object: object, propertyName: string): void {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
