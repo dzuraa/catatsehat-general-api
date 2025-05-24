@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl"]
 }
 
@@ -25,6 +25,7 @@ enum AdminType {
   SUPER_ADMIN
   KADER
 }
+
 enum BMIStatus {
   MALNUTRITION
   UNDERNUTRITION
@@ -60,7 +61,7 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp Otp[]
+  Otp     Otp[]
   Elderly Elderly[]
 }
 
@@ -82,6 +83,7 @@ model Admin {
   Otp            Otp[]
   CheckupElderly CheckupElderly[]
 }
+
 model Elderly {
   id           String   @id @unique @default(uuid())
   userId       String
@@ -94,9 +96,7 @@ model Elderly {
   bloodType    String?
   address      String?
 
-
-  user                User? @relation(fields: [userId], references: [id])
-  Otp Otp[]
+  user User? @relation(fields: [userId], references: [id])
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
@@ -117,7 +117,7 @@ model HealthPost {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Admin Admin[]
+  Admin          Admin[]
   CheckupElderly CheckupElderly[]
 }
 
@@ -196,6 +196,7 @@ model Otp {
   expiresAt  DateTime
   isVerified Boolean  @default(false)
 }
+
 model CheckupElderly {
   id           String        @id @default(uuid())
   height       Float
@@ -213,9 +214,9 @@ model CheckupElderly {
   healthPostId      String?
   lungsConclutionId String?
 
-  healthPost    HealthPost? @relation(fields: [healthPostId], references: [id])
-  admin         Admin?      @relation(fields: [adminId], references: [id])
-  elderly       Elderly?    @relation(fields: [elderlyId], references: [id])
+  healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
+  admin      Admin?      @relation(fields: [adminId], references: [id])
+  elderly    Elderly?    @relation(fields: [elderlyId], references: [id])
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
