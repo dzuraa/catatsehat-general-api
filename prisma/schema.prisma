@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl"]
 }
 
@@ -61,7 +61,22 @@ model Admin {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp Otp[]
+  Otp     Otp[]
+  Article Article[]
+}
+
+model Article {
+  id        String @id @unique @default(uuid())
+  title     String
+  newsMaker String
+  content   String
+
+  adminId String?
+  admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model HealthPost {
