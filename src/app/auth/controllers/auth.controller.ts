@@ -22,6 +22,9 @@ import {
   AccountRegistrationDto,
   ChangePinDto,
 } from '../dtos';
+import { RequestOtpDto } from '../dtos/request-otp.dto';
+import { ResetPinDto } from '../dtos/reset-pin.dto';
+import { ResetPassDto } from '../dtos/reset-pass.dto';
 
 @ApiTags('[USER] Auth')
 @Controller({
@@ -62,7 +65,7 @@ export class AuthController {
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
-        message: 'sign up success',
+        message: 'Sign up success',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
@@ -81,7 +84,7 @@ export class AuthController {
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
-        message: 'succ.otp_verified',
+        message: 'Otp verified successfully',
       });
     } catch (error) {
       throw new HttpException(
@@ -106,7 +109,7 @@ export class AuthController {
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
-        message: 'succ.otp_resend',
+        message: 'Otp resent successfully',
       });
     } catch (error) {
       throw new HttpException(
@@ -193,7 +196,7 @@ export class AuthAdminController {
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
-        message: 'admin signed in successfully',
+        message: 'Admin signed in successfully',
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
@@ -211,5 +214,105 @@ export class AuthAdminController {
       status: HttpStatus.OK,
       message: 'Data fetched successfully',
     });
+  }
+}
+
+@ApiTags('[USER] Forgot PIN')
+@Controller({
+  path: 'user/auth/forgot-pin',
+  version: '1',
+})
+export class ForgotPinController {
+  constructor(private readonly authService: AuthService) {}
+  @Post('request-otp')
+  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+    try {
+      await this.authService.requestForgotPinOtp(requestOtpDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Otp sent successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('resend-otp')
+  async resendOtp(@Body() requestOtpDto: RequestOtpDto) {
+    try {
+      await this.authService.resendForgotPinOtp(requestOtpDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Otp resent successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('reset-pin')
+  async resetPin(@Body() resetPinDto: ResetPinDto) {
+    try {
+      await this.authService.resetPin(resetPinDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Pin reset successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+}
+
+@ApiTags('[ADMIN] Forgot Password')
+@Controller({
+  path: 'admin/auth/forgot-password',
+  version: '1',
+})
+export class ForgotPasswordController {
+  constructor(private readonly authAdminService: AuthAdminService) {}
+  @Post('request-otp')
+  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+    try {
+      await this.authAdminService.requestForgotPasswordOtp(requestOtpDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Otp sent successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('resend-otp')
+  async resendOtp(@Body() requestOtpDto: RequestOtpDto) {
+    try {
+      await this.authAdminService.resendForgotPasswordOtp(requestOtpDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Otp resent successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPassDto: ResetPassDto) {
+    try {
+      await this.authAdminService.resetPassword(resetPassDto);
+      return new ResponseEntity({
+        status: HttpStatus.OK,
+        message: 'Password reset successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -60,10 +60,10 @@ export class AdminRepository {
   }
 
   public async first(
-    where: Prisma.AdminWhereUniqueInput,
+    where: Prisma.AdminWhereInput,
     select?: Prisma.AdminSelect,
   ) {
-    return this.prismaService.admin.findUnique({ where, select });
+    return this.prismaService.admin.findFirst({ where, select });
   }
 
   public async firstOrThrow(
@@ -71,6 +71,15 @@ export class AdminRepository {
     select?: Prisma.AdminSelect,
   ) {
     const data = await this.prismaService.admin.findFirst({ where, select });
+    if (!data) throw new Error('data.not_found');
+    return data;
+  }
+
+  public async findUniqueOrThrow(
+    where: Prisma.AdminWhereUniqueInput,
+    select?: Prisma.AdminSelect,
+  ) {
+    const data = await this.prismaService.admin.findUnique({ where, select });
     if (!data) throw new Error('data.not_found');
     return data;
   }

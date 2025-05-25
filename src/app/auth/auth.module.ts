@@ -1,5 +1,10 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { AuthAdminController, AuthController } from './controllers';
+import {
+  AuthAdminController,
+  AuthController,
+  ForgotPasswordController,
+  ForgotPinController,
+} from './controllers';
 import { AuthService, ZenzivaService } from './services';
 import { UsersModule } from '../users';
 import { JwtModule } from '@nestjs/jwt';
@@ -22,7 +27,12 @@ import { AdminModule } from '../admin';
     HttpModule,
     OtpModule,
   ],
-  controllers: [AuthController, AuthAdminController],
+  controllers: [
+    AuthAdminController,
+    AuthController,
+    ForgotPasswordController,
+    ForgotPinController,
+  ],
   providers: [
     AuthService,
     AuthAdminService,

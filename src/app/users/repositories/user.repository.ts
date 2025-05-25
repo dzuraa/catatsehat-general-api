@@ -108,6 +108,13 @@ export class UserRepository {
     return data;
   }
 
+  public async findUnique(
+    where: Prisma.UserWhereUniqueInput,
+    select?: Prisma.UserSelect,
+  ) {
+    return this.prismaService.user.findUnique({ where, select });
+  }
+
   public async count(filter: Omit<Filter, 'include'>) {
     return this.prismaService.user.count(filter);
   }
