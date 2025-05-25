@@ -4,42 +4,52 @@ import {
   IsNotEmpty,
   IsOptional,
 } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AccountRegistrationDto {
   @ApiProperty()
-  @IsString()
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'placeOfBirth cannot be empty',
+  })
+  @IsString({
+    message: 'placeOfBirth must be a string',
   })
   placeOfBirth: string;
 
   @ApiProperty({
     example: '2024-10-07T04:23:04Z',
   })
+  @IsNotEmpty({
+    message: 'placeOfBirth cannot be empty',
+  })
   @IsDateString(
     {},
     {
-      message: i18nValidationMessage('validation.date'),
+      message: 'dateOfBirth must be a valid date string',
     },
   )
   dateOfBirth: string;
 
   @ApiProperty()
-  @IsString()
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'address cannot be empty',
+  })
+  @IsString({
+    message: 'address must be a string',
   })
   address: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: 'subDistrictId must be a string',
+  })
   subDistrictId: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: 'userPicture must be a string',
+  })
   userPicture?: string;
 }

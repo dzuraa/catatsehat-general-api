@@ -6,57 +6,57 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
 import { Match } from '../decorators/match-constraint.decorator';
 
 export class SignUpDto {
   @ApiProperty()
-  @IsString({
-    message: i18nValidationMessage('validation.string'),
-  })
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'name cannot be empty',
+  })
+  @IsString({
+    message: 'name must be a string',
   })
   name: string;
 
   @ApiProperty()
-  @IsString({
-    message: i18nValidationMessage('validation.string'),
+  @IsNotEmpty({
+    message: 'phone cannot be empty',
   })
   @IsNumberString(
     {},
     {
-      message: i18nValidationMessage('validation.numberString'),
+      message: 'phone must be a number string',
     },
   )
   @IsPhoneNumber('ID', {
-    message: i18nValidationMessage('validation.phoneNumber'),
+    message: 'phone must be a valid Indonesian phone number',
   })
   @Length(10, 15, {
-    message: i18nValidationMessage('validation.length', { min: 10, max: 15 }),
-  })
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'phone must be between 10 and 15 characters',
   })
   phone: string;
 
   @ApiProperty()
-  @IsString()
-  @Length(6, 6, {
-    message: 'err.pin_length',
-  })
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'pin cannot be empty',
+  })
+  @IsString({
+    message: 'pin must be a string',
+  })
+  @Length(6, 6, {
+    message: 'pin must be 6 digits',
   })
   pin: string;
 
   @ApiProperty()
-  @IsString()
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'confirmPin cannot be empty',
+  })
+  @IsString({
+    message: 'confirmPin must be a string',
   })
   @Match('pin', {
-    message: 'err.pin_not_match',
+    message: 'confirmPin does not match pin',
   })
   confirmPin: string;
 }

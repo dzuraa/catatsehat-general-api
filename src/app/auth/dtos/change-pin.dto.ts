@@ -1,28 +1,38 @@
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { i18nValidationMessage } from 'nestjs-i18n';
 import { Match } from '../decorators';
 
 export class ChangePinDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: 'currentPin cannot be empty',
+  })
+  @IsString({
+    message: 'currentPin must be a string',
+  })
   currentPin: string;
 
   @ApiProperty()
-  @IsString()
-  @Length(6, 6, {
-    message: 'err.pin_length',
-  })
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'newPin cannot be empty',
+  })
+  @IsString({
+    message: 'newPin must be a string',
+  })
+  @Length(6, 6, {
+    message: 'newPin must be 6 digits',
   })
   newPin: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNotEmpty({
+    message: 'confirmNewPin cannot be empty',
+  })
+  @IsString({
+    message: 'confirmNewPin must be a string',
+  })
   @Match('newPin', {
-    message: 'err.pin_not_match',
+    message: 'confirmNewPin does not match newPin',
   })
   confirmNewPin: string;
 }

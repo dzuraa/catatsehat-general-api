@@ -6,37 +6,35 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class SignInDto {
   @ApiProperty()
-  @IsString({
-    message: i18nValidationMessage('validation.string'),
+  @IsNotEmpty({
+    message: 'phone cannot be empty',
   })
   @IsNumberString(
     {},
     {
-      message: i18nValidationMessage('validation.numberString'),
+      message: 'phone must be a number string',
     },
   )
   @IsPhoneNumber('ID', {
-    message: i18nValidationMessage('validation.phoneNumber'),
+    message: 'phone must be a valid Indonesian phone number',
   })
   @Length(10, 15, {
-    message: i18nValidationMessage('validation.length', { min: 8, max: 13 }),
-  })
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'phone must be between 10 and 15 characters',
   })
   phone: string;
 
   @ApiProperty()
-  @IsString()
-  @Length(6, 6, {
-    message: 'err.pin_length',
-  })
   @IsNotEmpty({
-    message: i18nValidationMessage('validation.notEmpty'),
+    message: 'pin cannot be empty',
+  })
+  @IsString({
+    message: 'pin must be a string',
+  })
+  @Length(6, 6, {
+    message: 'pin must be 6 digits',
   })
   pin: string;
 }
