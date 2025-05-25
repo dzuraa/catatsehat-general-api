@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import * as dotenv from 'dotenv';
-import { ENV } from '@src/config/env';
+import { ENV } from 'src/config/env';
 import { HttpService } from '@nestjs/axios';
 
 dotenv.config();

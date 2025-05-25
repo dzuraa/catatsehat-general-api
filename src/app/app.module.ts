@@ -10,7 +10,6 @@ import { ProvinceModule } from './region/province';
 import { CheckupElderlyModule } from './elderly/checkup-elderly';
 import { ArticleModule } from './article';
 
-
 @ApiTags('App Spec')
 @Controller()
 class AppController {

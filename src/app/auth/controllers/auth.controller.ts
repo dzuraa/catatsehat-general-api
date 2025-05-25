@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Admin, User as Auth } from '@prisma/client';
-import { ResponseEntity } from '@src/common/entities/response.entity';
+import { ResponseEntity } from 'src/common/entities/response.entity';
 import { AdminGuard, AuthGuard } from '../guards';
 import { AuthService, AuthAdminService } from '../services';
 import { AdminDecorator, UserDecorator } from '../decorators';

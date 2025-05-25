@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Admin } from '@prisma/client';
-import { AdminRole } from '@src/common/enums/admin-role';
-import { ENV } from '@src/config/env';
+import { AdminRole } from 'src/common/enums/admin-role';
+import { ENV } from 'src/config/env';
 import { verifySync } from '@node-rs/bcrypt';
 import { omit } from 'lodash';
 import { AdminService } from '@app/admin/services';
