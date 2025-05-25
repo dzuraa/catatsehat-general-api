@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumberString,
@@ -6,18 +5,10 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Match } from '../decorators/match-constraint.decorator';
 
-export class SignUpDto {
-  @ApiProperty()
-  @IsNotEmpty({
-    message: 'name cannot be empty',
-  })
-  @IsString({
-    message: 'name must be a string',
-  })
-  name: string;
-
+export class ResetPinDto {
   @ApiProperty()
   @IsNotEmpty({
     message: 'phone cannot be empty',
@@ -38,15 +29,24 @@ export class SignUpDto {
 
   @ApiProperty()
   @IsNotEmpty({
-    message: 'pin cannot be empty',
+    message: 'otp cannot be empty',
   })
   @IsString({
-    message: 'pin must be a string',
+    message: 'otp must be a string',
+  })
+  otp: string;
+
+  @ApiProperty()
+  @IsNotEmpty({
+    message: 'newPin cannot be empty',
+  })
+  @IsString({
+    message: 'newPin must be a string',
   })
   @Length(6, 6, {
-    message: 'pin must be 6 digits',
+    message: 'newPin must be 6 digits',
   })
-  pin: string;
+  newPin: string;
 
   @ApiProperty()
   @IsNotEmpty({
@@ -55,8 +55,11 @@ export class SignUpDto {
   @IsString({
     message: 'confirmPin must be a string',
   })
-  @Match('pin', {
-    message: 'confirmPin does not match pin',
+  @Length(6, 6, {
+    message: 'confirmPin must be 6 digits',
+  })
+  @Match('newPin', {
+    message: 'confirmPin does not match newPin',
   })
   confirmPin: string;
 }

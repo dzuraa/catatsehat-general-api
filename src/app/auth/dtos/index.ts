@@ -4,3 +4,6 @@ export * from './sign-up.dto';
 export * from './verify-otp.dto';
 export * from './account-regis.dto';
 export * from './change-pin.dto';
+export * from './request-otp.dto';
+export * from './reset-pass.dto';
+export * from './reset-pin.dto';

@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class VerifyOtpDto {
   @ApiProperty()
+  @IsNotEmpty({
+    message: 'otp cannot be empty',
+  })
   @IsString({
-    message: i18nValidationMessage('validation.string'),
+    message: 'otp must be a string',
   })
   otp: string;
 }

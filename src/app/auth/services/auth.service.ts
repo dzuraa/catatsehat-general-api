@@ -15,6 +15,8 @@ import {
   SignInDto,
   AccountRegistrationDto,
   ChangePinDto,
+  RequestOtpDto,
+  ResetPinDto,
 } from '../dtos';
 
 @Injectable()
@@ -31,13 +33,14 @@ export class AuthService {
     token?: string;
     user: Pick<User, 'id' | 'name' | 'phone' | 'status'>;
   }> {
-    const user = await this.userRepository.firstOrThrow({
+    const user = await this.userRepository.first({
       phone: signInDto.phone,
       deletedAt: null,
     });
+    if (!user) throw new Error('User not found');
 
     if (!verifySync(signInDto.pin, user.pin))
-      throw new Error('err.pin_is_incorrect');
+      throw new Error('Pin is incorrect');
 
     const userResponse: Pick<User, 'id' | 'name' | 'phone' | 'status'> = pick(
       user,
@@ -95,7 +98,7 @@ export class AuthService {
     const userWithSamePhone = await this.userRepository.any({
       where: { phone: signUpDto.phone },
     });
-    if (userWithSamePhone) throw new Error('err.phone_already_exist');
+    if (userWithSamePhone) throw new Error('Phone number already registered');
 
     // Sign up user and save to the database
     const user = await this.userRepository.create({
@@ -173,20 +176,24 @@ export class AuthService {
     changePinDto: ChangePinDto,
   ): Promise<{ success: boolean }> {
     const { currentPin, newPin } = changePinDto;
-    const user = await this.userRepository.findUniqueOrThrow({
+    const user = await this.userRepository.findUnique({
       id: userId,
+      deletedAt: null,
     });
+    if (!user) {
+      throw new Error('User not found');
+    }
 
     // Verify the current password
     const isPinValid = verifySync(currentPin, user.pin);
     if (!isPinValid) {
-      throw new Error('err.current_pin_is_incorrect');
+      throw new Error('Pin is incorrect');
     }
 
     // Step 3: Check if the new password is the same as the current password
     const isNewPinSame = verifySync(newPin, user.pin);
     if (isNewPinSame) {
-      throw new Error('err.pin_is_same');
+      throw new Error('Pin cannot be the same as the current pin');
     }
 
     // Hash the new password
@@ -204,7 +211,7 @@ export class AuthService {
     otp: string,
   ): Promise<{ user: Pick<User, 'id' | 'name' | 'phone' | 'status'> }> {
     // Lookup the user by ID
-    const user = await this.userRepository.firstOrThrow(
+    const user = await this.userRepository.first(
       {
         id: userId,
         deletedAt: null,
@@ -213,6 +220,9 @@ export class AuthService {
         Otp: true,
       },
     );
+    if (!user) {
+      throw new Error('User not found');
+    }
 
     // Find the latest OTP record for this user
     const latestOtp = await this.otpRepository.find({
@@ -228,14 +238,14 @@ export class AuthService {
     });
 
     if (!latestOtp || latestOtp.length === 0) {
-      throw new Error('err.otp_not_match');
+      throw new Error('Otp not found or already verified');
     }
 
     const otpRecord = latestOtp[0];
 
     // Check if OTP has expired
     if (otpRecord.expiresAt < new Date()) {
-      throw new Error('err.otp_expired');
+      throw new Error('Otp has expired');
     }
 
     // Update user status to ACTIVE
@@ -268,8 +278,8 @@ export class AuthService {
     otpData: Otp;
   }> {
     // Generate new OTP
-    const otp = generateOtp();
-    // const otp = '123456';
+    // const otp = generateOtp();
+    const otp = '123456';
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
 
     // Find existing OTP record for this user
@@ -311,7 +321,7 @@ export class AuthService {
     }
 
     // Send OTP using Zenziva API
-    await this.zenzivaService.sendOtpMessage(user.phone, otp);
+    // await this.zenzivaService.sendOtpMessage(user.phone, otp);
 
     const userResponse = pick(user, ['id', 'name', 'phone', 'status']);
 
@@ -319,5 +329,146 @@ export class AuthService {
       user: userResponse,
       otpData,
     };
+  }
+
+  //Forgot password logic
+  async requestForgotPinOtp(requestOtpDto: RequestOtpDto) {
+    const { phone } = requestOtpDto;
+
+    const user = await this.userRepository.firstOrThrow({
+      phone,
+      deletedAt: null,
+    });
+
+    //Generate OTP
+    // const otp = generateOtp();
+    const otp = '123456';
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
+    const otpData = await this.otpRepository.create({
+      data: {
+        userId: user.id,
+        otp,
+        expiresAt,
+      },
+    });
+
+    // Send OTP using Zensiva API
+    // await this.zensivaService.sendOtpMessage(user.phone, otp);
+
+    const otpPick: Pick<Otp, 'id' | 'otp' | 'expiresAt'> = pick(otpData, [
+      'id',
+      'otp',
+      'expiresAt',
+    ]);
+    return {
+      otpPick,
+    };
+  }
+
+  async resendForgotPinOtp(requestOtpDto: RequestOtpDto) {
+    const { phone } = requestOtpDto;
+
+    // Check if user exist
+    const user = await this.userRepository.firstOrThrow({
+      phone,
+      deletedAt: null,
+    });
+
+    //Generate OTP
+    const otp = generateOtp();
+    // const otp = '123456';
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
+
+    // Find existing otp
+    const existingOtp = await this.otpRepository.find({
+      where: {
+        userId: user.id,
+        isVerified: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 1,
+    });
+
+    // Update otp record
+    await this.otpRepository.update(
+      {
+        id: existingOtp[0].id,
+      },
+      {
+        otp,
+        isVerified: false,
+        expiresAt,
+      },
+    );
+
+    // Send OTP using Zensiva API
+    // await this.zensivaService.sendOtpMessage(user.phone, otp);
+  }
+
+  async resetPin(resetPinDto: ResetPinDto) {
+    const { phone, otp, newPin } = resetPinDto;
+
+    // Check if user exist
+    const user = await this.userRepository.first({
+      phone,
+      deletedAt: null,
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Verify OTP
+    const latestOtp = await this.otpRepository.find({
+      where: {
+        userId: user.id,
+        otp,
+        isVerified: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 1,
+    });
+
+    if (!latestOtp || latestOtp.length === 0) {
+      throw new Error('Otp not found or already verified');
+    }
+
+    const otpRecord = latestOtp[0];
+
+    // Check if OTP is expired
+    if (otpRecord.expiresAt < new Date()) {
+      throw new Error('Otp has expired');
+    }
+
+    // Reset pin
+    const hashedNewPin = hashSync(newPin, 10);
+    // Check if user record still exists before updating
+    const userExists = await this.userRepository.findUniqueOrThrow({
+      id: user.id,
+    });
+
+    if (!userExists) {
+      throw new Error('User record not found before update');
+    }
+    await this.userRepository.update(
+      {
+        id: user.id,
+      },
+      {
+        pin: hashedNewPin,
+      },
+    );
+
+    // Mark otp as verified
+    await this.otpRepository.update(
+      { id: otpRecord.id },
+      {
+        otp: '',
+        isVerified: true,
+      },
+    );
   }
 }
