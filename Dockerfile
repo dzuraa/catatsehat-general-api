@@ -1,12 +1,12 @@
 # Stage 1: Base image
-FROM node:22-alpine AS base
+FROM node:22-alpine3.16 AS base
 
 # ENV
 ENV PNPM_HOME="/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
 # Install necessary tools & pnpm
-RUN apk add --no-cache curl openssl \
+RUN apk add --no-cache curl openssl1.1 \
     && corepack enable \
     && corepack prepare pnpm@9.5.0 --activate
 
