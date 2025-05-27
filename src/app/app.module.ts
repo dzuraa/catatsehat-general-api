@@ -9,6 +9,7 @@ import { RegencyModule } from './region/regency';
 import { ProvinceModule } from './region/province';
 import { CheckupElderlyModule } from './elderly/checkup-elderly';
 import { ArticleModule } from './article';
+import { HealthPostModule } from './healthpost';
 
 @ApiTags('App Spec')
 @Controller()
@@ -36,6 +37,7 @@ class AppController {
     ProvinceModule,
     CheckupElderlyModule,
     ArticleModule,
+    HealthPostModule,
   ],
   controllers: [AppController],
 })
