@@ -7,5 +7,6 @@ import { SubdistrictRepository } from '../region/subdistrict/repositories';
 @Module({
   controllers: [HealthpostHttpController],
   providers: [HealthPostService, HealthPostRepository, SubdistrictRepository],
+  exports: [HealthPostService, HealthPostRepository],
 })
 export class HealthPostModule {}
