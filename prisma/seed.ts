@@ -216,56 +216,52 @@ async function seedDataMaster() {
       console.log('User already exists, skipping...');
     }
 
-    // console.log('Checking health posts...');
-    // const existingHealthPosts = await prisma.healthPost.findFirst({
-    //   where: {
-    //     name: 'Posyandu Utama',
-    //   },
-    // });
+    console.log('Checking health posts...');
+    const existingHealthPosts = await prisma.healthPost.findFirst({
+      where: {
+        name: 'Posyandu Utama',
+      },
+    });
 
-    // const adminPosyandu = await prisma.admin.findFirst({
-    //   where: {
-    //     email: 'admin@posyandu.com',
-    //   },
-    // });
+    const adminPosyandu = await prisma.admin.findFirst({
+      where: {
+        email: 'admin@catatsehat.com',
+      },
+    });
 
-    // if (!adminPosyandu) {
-    //   throw new Error('Admin Posyandu not found');
-    // }
+    if (!adminPosyandu) {
+      throw new Error('Admin Posyandu not found');
+    }
 
-    //     if (!existingHealthPosts) {
-    //       await prisma.healthPost.create({
-    //         data: {
-    //           name: 'Posyandu Utama',
-    //           address: 'Jl. Posyandu No. 1',
-    //           province: { connect: { id: '34' } },
-    //           regency: { connect: { id: '3404' } },
-    //           district: { connect: { id: '3404050' } },
-    //           subDistrict: { connect: { id: '3404050002' } },
-    //           responsibleAdmin: { connect: { id: adminPosyandu?.id } },
-    //         },
-    //       });
-    //       console.log('Health post created successfully');
-    //     } else {
-    //       console.log('Health post already exists, skipping...');
-    //     }
+    if (!existingHealthPosts) {
+      await prisma.healthPost.create({
+        data: {
+          name: 'Posyandu Utama',
+          address: 'Jl. Posyandu Utama No. 1',
+          subDistrict: { connect: { id: '3404050002' } },
+        },
+      });
+      console.log('Health post created successfully');
+    } else {
+      console.log('Health post already exists, skipping...');
+    }
 
-    //     console.log('Connecting Admin Posyandu to Posyandu Utama...');
-    //     if (!adminPosyandu.healthPostId) {
-    //       await prisma.admin.update({
-    //         where: {
-    //           id: adminPosyandu.id,
-    //         },
-    //         data: {
-    //           healthPostId: existingHealthPosts?.id,
-    //         },
-    //       });
-    //       console.log('Admin Posyandu connected successfully to Posyandu Utama');
-    //     } else {
-    //       console.log(
-    //         'Admin Posyandu already connected to Posyandu Utama, skipping...',
-    //       );
-    //     }
+    console.log('Connecting Super Admin to Posyandu Utama...');
+    if (!adminPosyandu.healthPostId) {
+      await prisma.admin.update({
+        where: {
+          id: adminPosyandu.id,
+        },
+        data: {
+          healthPostId: existingHealthPosts?.id,
+        },
+      });
+      console.log('Super Admin connected successfully to Posyandu Utama');
+    } else {
+      console.log(
+        'Super Admin already connected to Posyandu Utama, skipping...',
+      );
+    }
   } catch (error) {
     console.error('Error seeding data master:', error);
   }
