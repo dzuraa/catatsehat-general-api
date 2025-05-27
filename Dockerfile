@@ -1,5 +1,5 @@
 # Stage 1: Base image
-FROM node:22-alpine3.16 AS base
+FROM node:22-alpine AS base
 
 # ENV
 ENV PNPM_HOME="/pnpm"
