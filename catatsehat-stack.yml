@@ -8,11 +8,11 @@ services:
       resources:
         limits:
           memory: 1024M
-        reservations:
-          memory: 512M
-      update_config:
-        parallelism: 1
-        delay: 10s
+      #   reservations:
+      #     memory: 512M
+      # update_config:
+      #   parallelism: 1
+      #   delay: 10s
     ports:
       - "5000:3000"
     env_file:
