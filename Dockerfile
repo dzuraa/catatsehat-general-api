@@ -40,7 +40,7 @@ WORKDIR /app
 # Copy only needed files
 COPY --from=build /app/dist ./dist
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=base /app/package.json ./package.json
+COPY --from=dependencies /app/package.json ./package.json
 COPY --from=dependencies /app/prisma ./prisma
 
 EXPOSE 3000
