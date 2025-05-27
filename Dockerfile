@@ -41,7 +41,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=base /app/package.json ./package.json
-COPY --from=base /app/prisma ./prisma
+COPY --from=dependencies /app/prisma ./prisma
 
 EXPOSE 3000
 
