@@ -83,6 +83,7 @@ model Admin {
   Otp            Otp[]
   CheckupElderly CheckupElderly[]
   Article        Article[]
+  Schedule       Schedule[]
 }
 
 model Elderly {
@@ -158,6 +159,24 @@ model HealthPost {
 
   Admin          Admin[]
   CheckupElderly CheckupElderly[]
+  Schedule       Schedule[]
+}
+
+model Schedule {
+  id      String   @id @unique @default(uuid())
+  startAt DateTime
+  endAt   DateTime
+  address String
+  note    String?
+
+  staffId      String
+  staff        Admin      @relation(fields: [staffId], references: [id])
+  healthPostId String
+  healthPost   HealthPost @relation(fields: [healthPostId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model SubDistrict {
