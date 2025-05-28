@@ -12,6 +12,7 @@ import { ArticleModule } from './article';
 import { MasterElderlyModule } from './elderly/master-elderly';
 import { HealthPostModule } from './healthpost';
 import { ScheduleModule } from './schedule';
+import { ChildrenModule } from './children/children';
 
 @ApiTags('App Spec')
 @Controller()
@@ -42,6 +43,7 @@ class AppController {
     MasterElderlyModule,
     HealthPostModule,
     ScheduleModule,
+    ChildrenModule,
   ],
   controllers: [AppController],
 })
