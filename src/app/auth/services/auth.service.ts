@@ -68,7 +68,7 @@ export class AuthService {
           },
         },
       );
-      // await this.zenzivaService.sendOtpMessage(user.phone, otp);
+      await this.zenzivaService.sendOtpMessage(user.phone, otp);
     }
 
     // If the user is ACTIVE, generate the JWT token and return it
@@ -278,8 +278,8 @@ export class AuthService {
     otpData: Otp;
   }> {
     // Generate new OTP
-    // const otp = generateOtp();
-    const otp = '123456';
+    const otp = generateOtp();
+    // const otp = '123456';
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
 
     // Find existing OTP record for this user
@@ -321,7 +321,7 @@ export class AuthService {
     }
 
     // Send OTP using Zenziva API
-    // await this.zenzivaService.sendOtpMessage(user.phone, otp);
+    await this.zenzivaService.sendOtpMessage(user.phone, otp);
 
     const userResponse = pick(user, ['id', 'name', 'phone', 'status']);
 
@@ -341,8 +341,8 @@ export class AuthService {
     });
 
     //Generate OTP
-    // const otp = generateOtp();
-    const otp = '123456';
+    const otp = generateOtp();
+    // const otp = '123456';
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
     const otpData = await this.otpRepository.create({
       data: {
@@ -352,8 +352,8 @@ export class AuthService {
       },
     });
 
-    // Send OTP using Zensiva API
-    // await this.zensivaService.sendOtpMessage(user.phone, otp);
+    // Send OTP using Zenziva API
+    await this.zenzivaService.sendOtpMessage(user.phone, otp);
 
     const otpPick: Pick<Otp, 'id' | 'otp' | 'expiresAt'> = pick(otpData, [
       'id',
@@ -403,8 +403,8 @@ export class AuthService {
       },
     );
 
-    // Send OTP using Zensiva API
-    // await this.zensivaService.sendOtpMessage(user.phone, otp);
+    // Send OTP using Zenziva API
+    await this.zenzivaService.sendOtpMessage(user.phone, otp);
   }
 
   async resetPin(resetPinDto: ResetPinDto) {
