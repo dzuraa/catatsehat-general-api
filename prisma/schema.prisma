@@ -44,6 +44,16 @@ enum Gender {
   FEMALE
 }
 
+enum StatusBlood {
+  DONE
+  NOT_DONE
+}
+
+enum OwnerType {
+  ADMIN
+  PUBLIC
+}
+
 model User {
   id           String     @id @unique @default(uuid())
   name         String
@@ -61,8 +71,10 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp     Otp[]
-  Elderly Elderly[]
+  Otp      Otp[]
+  Elderly  Elderly[]
+  Children Children[]
+  Mother   Mother[]
 }
 
 model Admin {
@@ -80,10 +92,187 @@ model Admin {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp            Otp[]
-  CheckupElderly CheckupElderly[]
-  Article        Article[]
-  Schedule       Schedule[]
+  Otp             Otp[]
+  CheckupElderly  CheckupElderly[]
+  Article         Article[]
+  Schedule        Schedule[]
+  BloodRecord     BloodRecord[]
+  BloodSupplement BloodSupplement[]
+  CheckupMother   CheckupMother[]
+  CheckupChildren CheckupChildren[]
+}
+
+model Children {
+  id           String   @id @unique @default(uuid())
+  name         String
+  dateOfBirth  DateTime
+  placeOfBirth String
+  childOrder   Int
+  bloodType    String?
+  height       Float
+  weight       Float
+  address      String
+  gender       Gender
+  code         String?  @unique
+
+  userId             String
+  user               User    @relation(fields: [userId], references: [id])
+  motherId           String
+  mother             Mother  @relation(fields: [motherId], references: [id])
+  childPictureId     String?
+  childPicture       File?   @relation("ChildPicture", fields: [childPictureId], references: [id])
+  birthCertificateId String?
+  birthCertificate   File?   @relation("BirthCertificate", fields: [birthCertificateId], references: [id])
+  kiaCardId          String?
+  kiaCard            File?   @relation("KiaCard", fields: [kiaCardId], references: [id])
+  familyCardId       String?
+  familyCard         File?   @relation("FamilyCard", fields: [familyCardId], references: [id])
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  CheckupChildren CheckupChildren[]
+}
+
+model CheckupChildren {
+  id                String        @id @unique @default(uuid())
+  height            Float
+  weight            Float
+  headCircumference Float
+  gender            Gender
+  bmi               Float
+  bmiStatus         BMIStatus
+  status            CheckupStatus @default(UNVERIFIED)
+
+  childrenId      String
+  children        Children   @relation(fields: [childrenId], references: [id])
+  adminId         String
+  admin           Admin      @relation(fields: [adminId], references: [id])
+  healthPostId    String
+  healthPost      HealthPost @relation(fields: [healthPostId], references: [id])
+  fileDiagnosedId String?
+  fileDiagnosed   File?      @relation("FileDiagnosedChildren", fields: [fileDiagnosedId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Mother {
+  id           String   @id @unique @default(uuid())
+  name         String
+  dateOfBirth  DateTime
+  placeOfBirth String
+  address      String
+  code         String?  @unique
+
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  subDistrictId String
+  subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Children        Children[]
+  BloodRecord     BloodRecord[]
+  BloodSupplement BloodSupplement[]
+  BloodStep       BloodStep[]
+  CheckupMother   CheckupMother[]
+}
+
+model MonthBlood {
+  id   String @id @unique @default(uuid())
+  name String
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  BloodSupplement BloodSupplement[]
+  BloodRecord     BloodRecord[]
+}
+
+model BloodRecord {
+  id        String   @id @default(uuid())
+  date      DateTime
+  staffName String?
+  staffJob  String?
+  note      String?
+
+  adminId    String?
+  admin      Admin?     @relation(fields: [adminId], references: [id])
+  motherId   String
+  mother     Mother     @relation(fields: [motherId], references: [id])
+  monthId    String
+  monthBlood MonthBlood @relation(fields: [monthId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model BloodSupplement {
+  id           String       @id @default(uuid())
+  statusBlood  StatusBlood?
+  totalConsume Int
+
+  motherId   String?
+  mother     Mother?     @relation(fields: [motherId], references: [id])
+  adminId    String?
+  admin      Admin?      @relation(fields: [adminId], references: [id])
+  monthId    String?
+  monthBlood MonthBlood? @relation(fields: [monthId], references: [id])
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  BloodStep BloodStep[]
+}
+
+model BloodStep {
+  id   String   @id @default(uuid())
+  date DateTime
+  name String
+  job  String
+  note String
+
+  motherId          String?
+  mother            Mother?          @relation(fields: [motherId], references: [id])
+  bloodSupplementId String?
+  bloodSupplement   BloodSupplement? @relation(fields: [bloodSupplementId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model CheckupMother {
+  id                    String        @id @default(uuid())
+  type                  OwnerType
+  month                 Int
+  height                Float
+  weight                Float
+  upperArmCircumference Float
+  fundusMeasurement     Float
+  bmi                   Float
+  bmiStatus             BMIStatus
+  status                CheckupStatus @default(UNVERIFIED)
+  location              String?
+  publicStaff           String?
+
+  motherId        String
+  mother          Mother      @relation(fields: [motherId], references: [id])
+  healthPostId    String?
+  healthPost      HealthPost? @relation(fields: [healthPostId], references: [id])
+  adminId         String?
+  admin           Admin?      @relation(fields: [adminId], references: [id])
+  fileDiagnosedId String?
+  fileDiagnosed   File?       @relation("FileDiagnosedMother", fields: [fileDiagnosedId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model Elderly {
@@ -157,9 +346,11 @@ model HealthPost {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Admin          Admin[]
-  CheckupElderly CheckupElderly[]
-  Schedule       Schedule[]
+  Admin           Admin[]
+  CheckupElderly  CheckupElderly[]
+  Schedule        Schedule[]
+  CheckupMother   CheckupMother[]
+  CheckupChildren CheckupChildren[]
 }
 
 model Schedule {
@@ -190,6 +381,7 @@ model SubDistrict {
   updatedAt DateTime @updatedAt
 
   HealthPost HealthPost[]
+  Mother     Mother[]
 }
 
 model District {
@@ -239,7 +431,13 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User User[]
+  User             User[]
+  childPicture     Children[]        @relation("ChildPicture")
+  birthCertificate Children[]        @relation("BirthCertificate")
+  kiaCard          Children[]        @relation("KiaCard")
+  familyCard       Children[]        @relation("FamilyCard")
+  CheckupMother    CheckupMother[]   @relation("FileDiagnosedMother")
+  CheckupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
 }
 
 model Otp {
