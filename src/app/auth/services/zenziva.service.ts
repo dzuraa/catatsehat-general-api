@@ -14,7 +14,7 @@ export class ZenzivaService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  async sendOtpMessage(phone: string, otp: string): Promise<any> {
+  async sendOtpMessage(phone: string, otp: string): Promise<void> {
     const data = {
       userkey: this.userKey,
       passkey: this.apiKey,
