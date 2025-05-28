@@ -19,6 +19,7 @@ import {
 } from 'src/app/elderly/master-elderly/dtos';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { UserDecorator } from '@/app/auth/decorators';
 
 @ApiTags('MasterElderly')
 @Controller({
@@ -26,17 +27,17 @@ import { User } from '@prisma/client';
   version: '1',
 })
 export class MasterElderlyHttpController {
-  constructor(
-    private readonly elderlyService: MasterElderlyService,
-    private readonly user: User,
-  ) {}
+  constructor(private readonly elderlyService: MasterElderlyService) {}
 
   @Post()
-  public async create(@Body() createMasterElderlyDto: CreateMasterElderlyDto) {
+  public async create(
+    @Body() createMasterElderlyDto: CreateMasterElderlyDto,
+    @UserDecorator() user: User,
+  ) {
     try {
       const data = await this.elderlyService.create(
         createMasterElderlyDto,
-        this.user,
+        user,
       );
       return new ResponseEntity({
         data,
