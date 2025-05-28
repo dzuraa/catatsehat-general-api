@@ -93,8 +93,6 @@ model Elderly {
   gender       Gender
   dateOfBirth  DateTime
   placeOfBirth String
-  age          Int?
-  childOrder   Int
   bloodType    String?
   address      String?
 

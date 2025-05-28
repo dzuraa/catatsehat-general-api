@@ -9,6 +9,7 @@ import { RegencyModule } from './region/regency';
 import { ProvinceModule } from './region/province';
 import { CheckupElderlyModule } from './elderly/checkup-elderly';
 import { ArticleModule } from './article';
+import { MasterElderlyModule } from './elderly/master-elderly';
 import { HealthPostModule } from './healthpost';
 import { ScheduleModule } from './schedule';
 
@@ -38,6 +39,7 @@ class AppController {
     ProvinceModule,
     CheckupElderlyModule,
     ArticleModule,
+    MasterElderlyModule,
     HealthPostModule,
     ScheduleModule,
   ],
