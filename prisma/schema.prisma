@@ -92,8 +92,6 @@ model Elderly {
   gender       Gender
   dateOfBirth  DateTime
   placeOfBirth String
-  age          Int?
-  childOrder   Int
   bloodType    String?
   address      String?
 
@@ -169,9 +167,9 @@ model SubDistrict {
   districtId String
   district   District @relation(fields: [districtId], references: [id])
 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   HealthPost HealthPost[]
 }
 
