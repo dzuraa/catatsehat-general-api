@@ -8,7 +8,6 @@ import { CheckupElderlyModule } from './elderly/checkup-elderly';
 import { MasterElderlyModule } from './elderly/master-elderly';
 import { HealthPostModule } from './healthpost';
 import { CheckupMotherModule } from './mother/checkup-mother';
-import { MonthBloodModule } from './mother/month-blood';
 import { MotherModule } from './mother/mother';
 import { PostPartumModule } from './mother/post-partum';
 import { PostpartumQuestionModule } from './mother/postpartum-question';
@@ -19,7 +18,6 @@ import { RegencyModule } from './region/regency';
 import { SubdistrictModule } from './region/subdistrict';
 import { ScheduleModule } from './schedule';
 import { UsersModule } from './users/users.module';
-import { ChildrenModule } from './children/children';
 import { StorageModule } from 'src/platform/storage/storage.module';
 
 @ApiTags('App Spec')
@@ -55,7 +53,6 @@ class AppController {
     HealthPostModule,
     ScheduleModule,
     ChildrenModule,
-    MonthBloodModule,
     CheckupMotherModule,
     MotherModule,
     PostPartumModule,
