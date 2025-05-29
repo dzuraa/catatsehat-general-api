@@ -71,10 +71,10 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp      Otp[]
-  Elderly  Elderly[]
-  Children Children[]
-  Mother   Mother[]
+  otp      Otp[]
+  elderly  Elderly[]
+  children Children[]
+  mother   Mother[]
 }
 
 model Admin {
@@ -92,14 +92,14 @@ model Admin {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Otp             Otp[]
-  CheckupElderly  CheckupElderly[]
-  Article         Article[]
-  Schedule        Schedule[]
-  BloodRecord     BloodRecord[]
-  BloodSupplement BloodSupplement[]
-  CheckupMother   CheckupMother[]
-  CheckupChildren CheckupChildren[]
+  otp             Otp[]
+  checkupElderly  CheckupElderly[]
+  article         Article[]
+  schedule        Schedule[]
+  bloodRecord     BloodRecord[]
+  bloodSupplement BloodSupplement[]
+  checkupMother   CheckupMother[]
+  checkupChildren CheckupChildren[]
 }
 
 model Children {
@@ -131,7 +131,7 @@ model Children {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
-  CheckupChildren CheckupChildren[]
+  checkupChildren CheckupChildren[]
 }
 
 model CheckupChildren {
@@ -175,11 +175,11 @@ model Mother {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Children        Children[]
-  BloodRecord     BloodRecord[]
-  BloodSupplement BloodSupplement[]
-  BloodStep       BloodStep[]
-  CheckupMother   CheckupMother[]
+  children        Children[]
+  bloodRecord     BloodRecord[]
+  bloodSupplement BloodSupplement[]
+  bloodStep       BloodStep[]
+  checkupMother   CheckupMother[]
 }
 
 model MonthBlood {
@@ -189,8 +189,8 @@ model MonthBlood {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
-  BloodSupplement BloodSupplement[]
-  BloodRecord     BloodRecord[]
+  bloodSupplement BloodSupplement[]
+  bloodRecord     BloodRecord[]
 }
 
 model BloodRecord {
@@ -227,7 +227,7 @@ model BloodSupplement {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
-  BloodStep BloodStep[]
+  bloodStep BloodStep[]
 }
 
 model BloodStep {
@@ -291,7 +291,7 @@ model Elderly {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  CheckupElderly CheckupElderly[]
+  checkupElderly CheckupElderly[]
 }
 
 model CheckupElderly {
@@ -346,11 +346,11 @@ model HealthPost {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Admin           Admin[]
-  CheckupElderly  CheckupElderly[]
-  Schedule        Schedule[]
-  CheckupMother   CheckupMother[]
-  CheckupChildren CheckupChildren[]
+  admin           Admin[]
+  checkupElderly  CheckupElderly[]
+  schedule        Schedule[]
+  checkupMother   CheckupMother[]
+  checkupChildren CheckupChildren[]
 }
 
 model Schedule {
@@ -380,8 +380,8 @@ model SubDistrict {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  HealthPost HealthPost[]
-  Mother     Mother[]
+  healthPost HealthPost[]
+  mother     Mother[]
 }
 
 model District {
@@ -394,7 +394,7 @@ model District {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  SubDistrict SubDistrict[]
+  subDistrict SubDistrict[]
 }
 
 model Regency {
@@ -407,7 +407,7 @@ model Regency {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  District District[]
+  district District[]
 }
 
 model Province {
@@ -417,7 +417,7 @@ model Province {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Regency Regency[]
+  regency Regency[]
 }
 
 model File {
@@ -431,13 +431,13 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User             User[]
+  user             User[]
   childPicture     Children[]        @relation("ChildPicture")
   birthCertificate Children[]        @relation("BirthCertificate")
   kiaCard          Children[]        @relation("KiaCard")
   familyCard       Children[]        @relation("FamilyCard")
-  CheckupMother    CheckupMother[]   @relation("FileDiagnosedMother")
-  CheckupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
+  checkupMother    CheckupMother[]   @relation("FileDiagnosedMother")
+  checkupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
 }
 
 model Otp {

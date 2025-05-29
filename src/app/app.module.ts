@@ -13,6 +13,7 @@ import { MasterElderlyModule } from './elderly/master-elderly';
 import { HealthPostModule } from './healthpost';
 import { ScheduleModule } from './schedule';
 import { ChildrenModule } from './children/children';
+import { StorageModule } from 'src/platform/storage/storage.module';
 
 @ApiTags('App Spec')
 @Controller()
@@ -32,6 +33,9 @@ class AppController {
 
 @Module({
   imports: [
+    // Global modules
+    StorageModule,
+    // Feature modules
     UsersModule,
     AuthModule,
     SubdistrictModule,
