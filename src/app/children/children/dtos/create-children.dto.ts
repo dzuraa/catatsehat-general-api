@@ -121,5 +121,5 @@ export class CreateChildrenDto {
   })
   @IsOptional()
   @IsString()
-  familyCardId?: string;
+  familyCard?: string;
 }

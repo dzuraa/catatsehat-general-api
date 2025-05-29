@@ -66,6 +66,13 @@ export class MotherRepository {
     return this.prismaService.mother.findUnique({ where, select });
   }
 
+  public async findFirst(
+    where: Prisma.MotherWhereInput,
+    select?: Prisma.MotherSelect,
+  ) {
+    return this.prismaService.mother.findFirst({ where, select });
+  }
+
   public async firstOrThrow(
     where: Prisma.MotherWhereUniqueInput,
     select?: Prisma.MotherSelect,
