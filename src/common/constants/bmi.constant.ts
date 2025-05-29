@@ -1,11 +1,11 @@
 // import { Gender } from '@prisma/client';
 import { BMIStatus } from '@prisma/client';
 
-// export interface BMIRange {
-//   min: number;
-//   max: number;
-//   status: BMIStatus;
-// }
+export interface BMIRange {
+  min: number;
+  max: number;
+  status: BMIStatus;
+}
 
 // export interface AgeGroup {
 //   min: number;
@@ -93,12 +93,12 @@ import { BMIStatus } from '@prisma/client';
 //   ],
 // };
 
-// export const BMI_RANGES_MOTHER = [
-//   { min: 0, max: 18.4, status: BMIStatus.UNDERNUTRITION },
-//   { min: 18.5, max: 24.9, status: BMIStatus.NORMAL },
-//   { min: 25, max: 29.9, status: BMIStatus.OVERWEIGHT },
-//   { min: 30, max: Infinity, status: BMIStatus.OBESITY },
-// ];
+export const BMI_RANGES_MOTHER = [
+  { min: 0, max: 18.4, status: BMIStatus.UNDERNUTRITION },
+  { min: 18.5, max: 24.9, status: BMIStatus.NORMAL },
+  { min: 25, max: 29.9, status: BMIStatus.OVERWEIGHT },
+  { min: 30, max: Infinity, status: BMIStatus.OBESITY },
+];
 
 export const BMI_RANGES_ELDERLY = [
   { min: 0, max: 18.4, status: BMIStatus.UNDERNUTRITION },
