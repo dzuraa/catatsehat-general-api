@@ -54,6 +54,17 @@ enum OwnerType {
   PUBLIC
 }
 
+enum AnswerOption {
+  YES
+  NO
+  NOT_ANSWERED
+}
+
+enum HealthStatus {
+  HEALTHY
+  UNHEALTHY
+}
+
 model User {
   id           String     @id @unique @default(uuid())
   name         String
@@ -175,11 +186,12 @@ model Mother {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  children        Children[]
-  bloodRecord     BloodRecord[]
-  bloodSupplement BloodSupplement[]
-  bloodStep       BloodStep[]
-  checkupMother   CheckupMother[]
+  Children         Children[]
+  BloodRecord      BloodRecord[]
+  BloodSupplement  BloodSupplement[]
+  BloodStep        BloodStep[]
+  CheckupMother    CheckupMother[]
+  PostPartumRecord PostPartumRecord[]
 }
 
 model MonthBlood {
@@ -245,6 +257,60 @@ model BloodStep {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+model DayPostPartum {
+  id        String @id @unique @default(uuid())
+  dayNumber Int
+  name      String @unique
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  PostPartumRecord PostPartumRecord[]
+}
+
+model PostPartumRecord {
+  id                  String        @id @unique @default(uuid())
+  status              HealthStatus?
+
+  motherId String
+  mother   Mother @relation(fields: [motherId], references: [id])
+
+  dayPostPartumId String
+  dayPostPartum   DayPostPartum @relation(fields: [dayPostPartumId], references: [id])
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  PostPartumAnswer PostPartumAnswer[]
+
+  // Unique constraint: satu ibu hanya punya satu record per hari
+  @@unique([motherId, dayPostPartumId])
+}
+
+model PostPartumQuestion {
+  id             String @id @unique @default(uuid())
+  questionNumber Int    @unique
+  question       String
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  PostPartumAnswer PostPartumAnswer[]
+}
+
+model PostPartumAnswer {
+  id     String       @id @unique @default(uuid())
+  answer AnswerOption @default(NOT_ANSWERED)
+
+  postPartumRecordId String
+  postPartumRecord   PostPartumRecord @relation(fields: [postPartumRecordId], references: [id])
+
+  postPartumQuestionId String
+  postPartumQuestion   PostPartumQuestion @relation(fields: [postPartumQuestionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique ([postPartumRecordId, postPartumQuestionId])
 }
 
 model CheckupMother {

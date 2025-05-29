@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-import * as csv from 'csv-parser';
-import { createReadStream } from 'fs';
-import { configDotenv } from 'dotenv';
 import { hashSync } from '@node-rs/bcrypt';
-import { AdminType } from '@prisma/client';
+import { AdminType, PrismaClient } from '@prisma/client';
+import * as csv from 'csv-parser';
+import { configDotenv } from 'dotenv';
+import { createReadStream } from 'fs';
 import * as path from 'path';
 
 const prisma = new PrismaClient();
@@ -390,6 +389,130 @@ async function seedDataMaster() {
 //   }
 // }
 
+async function seedMonths() {
+  const months = [
+    { name: 'Bulan 1' },
+    { name: 'Bulan 2' },
+    { name: 'Bulan 3' },
+    { name: 'Bulan 4' },
+    { name: 'Bulan 5' },
+    { name: 'Bulan 6' },
+    { name: 'Bulan 7' },
+    { name: 'Bulan 8' },
+    { name: 'Bulan 9' },
+  ];
+
+  try {
+    for (const month of months) {
+      const existingMonth = await prisma.monthBlood.findFirst({
+        where: { name: month.name },
+      });
+
+      if (!existingMonth) {
+        const createdMonth = await prisma.monthBlood.create({
+          data: { name: month.name },
+        });
+
+        console.log(`Created month: ${createdMonth.name}`);
+      } else {
+        console.log(`Month already exists: ${existingMonth.name}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error in seeding months:', error);
+    throw error;
+  }
+}
+
+async function seedDayPostPartum() {
+  const days: { dayNumber: number; name: string }[] = [];
+  for (let i = 1; i <= 42; i++) {
+    days.push({ dayNumber: i, name: `Hari ${i}` });
+  }
+
+  try {
+    for (const day of days) {
+      const existingDay = await prisma.dayPostPartum.findFirst({
+        where: { dayNumber: day.dayNumber },
+      });
+
+      if (!existingDay) {
+        const createdDay = await prisma.dayPostPartum.create({
+          data: day,
+        });
+
+        console.log(`Created DayPostPartum: ${createdDay.name}`);
+      } else {
+        console.log(`DayPostPartum already exists: ${existingDay.name}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error seeding DayPostPartum:', error);
+    throw error;
+  }
+}
+
+async function seedPostPartumQuestions() {
+  const n = 18;
+  const questions: { questionNumber: number; question: string }[] = [];
+
+  for (let i = 1; i <= n; i++) {
+    questions.push({
+      questionNumber: i,
+      question: `Pertanyaan ${i}`,
+    });
+  }
+
+  try {
+    for (const q of questions) {
+      const existingQuestion = await prisma.postPartumQuestion.findFirst({
+        where: { questionNumber: q.questionNumber },
+      });
+
+      if (!existingQuestion) {
+        const createdQuestion = await prisma.postPartumQuestion.create({
+          data: q,
+        });
+
+        console.log(`Created question: ${createdQuestion.question}`);
+      } else {
+        console.log(`Question already exists: ${existingQuestion.question}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error seeding post partum questions:', error);
+    throw error;
+  }
+}
+
+// async function seedWeeks() {
+//   const weeks: { name: string }[] = [];
+//   for (let i = 6; i <= 42; i++) {
+//     weeks.push({ name: `Minggu ${i}` });
+//   }
+
+//   try {
+//     for (const week of weeks) {
+//       const existingWeek = await prisma.week.findFirst({
+//         where: { name: week.name },
+//       });
+
+//       if (!existingWeek) {
+//         const createdWeek = await prisma.week.create({
+//           data: { name: week.name },
+//         });
+
+//         console.log(`Created week: ${createdWeek.name}`);
+//       } else {
+//         console.log(`Week already exists: ${existingWeek.name}`);
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error in seeding weeks:', error);
+//     throw error;
+//   }
+// }
+
 async function main() {
   try {
     console.log('Starting seed process...');
@@ -399,6 +522,15 @@ async function main() {
 
     // Then seed data master
     await seedDataMaster();
+
+    //then seed month blood
+    await seedMonths();
+
+    //then seed day
+    await seedDayPostPartum();
+
+    //then seed week
+    await seedPostPartumQuestions();
 
     // Lastly, seed vaccines
     // await seedVaccines();

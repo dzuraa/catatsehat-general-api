@@ -1,17 +1,24 @@
 import { Controller, Get, Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
-import { ResponseEntity } from 'src/common/entities/response.entity';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthModule } from './auth';
-import { SubdistrictModule } from './region/subdistrict';
-import { DistrictModule } from './region/district';
-import { RegencyModule } from './region/regency';
-import { ProvinceModule } from './region/province';
-import { CheckupElderlyModule } from './elderly/checkup-elderly';
+import { ResponseEntity } from 'src/common/entities/response.entity';
 import { ArticleModule } from './article';
+import { AuthModule } from './auth';
+import { ChildrenModule } from './children/children';
+import { CheckupElderlyModule } from './elderly/checkup-elderly';
 import { MasterElderlyModule } from './elderly/master-elderly';
 import { HealthPostModule } from './healthpost';
+import { CheckupMotherModule } from './mother/checkup-mother';
+import { MonthBloodModule } from './mother/month-blood';
+import { MotherModule } from './mother/mother';
+import { PostPartumModule } from './mother/post-partum';
+import { PostpartumQuestionModule } from './mother/postpartum-question';
+import { PostpartumRecordModule } from './mother/postpartum-record';
+import { DistrictModule } from './region/district';
+import { ProvinceModule } from './region/province';
+import { RegencyModule } from './region/regency';
+import { SubdistrictModule } from './region/subdistrict';
 import { ScheduleModule } from './schedule';
+import { UsersModule } from './users/users.module';
 import { ChildrenModule } from './children/children';
 import { StorageModule } from 'src/platform/storage/storage.module';
 
@@ -48,6 +55,12 @@ class AppController {
     HealthPostModule,
     ScheduleModule,
     ChildrenModule,
+    MonthBloodModule,
+    CheckupMotherModule,
+    MotherModule,
+    PostPartumModule,
+    PostpartumRecordModule,
+    PostpartumQuestionModule,
   ],
   controllers: [AppController],
 })
