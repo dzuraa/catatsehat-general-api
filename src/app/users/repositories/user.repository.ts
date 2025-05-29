@@ -70,7 +70,7 @@ export class UserRepository {
     return this.prismaService.user.findFirst({
       where,
       include: {
-        Otp: {
+        otp: {
           take: 1,
         },
         ...include,
@@ -85,7 +85,7 @@ export class UserRepository {
     const data = await this.prismaService.user.findFirst({
       where,
       include: {
-        Otp: {
+        otp: {
           take: 1,
         },
         ...include,

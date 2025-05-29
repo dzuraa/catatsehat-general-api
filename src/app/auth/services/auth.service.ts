@@ -61,7 +61,7 @@ export class AuthService {
           id: user.id,
         },
         {
-          Otp: {
+          otp: {
             connect: {
               id: userOtp.id,
             },
@@ -217,7 +217,7 @@ export class AuthService {
         deletedAt: null,
       },
       {
-        Otp: true,
+        otp: true,
       },
     );
     if (!user) {
