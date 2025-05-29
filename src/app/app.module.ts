@@ -19,6 +19,7 @@ import { SubdistrictModule } from './region/subdistrict';
 import { ScheduleModule } from './schedule';
 import { UsersModule } from './users/users.module';
 import { StorageModule } from 'src/platform/storage/storage.module';
+import { FileModule } from './file';
 
 @ApiTags('App Spec')
 @Controller()
@@ -39,10 +40,12 @@ class AppController {
 @Module({
   imports: [
     // Global modules
+    FileModule,
     StorageModule,
     // Feature modules
-    UsersModule,
     AuthModule,
+    UsersModule,
+    ChildrenModule,
     SubdistrictModule,
     DistrictModule,
     RegencyModule,
