@@ -91,7 +91,7 @@ export class UserRepository {
         ...include,
       },
     });
-    if (!data) throw new Error('err.not_found');
+    if (!data) throw new Error('Data not found');
     return data;
   }
 

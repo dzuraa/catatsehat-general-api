@@ -51,7 +51,7 @@ export class UsersController {
     }
   }
 
-  @Get(':id')
+  @Get(':id/detail')
   public async detail(@Param('id') id: string) {
     try {
       const data = await this.userService.detail(id);
