@@ -61,8 +61,9 @@ export class AuthAdminService {
     };
   }
 
-  async profile(admin: Admin): Promise<Admin> {
-    return this.adminService.detail(admin.id);
+  async profile(admin: Admin) {
+    const adminDetail = await this.adminService.detail(admin.id);
+    return omit(adminDetail, ['password']);
   }
 
   //Forgot password logic
