@@ -11,5 +11,6 @@ import { MotherModule } from '@/app/mother/mother';
   imports: [MotherModule],
   controllers: [ChildrenAdminHttpController, ChildrenHttpController],
   providers: [ChildrenService, ChildrenAdminService, ChildrenRepository],
+  exports: [ChildrenService, ChildrenAdminService, ChildrenRepository],
 })
 export class ChildrenModule {}
