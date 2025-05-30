@@ -19,7 +19,7 @@ import { ApiSecurity } from '@nestjs/swagger';
 import { AdminRole } from 'src/common/enums/admin-role';
 import { AdminGuard, RoleAllowed } from '@app/auth/guards';
 import { AdminSearchDto } from '@app/admin/dtos';
-// import { AdminPosyanduSearchDto } from '../../dtos/search-admin-posyandu.dto';
+import { HealthPostAdminSearchDto } from '../../dtos/search-healthpost-admin.dto';
 
 @ApiSecurity('JWT')
 @ApiTags('Admin')
@@ -104,28 +104,28 @@ export class AdminHttpController {
   }
 }
 
-// @ApiTags('[DATA] Admin Posyandu')
-// @ApiSecurity('JWT')
-// @UseGuards(AdminGuard)
-// @RoleAllowed(UserRoles.ADMIN_POSYANDU, UserRoles.ADMIN_PUSKESMAS)
-// @Controller({
-//   path: 'admin-posyandu',
-//   version: '1',
-// })
-// export class AdminPosyanduHttpController {
-//   constructor(private readonly adminService: AdminsService) {}
+@ApiTags('[DATA] Kader Posyandu')
+@ApiSecurity('JWT')
+@UseGuards(AdminGuard)
+@RoleAllowed(AdminRole.SUPER_ADMIN, AdminRole.KADER)
+@Controller({
+  path: 'admin-kader',
+  version: '1',
+})
+export class AdminPosyanduHttpController {
+  constructor(private readonly adminService: AdminService) {}
 
-//   @Get()
-//   public async findMany(@Query() adminPosyanduDto: AdminPosyanduSearchDto) {
-//     try {
-//       const data = await this.adminService.findMany(adminPosyanduDto);
-//       return new ResponseEntity({
-//         data,
-//         status: HttpStatus.OK,
-//         message: 'Data fetched successfully',
-//       });
-//     } catch (error) {
-//       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-//     }
-//   }
-// }
+  @Get()
+  public async findMany(@Query() paginateDto: HealthPostAdminSearchDto) {
+    try {
+      const data = await this.adminService.findMany(paginateDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+}

@@ -11,6 +11,7 @@ export type Filter = {
   take?: number;
   skip?: number;
   include?: Prisma.AdminInclude;
+  select?: Prisma.AdminSelect;
 };
 
 @Injectable()
@@ -27,7 +28,7 @@ export class AdminRepository {
         where: filter?.where,
         orderBy: filter?.orderBy,
         cursor: filter?.cursor,
-        include: filter?.include,
+        select: filter?.include,
       }),
       this.prismaService.admin.count({
         where: filter?.where,
@@ -61,9 +62,9 @@ export class AdminRepository {
 
   public async first(
     where: Prisma.AdminWhereInput,
-    select?: Prisma.AdminSelect,
+    include?: Prisma.AdminInclude,
   ) {
-    return this.prismaService.admin.findFirst({ where, select });
+    return this.prismaService.admin.findFirst({ where, include });
   }
 
   public async firstOrThrow(
@@ -75,6 +76,13 @@ export class AdminRepository {
     return data;
   }
 
+  // public async findInclude(
+  //   where: Prisma.AdminWhereInput,
+  //   include?: Prisma.AdminInclude,
+  // ) {
+  //   return this.prismaService.admin.findFirst({ where, select });
+  // }
+
   public async findUniqueOrThrow(
     where: Prisma.AdminWhereUniqueInput,
     select?: Prisma.AdminSelect,
@@ -84,15 +92,7 @@ export class AdminRepository {
     return data;
   }
 
-  public async find(filter: Filter) {
+  public async findMany(filter: Filter) {
     return this.prismaService.admin.findMany(filter);
-  }
-
-  public async count(filter: Omit<Filter, 'include'>) {
-    return this.prismaService.admin.count(filter);
-  }
-
-  public async any(filter: Omit<Filter, 'include'>) {
-    return (await this.prismaService.admin.count(filter)) > 0;
   }
 }
