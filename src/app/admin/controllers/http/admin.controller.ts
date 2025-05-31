@@ -112,7 +112,7 @@ export class AdminHttpController {
   path: 'admin-kader',
   version: '1',
 })
-export class AdminPosyanduHttpController {
+export class HealthPostAdminHttpController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
