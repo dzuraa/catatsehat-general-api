@@ -186,10 +186,10 @@ export class AuthController {
 export class AuthAdminController {
   constructor(private readonly authAdminService: AuthAdminService) {}
 
-  @Post('sign-in')
   @ApiOperation({
     summary: 'Admin Sign in',
   })
+  @Post('sign-in')
   async signInAdmin(@Body() signInAdminDto: SignInAdminDto) {
     try {
       const data = await this.authAdminService.signIn(signInAdminDto);
