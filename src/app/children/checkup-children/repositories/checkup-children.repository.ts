@@ -87,11 +87,11 @@ export class CheckupChildrenRepository {
 
   public async firstOrThrow(
     where: Prisma.CheckupChildrenWhereUniqueInput,
-    select?: Prisma.CheckupChildrenSelect,
+    include?: Prisma.CheckupChildrenInclude,
   ) {
     const data = await this.prismaService.checkupChildren.findUnique({
       where,
-      select,
+      include,
     });
     if (!data) throw new Error('data.not_found');
     return data;

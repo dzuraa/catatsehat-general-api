@@ -105,26 +105,30 @@ export class CheckupChildrenAdminService {
   }
 
   public detail(id: string) {
-    try {
-      return this.checkupChildrenRepository.firstOrThrow(
-        {
-          id,
-          deletedAt: null,
-        },
-        {
-          healthPost: true,
-          fileDiagnosed: true,
-          admin: true,
-          children: {
-            include: {
-              childPicture: true,
-            },
+    return this.checkupChildrenRepository.firstOrThrow(
+      {
+        id,
+        deletedAt: null,
+      },
+      {
+        healthPost: true,
+        fileDiagnosed: true,
+        admin: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            type: true,
           },
         },
-      );
-    } catch (error) {
-      throw new Error(error);
-    }
+        children: {
+          include: {
+            childPicture: true,
+          },
+        },
+      },
+    );
   }
 
   public async destroy(id: string) {

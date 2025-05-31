@@ -68,11 +68,11 @@ export class ScheduleRepository {
 
   public async firstOrThrow(
     where: Prisma.ScheduleWhereUniqueInput,
-    select?: Prisma.ScheduleSelect,
+    include?: Prisma.ScheduleInclude,
   ) {
     const data = await this.prismaService.schedule.findUnique({
       where,
-      select,
+      include,
     });
     if (!data) throw new Error('data.not_found');
     return data;
