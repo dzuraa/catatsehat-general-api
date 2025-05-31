@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Otp, Prisma, User } from '@prisma/client';
-import { generateOtp } from 'src/common/functions/otp.function';
+// import { generateOtp } from 'src/common/functions/otp.function';
 import { hashSync, verifySync } from '@node-rs/bcrypt';
 import { JwtPayload } from 'jsonwebtoken';
 import { ENV } from 'src/config/env';
