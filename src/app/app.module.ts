@@ -21,6 +21,7 @@ import { UsersModule } from './users/users.module';
 import { StorageModule } from 'src/platform/storage/storage.module';
 import { FileModule } from './file';
 import { CheckupChildrenModule } from './children/checkup-children';
+import { ReportModule } from './report';
 
 @ApiTags('App Spec')
 @Controller()
@@ -54,6 +55,7 @@ class AppController {
     ProvinceModule,
     CheckupElderlyModule,
     ArticleModule,
+    ReportModule,
     MasterElderlyModule,
     HealthPostModule,
     ScheduleModule,

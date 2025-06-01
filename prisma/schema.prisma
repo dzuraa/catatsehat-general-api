@@ -86,6 +86,7 @@ model User {
   elderly  Elderly[]
   children Children[]
   mother   Mother[]
+  Report   Report[]
 }
 
 model Admin {
@@ -270,8 +271,8 @@ model DayPostPartum {
 }
 
 model PostPartumRecord {
-  id                  String        @id @unique @default(uuid())
-  status              HealthStatus?
+  id     String        @id @unique @default(uuid())
+  status HealthStatus?
 
   motherId String
   mother   Mother @relation(fields: [motherId], references: [id])
@@ -310,7 +311,7 @@ model PostPartumAnswer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique ([postPartumRecordId, postPartumQuestionId])
+  @@unique([postPartumRecordId, postPartumQuestionId])
 }
 
 model CheckupMother {
@@ -394,6 +395,27 @@ model Article {
 
   adminId String?
   admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Report {
+  id           String @id @unique @default(uuid())
+  reporter     String
+  phoneNumber  String
+  childName    String
+  childAddress String
+  observation  String
+  gender       Gender
+
+  userId             String
+  user               User    @relation(fields: [userId], references: [id])
+  fileChildPictureId String?
+  fileChildPicture   File?   @relation("FileChildPicture", fields: [fileChildPictureId], references: [id])
+  fileHousePictureId String?
+  fileHousePicture   File?   @relation("FileHousePicture", fields: [fileHousePictureId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -504,6 +526,8 @@ model File {
   familyCard       Children[]        @relation("FamilyCard")
   checkupMother    CheckupMother[]   @relation("FileDiagnosedMother")
   checkupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
+  fileChildPicture Report[]          @relation("FileChildPicture")
+  fileHousePicture Report[]          @relation("FileHousePicture")
 }
 
 model Otp {
