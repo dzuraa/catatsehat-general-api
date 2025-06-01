@@ -189,7 +189,7 @@ export class CheckupChildrenAdminService {
       },
       healthPost: {
         connect: {
-          id: createCheckupChildrenDto.healthPostId,
+          id: admin.healthPostId ?? '',
         },
       },
     };
@@ -217,6 +217,7 @@ export class CheckupChildrenAdminService {
 
   public async update(
     id: string,
+    admin: Admin,
     updateCheckupChildrenDto: UpdateCheckupChildrenDto,
   ) {
     const checkupChild = await this.checkupChildrenRepository.first(
@@ -270,24 +271,17 @@ export class CheckupChildrenAdminService {
       gender: updateCheckupChildrenDto.gender,
       bmi,
       bmiStatus,
-    };
-
-    if (updateCheckupChildrenDto.healthPostId) {
-      const healthPost = await this.healthPostRepository.first({
-        id: updateCheckupChildrenDto.healthPostId,
-      });
-      if (!healthPost) {
-        throw new Error('Error: Health post not found');
-      }
-
-      Object.assign(data, {
-        healthPost: {
-          connect: {
-            id: updateCheckupChildrenDto.healthPostId,
-          },
+      admin: {
+        connect: {
+          id: admin.id,
         },
-      });
-    }
+      },
+      healthPost: {
+        connect: {
+          id: admin.healthPostId ?? '',
+        },
+      },
+    };
 
     if (updateCheckupChildrenDto.fileDiagnosed) {
       const fileDiagnosed = await this.filesService.upload({

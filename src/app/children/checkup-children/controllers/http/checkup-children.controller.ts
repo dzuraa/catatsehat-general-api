@@ -109,11 +109,13 @@ export class CheckupChildrenAdminHttpController {
   @Put(':id')
   public async update(
     @Param('id') id: string,
+    @AdminDecorator() admin: Admin,
     @Body() updateCheckupChildrenDto: UpdateCheckupChildrenDto,
   ) {
     try {
       const data = await this.checkupChildrenAdminService.update(
         id,
+        admin,
         updateCheckupChildrenDto,
       );
       return new ResponseEntity({

@@ -21,12 +21,6 @@ export class CreateCheckupChildrenDto {
   })
   childrenId: string;
 
-  @ApiProperty()
-  @IsString({
-    message: 'childId must be a string',
-  })
-  healthPostId: string;
-
   @ApiProperty({
     example: '2022-07-25T14:30:00.000Z',
   })
