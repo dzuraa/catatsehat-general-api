@@ -7,7 +7,7 @@ import { Prisma, User } from '@prisma/client';
 import { omit } from 'lodash';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
 import { MotherRepository } from 'src/app/mother/mother/repositories';
-// import { env } from 'process';
+import { ENV } from '@/config/env';
 // import { ChildrenSeederService } from './children-seeder.service';
 
 @Injectable()
@@ -20,10 +20,10 @@ export class ChildrenService {
   ) {}
 
   // Generate child access URL
-  // private generateChildAccessUrl(childCode: string): string {
-  //   const baseUrl = env.FRONTEND_BASE_URL;
-  //   return `${baseUrl}/public/option-page?code=${childCode}`;
-  // }
+  private generateChildAccessUrl(childCode: string): string {
+    const baseUrl = ENV.FRONTEND_BASE_URL;
+    return `${baseUrl}/public/option-page?code=${childCode}`;
+  }
 
   public async paginate(paginateDto: SearchChildrenDto, user: User) {
     const whereCondition: Prisma.ChildrenWhereInput = {
@@ -67,11 +67,16 @@ export class ChildrenService {
 
   public async detail(id: string) {
     await this.childRepository.update(
-      { id, deletedAt: null },
-      { code: alphaNumeric(64) },
+      {
+        id,
+        deletedAt: null,
+      },
+      {
+        code: alphaNumeric(64),
+      },
     );
 
-    return await this.childRepository.firstOrThrow(
+    const children = await this.childRepository.firstOrThrow(
       {
         id,
         deletedAt: null,
@@ -84,6 +89,16 @@ export class ChildrenService {
         familyCard: true,
       },
     );
+    if (!children) {
+      throw new Error('Children not found');
+    }
+
+    const url = this.generateChildAccessUrl(children.code as string);
+
+    return {
+      ...children,
+      url,
+    };
   }
 
   public detailByCode(code: string) {
