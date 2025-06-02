@@ -35,6 +35,7 @@ export class AuthAdminService {
       email: admin.email,
       id: admin.id,
       name: admin.name,
+      healthPostId: admin.healthPostId ?? '',
       as: 'ADMIN',
     };
 
