@@ -85,20 +85,18 @@ export class CheckupChildrenRepository {
     return this.prismaService.checkupChildren.findUnique({ where, include });
   }
 
-  public async firstOrThrow(
-    where: Prisma.CheckupChildrenWhereUniqueInput,
-    include?: Prisma.CheckupChildrenInclude,
-  ) {
-    const data = await this.prismaService.checkupChildren.findUnique({
+  public async firstOrThrow<T extends Prisma.CheckupChildrenInclude>(
+    where: Prisma.CheckupChildrenWhereInput,
+    include: T,
+  ): Promise<Prisma.CheckupChildrenGetPayload<{ include: T }>> {
+    const data = await this.prismaService.checkupChildren.findFirst({
       where,
       include,
     });
-    if (!data) throw new Error('data.not_found');
-    return data;
-  }
 
-  public async find(filter: Filter) {
-    return this.prismaService.checkupChildren.findMany(filter);
+    if (!data) throw new Error('Data not found');
+
+    return data;
   }
 
   public async count(filter: Omit<Filter, 'include'>) {

@@ -104,8 +104,8 @@ export class CheckupChildrenAdminService {
     return this.checkupChildrenRepository.paginate(paginateDto, filter);
   }
 
-  public detail(id: string) {
-    return this.checkupChildrenRepository.firstOrThrow(
+  public async detail(id: string) {
+    const data = await this.checkupChildrenRepository.firstOrThrow(
       {
         id,
         deletedAt: null,
@@ -129,6 +129,20 @@ export class CheckupChildrenAdminService {
         },
       },
     );
+
+    const birth = DateTime.fromISO(data.children.dateOfBirth.toISOString());
+    const now = DateTime.now();
+    const age = now.diff(birth, 'years').years;
+    const ageRounded = Math.floor(age);
+
+    const children = {
+      ...data.children,
+      age: ageRounded,
+    };
+
+    data.children = children;
+
+    return data;
   }
 
   public async destroy(id: string) {
@@ -145,15 +159,12 @@ export class CheckupChildrenAdminService {
     createCheckupChildrenDto: CreateCheckupChildrenDto,
     admin: Admin,
   ) {
-    const child = await this.childrenRepository.firstOrThrow({
+    const children = await this.childrenRepository.firstOrThrow({
       id: createCheckupChildrenDto.childrenId,
     });
-    if (!child) {
-      throw new Error('Error: Child not found');
-    }
 
     const diffMonth = Math.abs(
-      DateTime.fromJSDate(child?.dateOfBirth as Date).diffNow('months')
+      DateTime.fromJSDate(children?.dateOfBirth as Date).diffNow('months')
         .months || 0,
     );
     const age = Number((diffMonth / 12).toFixed(1));
@@ -167,13 +178,17 @@ export class CheckupChildrenAdminService {
       createCheckupChildrenDto.weight,
     );
 
-    const bmiStatus = this.getBMIStatus(bmi, child.gender as Gender, age);
+    if (!admin.healthPostId) {
+      throw new Error('Admin does not have a valid HealthPost ID');
+    }
+
+    const bmiStatus = this.getBMIStatus(bmi, children.gender as Gender, age);
 
     const data: Prisma.CheckupChildrenCreateInput = {
       height: createCheckupChildrenDto.height,
       weight: createCheckupChildrenDto.weight,
       headCircumference: createCheckupChildrenDto.headCircumference,
-      gender: createCheckupChildrenDto.gender,
+      gender: children.gender,
       bmi,
       bmiStatus,
       status: CheckupStatus.UNVERIFIED,
@@ -189,7 +204,7 @@ export class CheckupChildrenAdminService {
       },
       healthPost: {
         connect: {
-          id: admin.healthPostId ?? '',
+          id: admin.healthPostId,
         },
       },
     };
@@ -201,7 +216,7 @@ export class CheckupChildrenAdminService {
     ) {
       const fileDiagnosed = await this.filesService.upload({
         file: createCheckupChildrenDto.fileDiagnosed,
-        fileName: child.name ?? 'document',
+        fileName: children.name ?? 'document',
       });
 
       data.status = CheckupStatus.VERIFIED;
@@ -212,7 +227,23 @@ export class CheckupChildrenAdminService {
       };
     }
 
-    return await this.checkupChildrenRepository.create(data);
+    const createdCheckupChildren =
+      await this.checkupChildrenRepository.create(data);
+
+    const updatedChildrenData = await this.childrenRepository.update(
+      {
+        id: createCheckupChildrenDto.childrenId,
+      },
+      {
+        height: createCheckupChildrenDto.height,
+        weight: createCheckupChildrenDto.weight,
+      },
+    );
+
+    return {
+      createdCheckupChildren,
+      updatedChildrenData,
+    };
   }
 
   public async update(
@@ -220,7 +251,7 @@ export class CheckupChildrenAdminService {
     admin: Admin,
     updateCheckupChildrenDto: UpdateCheckupChildrenDto,
   ) {
-    const checkupChild = await this.checkupChildrenRepository.first(
+    const checkupChild = await this.checkupChildrenRepository.firstOrThrow(
       {
         id,
         deletedAt: null,
@@ -231,16 +262,12 @@ export class CheckupChildrenAdminService {
       },
     );
 
-    if (!checkupChild) {
-      throw new Error('Error: Checkup child not found');
-    }
-    if (!checkupChild.children) {
-      throw new Error('Error: Checkup child does not have an associated child');
-    }
-    const child = checkupChild?.children || null;
+    const children = await this.childrenRepository.firstOrThrow({
+      id: checkupChild.childrenId,
+    });
 
     const diffMonth = Math.abs(
-      DateTime.fromJSDate(child?.dateOfBirth as Date).diffNow('months')
+      DateTime.fromJSDate(children?.dateOfBirth as Date).diffNow('months')
         .months || 0,
     );
     const age = Number((diffMonth / 12).toFixed(1));
@@ -249,26 +276,22 @@ export class CheckupChildrenAdminService {
     let bmiStatus: BMIStatus | undefined;
 
     if (updateCheckupChildrenDto.height && updateCheckupChildrenDto.weight) {
-      if ((age as number) < 0 || (age as number) > 6) {
+      if (age < 0 || age > 6) {
         throw new Error('err.bmi_age');
       }
 
       bmi = this.calculateBmi(
-        updateCheckupChildrenDto.height as number,
-        updateCheckupChildrenDto.weight as number,
+        updateCheckupChildrenDto.height,
+        updateCheckupChildrenDto.weight,
       );
-      bmiStatus = this.getBMIStatus(
-        bmi,
-        updateCheckupChildrenDto.gender as Gender,
-        age as number,
-      );
+      bmiStatus = this.getBMIStatus(bmi, children?.gender, age);
     }
 
     const data: Prisma.CheckupChildrenUpdateInput = {
       height: updateCheckupChildrenDto.height,
       weight: updateCheckupChildrenDto.weight,
       headCircumference: updateCheckupChildrenDto.headCircumference,
-      gender: updateCheckupChildrenDto.gender,
+      gender: children.gender,
       bmi,
       bmiStatus,
       admin: {
@@ -286,7 +309,7 @@ export class CheckupChildrenAdminService {
     if (updateCheckupChildrenDto.fileDiagnosed) {
       const fileDiagnosed = await this.filesService.upload({
         file: updateCheckupChildrenDto.fileDiagnosed,
-        fileName: child.name ?? 'document',
+        fileName: children.name ?? 'document',
       });
 
       data.status = CheckupStatus.VERIFIED;
@@ -296,8 +319,25 @@ export class CheckupChildrenAdminService {
         },
       };
     }
-    const where: Prisma.CheckupChildrenWhereUniqueInput = { id };
 
-    return await this.checkupChildrenRepository.update(where, data);
+    const updatedCheckupChildren = await this.checkupChildrenRepository.update(
+      { id },
+      data,
+    );
+
+    const updatedChildrenData = await this.childrenRepository.update(
+      {
+        id: checkupChild.childrenId,
+      },
+      {
+        height: updateCheckupChildrenDto.height,
+        weight: updateCheckupChildrenDto.weight,
+      },
+    );
+
+    return {
+      updatedCheckupChildren,
+      updatedChildrenData,
+    };
   }
 }
