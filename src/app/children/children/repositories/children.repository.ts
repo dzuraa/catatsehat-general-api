@@ -68,13 +68,13 @@ export class ChildrenRepository {
 
   public async firstOrThrow(
     where: Prisma.ChildrenWhereUniqueInput,
-    include?: Prisma.ChildrenSelect,
+    include?: Prisma.ChildrenInclude,
   ) {
     const data = await this.prismaService.children.findUnique({
       where,
       include,
     });
-    if (!data) throw new Error('data.not_found');
+    if (!data) throw new Error('Data not found');
     return data;
   }
 
