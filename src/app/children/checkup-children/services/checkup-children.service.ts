@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CheckupChildrenRepository, Filter } from '../repositories';
 import { BMIStatus, Gender } from '@prisma/client';
 import { BMI_RANGES } from 'src/common/constants/bmi.constant';
-import { ChildrenRepository } from '../../children/repositories';
 import { SearchCheckupChildrenDto } from '../dtos/search-checkup-children.dto';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class CheckupChildrenService {
   constructor(
-    private readonly checkupChildRepository: CheckupChildrenRepository,
-    private readonly childrenRepository: ChildrenRepository,
+    private readonly checkupChildrenRepository: CheckupChildrenRepository,
   ) {}
 
   public calculateBmi(height: number, weight: number): number {
@@ -60,11 +59,11 @@ export class CheckupChildrenService {
       },
     };
 
-    return this.checkupChildRepository.paginate(paginateDto, filter);
+    return this.checkupChildrenRepository.paginate(paginateDto, filter);
   }
 
   public countChildren(userId: string) {
-    return this.checkupChildRepository.count({
+    return this.checkupChildrenRepository.count({
       where: {
         id: {},
         children: {
@@ -75,24 +74,34 @@ export class CheckupChildrenService {
     });
   }
 
-  public detail(id: string) {
-    try {
-      return this.checkupChildRepository.firstOrThrow(
-        {
-          id,
-          deletedAt: null,
-        },
-        {
-          fileDiagnosed: true,
-          children: {
-            include: {
-              childPicture: true,
-            },
+  public async detail(id: string) {
+    const data = await this.checkupChildrenRepository.firstOrThrow(
+      {
+        id,
+        deletedAt: null,
+      },
+      {
+        fileDiagnosed: true,
+        children: {
+          include: {
+            childPicture: true,
           },
         },
-      );
-    } catch (error) {
-      throw new Error(error);
-    }
+      },
+    );
+
+    const birth = DateTime.fromISO(data.children.dateOfBirth.toISOString());
+    const now = DateTime.now();
+    const age = now.diff(birth, 'years').years;
+    const ageRounded = Math.floor(age);
+
+    const children = {
+      ...data.children,
+      age: ageRounded,
+    };
+
+    data.children = children;
+
+    return data;
   }
 }
