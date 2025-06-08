@@ -22,6 +22,7 @@ import { StorageModule } from 'src/platform/storage/storage.module';
 import { FileModule } from './file';
 import { CheckupChildrenModule } from './children/checkup-children';
 import { ReportModule } from './report';
+import { DashboardModule } from './dashboards';
 
 @ApiTags('App Spec')
 @Controller()
@@ -47,6 +48,7 @@ class AppController {
     // Feature modules
     AuthModule,
     UsersModule,
+    DashboardModule,
     ChildrenModule,
     CheckupChildrenModule,
     SubdistrictModule,

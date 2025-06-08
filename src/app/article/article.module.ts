@@ -8,5 +8,6 @@ import { ArticleRepository } from './repositories';
   // imports: [FileService],
   controllers: [ArticleHttpController],
   providers: [ArticleService, ArticleRepository],
+  exports: [ArticleService],
 })
 export class ArticleModule {}

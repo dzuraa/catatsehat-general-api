@@ -12,5 +12,6 @@ import { HealthPostModule } from '../healthpost';
   imports: [AdminModule, HealthPostModule],
   controllers: [ScheduleHttpControllerAdmin, ScheduleHttpController],
   providers: [ScheduleService, ScheduleServiceAdmin, ScheduleRepository],
+  exports: [ScheduleService, ScheduleServiceAdmin, ScheduleRepository],
 })
 export class ScheduleModule {}

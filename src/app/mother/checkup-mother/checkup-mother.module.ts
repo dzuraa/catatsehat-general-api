@@ -19,5 +19,6 @@ import {
     CheckupMotherRepository,
     AdminRepository,
   ],
+  exports: [CheckupMothersAdminService, CheckupMothersPublicService],
 })
 export class CheckupMotherModule {}
