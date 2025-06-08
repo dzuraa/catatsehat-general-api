@@ -69,4 +69,12 @@ export class ScheduleService {
       },
     );
   }
+
+  public count() {
+    return this.scheduleRepository.count({
+      where: {
+        id: {},
+      },
+    });
+  }
 }

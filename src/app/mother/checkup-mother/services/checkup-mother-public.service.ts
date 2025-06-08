@@ -100,4 +100,16 @@ export class CheckupMothersPublicService {
     // }
     return await this.checkupMotherRepository.create(data);
   }
+
+  public countMothers(userId: string) {
+    return this.checkupMotherRepository.count({
+      where: {
+        id: {},
+        mother: {
+          userId: userId,
+        },
+        deletedAt: null,
+      },
+    });
+  }
 }

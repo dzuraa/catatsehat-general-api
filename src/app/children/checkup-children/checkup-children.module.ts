@@ -23,5 +23,6 @@ import {
     CheckupChildrenAdminService,
     CheckupChildrenRepository,
   ],
+  exports: [CheckupChildrenService, CheckupChildrenAdminService],
 })
 export class CheckupChildrenModule {}

@@ -80,4 +80,12 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
+
+  public count() {
+    return this.userRepository.count({
+      where: {
+        id: {},
+      },
+    });
+  }
 }
