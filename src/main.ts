@@ -59,7 +59,11 @@ async function bootstrap() {
   });
 
   if (process.env.NODE_ENV !== 'production') {
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
   }
 
   if (!ENV.APP_PORT) {
