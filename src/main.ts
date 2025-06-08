@@ -11,9 +11,14 @@ import {
 import { ENV } from './config/env';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ResponseEntity } from './common/entities/response.entity';
+import { urlencoded, json } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(MainModule);
+
+  app.use(json({ limit: '5mb' }));
+  app.use(urlencoded({ extended: true, limit: '5mb' }));
+
   app.enableVersioning({
     type: VersioningType.URI,
   });
