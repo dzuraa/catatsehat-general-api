@@ -81,7 +81,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       secret: ENV.JWT_SECRET,
-      // expiresIn: ENV.JWT_EXPIRES_IN,
+      expiresIn: ENV.JWT_EXPIRES_IN,
     });
 
     return {

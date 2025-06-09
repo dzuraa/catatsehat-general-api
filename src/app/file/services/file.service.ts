@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { FileType } from '@prisma/client';
 import { ENV } from 'src/config/env';
 import { StorageService } from 'src/platform/storage/services/storage.service';
-import * as mimeTypes from 'mime-types';
 
 @Injectable()
 export class FileService {
@@ -17,7 +16,13 @@ export class FileService {
   ) {}
 
   async upload(createFileDto: CreateFileDto) {
+    const { Mime } = await import('mime');
+    const standardTypes = await import('mime/types/standard.js');
+    const otherTypes = await import('mime/types/other.js');
+    const mime = new Mime(standardTypes.default, otherTypes.default);
     const mimeType = createFileDto.file.split(';')[0].replace('data:', '');
+
+    console.log(`Detected MIME type: ${mimeType}`);
 
     // Validate MIME type
     const allowedMimeTypes = [
@@ -41,22 +46,26 @@ export class FileService {
     const timeStamp = now.toFormat('yyyyLLdd_HHmmss');
     const uniqueId = uuidv4();
     const childName = createFileDto.fileName;
+    const ext = mime.getExtension(mimeType);
 
-    // Use mimeTypes.extension() instead of mime.getExtension()
-    const ext = mimeTypes.extension(mimeType);
+    console.log(`File extension detected: ${ext}`);
 
     // Check if the file is a PDF and create a specific name format
     let fileName: string;
     if (mimeType === 'application/pdf') {
-      const childName = createFileDto.fileName || 'UnknownChild';
+      const childName = createFileDto.fileName || 'UnknownChild'; // Assume `namaAnak` is part of DTO
       fileName = `SuratRujukan_${childName}_${timeStamp}.${ext}`;
     } else {
       fileName = `${timeStamp}-${uniqueId}-${childName}.${ext}`;
     }
 
+    console.log(`Generated file name: ${fileName}`);
+
     // Construct file path with date folders
     const filePath = `${year}/${month}/${day}`;
     const fullPath = `${filePath}/${fileName}`;
+
+    console.log(`Full file path: ${fullPath}`);
 
     // Get file base64
     const base64Value = createFileDto.file.split(',')[1];
