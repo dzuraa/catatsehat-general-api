@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/app/auth';
 import {
   Body,
   Controller,
@@ -7,13 +8,16 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { PostPartumService } from 'src/app/mother/post-partum/services';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { CreatePostPartumAnswersDto } from '../../dtos';
 
 @ApiTags('PostPartum')
+@UseGuards(AuthGuard)
+@ApiSecurity('JWT')
 @Controller({
   path: 'postPartum',
   version: '1',
@@ -37,13 +41,17 @@ export class PostPartumHttpController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
   @Get('record')
-  public async recordByDay(@Query('dayPostPartumId') dayPostPartumId: string) {
+  public async recordByDay(
+    @Query('dayPostPartumId') dayPostPartumId: string,
+    @Query('motherId') motherId: string,
+  ) {
     try {
-      const data =
-        await this.postPartumAnswerService.findAnswerByRecordId(
-          dayPostPartumId,
-        );
+      const data = await this.postPartumAnswerService.findRecordByDayId(
+        dayPostPartumId,
+        motherId,
+      );
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

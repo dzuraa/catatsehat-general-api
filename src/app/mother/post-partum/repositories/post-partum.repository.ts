@@ -61,11 +61,11 @@ export class PostPartumRepository {
 
   public async firstOrThrow(
     where: Prisma.PostPartumAnswerWhereUniqueInput,
-    select?: Prisma.PostPartumAnswerSelect,
+    include?: Prisma.PostPartumAnswerInclude,
   ) {
     const data = await this.prismaService.postPartumAnswer.findUnique({
       where,
-      select,
+      include,
     });
     if (!data) throw new Error('data.not_found');
     return data;

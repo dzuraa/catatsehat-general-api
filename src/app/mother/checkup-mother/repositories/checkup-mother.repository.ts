@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { DateTime } from 'luxon';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { PaginatedEntity } from 'src/common/entities/paginated.entity';
 import { PrismaService } from 'src/platform/database/services/prisma.service';
@@ -68,11 +69,11 @@ export class CheckupMotherRepository {
 
   public async firstOrThrow(
     where: Prisma.CheckupMotherWhereUniqueInput,
-    select?: Prisma.CheckupMotherSelect,
+    include?: Prisma.CheckupMotherSelect,
   ) {
     const data = await this.prismaService.checkupMother.findUnique({
       where,
-      select,
+      include,
     });
     if (!data) throw new Error('data.not_found');
     return data;
@@ -88,5 +89,33 @@ export class CheckupMotherRepository {
 
   public async any(filter: Omit<Filter, 'include'>) {
     return (await this.prismaService.checkupMother.count(filter)) > 0;
+  }
+
+  async getBMIChartData(
+    startDate: Date = DateTime.now().startOf('month').toJSDate(),
+    endDate: Date = DateTime.now().endOf('month').toJSDate(),
+    userId: string,
+  ) {
+    const d = await this.prismaService.checkupMother.groupBy({
+      by: ['createdAt'],
+      _sum: {
+        bmi: true,
+      },
+      where: {
+        deletedAt: null,
+        mother: {
+          userId: userId,
+        },
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    return d.map((record) => ({
+      day: record.createdAt,
+      bmi: record._sum.bmi,
+    }));
   }
 }

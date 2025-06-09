@@ -93,4 +93,10 @@ export class MotherRepository {
   public async any(filter: Omit<Filter, 'include'>) {
     return (await this.prismaService.mother.count(filter)) > 0;
   }
+  public async findOne(
+    where: Prisma.MotherWhereInput,
+    select?: Prisma.MotherSelect,
+  ) {
+    return this.prismaService.mother.findFirst({ where, select });
+  }
 }
