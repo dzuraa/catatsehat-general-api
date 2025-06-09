@@ -1,12 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, Matches } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateCheckupMothersAdminDto {
-  @ApiProperty()
-  @IsString()
-  healthPostId: string;
-
   @ApiProperty()
   @IsNumber()
   month: number;
@@ -49,9 +45,6 @@ export class CreateCheckupMothersAdminDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Matches(/^data:application\/pdf;base64,/, {
-    message: 'Only PDF files are allowed',
-  })
   fileDiagnosed?: string;
 
   @ApiProperty()

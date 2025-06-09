@@ -3,7 +3,10 @@ import { HealthPostModule } from '@/app/healthpost';
 import { Module } from '@nestjs/common';
 import { MotherModule } from '../mother';
 import { CheckupMotherHttpController } from './controllers';
-import { CheckupMotherPublicHttpController } from './controllers/http/checkup-mother-public.controller';
+import {
+  CheckupMotherPublicHttpController,
+  CheckupMothersHttpController,
+} from './controllers/http/checkup-mother-public.controller';
 import { CheckupMotherRepository } from './repositories';
 import {
   CheckupMothersAdminService,
@@ -12,7 +15,11 @@ import {
 
 @Module({
   imports: [HealthPostModule, MotherModule],
-  controllers: [CheckupMotherHttpController, CheckupMotherPublicHttpController],
+  controllers: [
+    CheckupMotherHttpController,
+    CheckupMotherPublicHttpController,
+    CheckupMothersHttpController,
+  ],
   providers: [
     CheckupMothersAdminService,
     CheckupMothersPublicService,

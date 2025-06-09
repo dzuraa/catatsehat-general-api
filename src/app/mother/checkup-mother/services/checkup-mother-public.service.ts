@@ -8,6 +8,7 @@ import { HealthPostRepository } from '@/app/healthpost/repositories';
 import { BMI_RANGES_MOTHER } from '@/common/constants/bmi.constant';
 import { MotherRepository } from '../../mother/repositories';
 import { CreateCheckupMothersPublicDto } from '../dtos';
+import { CheckupMotherSearchDto } from '../dtos/search-checkup-mother.dto';
 import { CheckupMotherRepository } from '../repositories';
 
 @Injectable()
@@ -19,6 +20,70 @@ export class CheckupMothersPublicService {
     private readonly healthPostRepository: HealthPostRepository,
     // private readonly adminRepository: AdminRepository,
   ) {}
+
+  public paginate(paginateDto: CheckupMotherSearchDto, motherId: string) {
+    const whereCondition: Prisma.CheckupMotherWhereInput = {
+      deletedAt: null,
+      motherId,
+    };
+
+    if (paginateDto.search) {
+      whereCondition.OR = [
+        {
+          mother: {
+            name: {
+              contains: paginateDto.search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          healthPost: {
+            name: {
+              contains: paginateDto.search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          admin: {
+            name: {
+              contains: paginateDto.search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+    return this.checkupMotherRepository.paginate(paginateDto, {
+      where: whereCondition,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        healthPost: true,
+        admin: true,
+        fileDiagnosed: true,
+      },
+    });
+  }
+  public detail(id: string) {
+    try {
+      return this.checkupMotherRepository.firstOrThrow(
+        {
+          id,
+          deletedAt: null,
+        },
+        {
+          admin: true,
+          healthPost: true,
+          fileDiagnosed: true,
+        },
+      );
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   public calculateBmi(height: number, weight: number): number {
     // Convert height from cm to m

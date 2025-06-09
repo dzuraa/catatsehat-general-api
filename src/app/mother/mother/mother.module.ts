@@ -1,10 +1,18 @@
 import { Module } from '@nestjs/common';
-import { MotherHttpController } from './controllers';
+import {
+  MotherAdminHttpController,
+  MotherHttpController,
+  MotherPublicHttpController,
+} from './controllers';
 import { MotherRepository } from './repositories';
 import { MotherService, PostPartumSeederService } from './services';
 
 @Module({
-  controllers: [MotherHttpController],
+  controllers: [
+    MotherHttpController,
+    MotherAdminHttpController,
+    MotherPublicHttpController,
+  ],
   providers: [MotherService, MotherRepository, PostPartumSeederService],
   exports: [MotherService, MotherRepository],
 })
