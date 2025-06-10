@@ -3,10 +3,6 @@ import { MasterElderlyRepository } from '../repositories';
 import { CreateMasterElderlyDto, UpdateMasterElderlyDto } from '../dtos';
 import { SearchMasterElderlyDto } from '../dtos/search-master-elderly.dto';
 import { Prisma, User } from '@prisma/client';
-// import { omit } from 'lodash';
-import { DateTime } from 'luxon';
-// import { alphaNumeric } from '@/common/functions/crypto.function';
-// import { env } from 'process';
 
 @Injectable()
 export class MasterElderlyService {
@@ -98,20 +94,16 @@ export class MasterElderlyService {
       };
 
       if (createMasterElderlyDto.dateOfBirth) {
-        const age = Math.abs(
-          DateTime.fromISO(createMasterElderlyDto.dateOfBirth).diffNow('years')
-            .years || 0,
-        );
-
         Object.assign(data, {
           dateOfBirth: createMasterElderlyDto.dateOfBirth,
-          age: age,
         });
       }
 
       // Relation to user
       Object.assign(data, {
-        user: { connect: { id: user.id } },
+        user: {
+          connect: { id: user?.id ?? '1d86e9e1-19f8-4812-933a-cd864efe147f' },
+        },
       });
 
       // if (createMasterElderlyDto.elderlyPicture) {
@@ -159,13 +151,7 @@ export class MasterElderlyService {
       const data: Prisma.ElderlyUpdateInput = {};
 
       if (updateMasterElderlyDto.dateOfBirth) {
-        const age = Math.abs(
-          DateTime.fromISO(updateMasterElderlyDto.dateOfBirth).diffNow('years')
-            .years || 0,
-        );
-
         Object.assign(data, {
-          age: age,
           dateOfBirth: updateMasterElderlyDto.dateOfBirth,
         });
       }

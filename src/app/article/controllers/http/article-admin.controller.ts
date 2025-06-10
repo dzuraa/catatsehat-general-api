@@ -11,37 +11,27 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { MasterElderlyService } from 'src/app/elderly/master-elderly/services';
+import { ArticleService } from 'src/app/article/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
-import {
-  CreateMasterElderlyDto,
-  UpdateMasterElderlyDto,
-} from 'src/app/elderly/master-elderly/dtos';
-import { ApiTags } from '@nestjs/swagger';
-import { User } from '@prisma/client';
-import { UserDecorator } from '@/app/auth/decorators';
-import { AuthGuard } from '@/app/auth';
+import { CreateArticleDto, UpdateArticleDto } from 'src/app/article/dtos';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { AdminGuard } from '@/app/auth';
 
-@ApiTags('MasterElderly')
-@UseGuards(AuthGuard)
+@ApiTags('Article')
+@ApiSecurity('JWT')
+@UseGuards(AdminGuard)
 @Controller({
-  path: 'elderly',
+  path: 'admin/article',
   version: '1',
 })
-export class MasterElderlyHttpController {
-  constructor(private readonly elderlyService: MasterElderlyService) {}
+export class ArticleAdminHttpController {
+  constructor(private readonly articleService: ArticleService) {}
 
   @Post()
-  public async create(
-    @Body() createMasterElderlyDto: CreateMasterElderlyDto,
-    @UserDecorator() user: User,
-  ) {
+  public async create(@Body() createArticleDto: CreateArticleDto) {
     try {
-      const data = await this.elderlyService.create(
-        createMasterElderlyDto,
-        user,
-      );
+      const data = await this.articleService.create(createArticleDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.CREATED,
@@ -55,7 +45,7 @@ export class MasterElderlyHttpController {
   @Get()
   public async index(@Query() paginateDto: PaginationQueryDto) {
     try {
-      const data = await this.elderlyService.paginate(paginateDto);
+      const data = await this.articleService.paginate(paginateDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -69,7 +59,7 @@ export class MasterElderlyHttpController {
   @Get(':id')
   public async detail(@Param('id') id: string) {
     try {
-      const data = await this.elderlyService.detail(id);
+      const data = await this.articleService.detail(id);
 
       return new ResponseEntity({
         data,
@@ -84,7 +74,7 @@ export class MasterElderlyHttpController {
   @Delete(':id')
   public async destroy(@Param('id') id: string) {
     try {
-      const data = await this.elderlyService.destroy(id);
+      const data = await this.articleService.destroy(id);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -98,10 +88,10 @@ export class MasterElderlyHttpController {
   @Put(':id')
   public async update(
     @Param('id') id: string,
-    @Body() updateMasterElderlyDto: UpdateMasterElderlyDto,
+    @Body() updateArticleDto: UpdateArticleDto,
   ) {
     try {
-      const data = await this.elderlyService.update(id, updateMasterElderlyDto);
+      const data = await this.articleService.update(id, updateArticleDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

@@ -21,15 +21,15 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { UserDecorator } from '@/app/auth/decorators';
-import { AuthGuard } from '@/app/auth';
+import { AdminGuard } from '@/app/auth';
 
 @ApiTags('MasterElderly')
-@UseGuards(AuthGuard)
+@UseGuards(AdminGuard)
 @Controller({
-  path: 'elderly',
+  path: 'admin/elderly',
   version: '1',
 })
-export class MasterElderlyHttpController {
+export class MasterElderlyAdminHttpController {
   constructor(private readonly elderlyService: MasterElderlyService) {}
 
   @Post()
