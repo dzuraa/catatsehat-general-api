@@ -8,7 +8,7 @@ import { omit } from 'lodash';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
 import { MotherRepository } from 'src/app/mother/mother/repositories';
 import { ENV } from '@/config/env';
-// import { ChildrenSeederService } from './children-seeder.service';
+import { ChildrenSeederService } from './children-seeder.service';
 
 @Injectable()
 export class ChildrenService {
@@ -16,7 +16,7 @@ export class ChildrenService {
     private readonly childRepository: ChildrenRepository,
     private readonly filesService: FileService,
     private readonly motherRepository: MotherRepository,
-    // private readonly childrenSeederService: ChildrenSeederService,
+    private readonly childrenSeederService: ChildrenSeederService,
   ) {}
 
   // Generate child access URL
@@ -231,17 +231,15 @@ export class ChildrenService {
     const createdChild = await this.childRepository.create(data);
 
     // Seed child immunizations
-    // const childrenSeed =
-    //   await this.childrenSeederService.seedChildImmunizations(
-    //     createdChild.id,
-    //   );
+    const childrenSeed =
+      await this.childrenSeederService.seedChildImmunizations(createdChild.id);
 
     // const childAccessUrl = this.generateChildAccessUrl(
     //   createdChild.code as string,
     // );
     return {
       child: createdChild,
-      // childrenSeed,
+      childrenSeed,
       // accessUrl: childAccessUrl,
     };
   }

@@ -28,6 +28,9 @@ import { SubdistrictModule } from './region/subdistrict';
 import { ReportModule } from './report';
 import { ScheduleModule } from './schedule';
 import { UsersModule } from './users/users.module';
+import { ImmunizationRecordModule } from './children/immunization-record';
+import { VaccineModule } from './children/vaccine';
+import { VaccineStageModule } from './children/vaccine-stage';
 
 @ApiTags('App Spec')
 @Controller()
@@ -56,6 +59,9 @@ class AppController {
     DashboardModule,
     ChildrenModule,
     CheckupChildrenModule,
+    ImmunizationRecordModule,
+    VaccineModule,
+    VaccineStageModule,
     SubdistrictModule,
     DistrictModule,
     RegencyModule,
