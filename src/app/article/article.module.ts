@@ -9,5 +9,6 @@ import { ArticleAdminHttpController } from './controllers/http/article-admin.con
   // imports: [FileService],
   controllers: [ArticleHttpController, ArticleAdminHttpController],
   providers: [ArticleService, ArticleRepository],
+  exports: [ArticleService, ArticleRepository],
 })
 export class ArticleModule {}
