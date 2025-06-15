@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ArticleRepository } from '../repositories';
-// import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { CreateArticleDto, UpdateArticleDto, SearchArticleDto } from '../dtos';
 import { Filter } from '../repositories/article.repository';
 import { Prisma } from '@prisma/client';
