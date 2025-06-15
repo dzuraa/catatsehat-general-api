@@ -175,7 +175,11 @@ export class ChildrenService {
       });
 
       Object.assign(data, {
-        childPictureId: childPicture.id,
+        childPicture: {
+          connect: {
+            id: childPicture.id,
+          },
+        },
       });
     }
 
@@ -186,7 +190,11 @@ export class ChildrenService {
       });
 
       Object.assign(data, {
-        birthCertificateId: birthCertificate.id,
+        birthCertificate: {
+          connect: {
+            id: birthCertificate.id,
+          },
+        },
       });
     }
 
@@ -197,7 +205,11 @@ export class ChildrenService {
       });
 
       Object.assign(data, {
-        kiaCardId: kiaCard.id,
+        kiaCard: {
+          connect: {
+            id: kiaCard.id,
+          },
+        },
       });
     }
 
@@ -208,7 +220,11 @@ export class ChildrenService {
       });
 
       Object.assign(data, {
-        familyCardId: familyCard.id,
+        familyCard: {
+          connect: {
+            id: familyCard.id,
+          },
+        },
       });
     }
 

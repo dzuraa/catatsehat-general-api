@@ -68,11 +68,11 @@ export class HealthPostRepository {
 
   public async firstOrThrow(
     where: Prisma.HealthPostWhereUniqueInput,
-    select?: Prisma.HealthPostSelect,
+    include?: Prisma.HealthPostInclude,
   ) {
     const data = await this.prismaService.healthPost.findUnique({
       where,
-      select,
+      include,
     });
     if (!data) throw new Error('data.not_found');
     return data;

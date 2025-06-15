@@ -84,6 +84,7 @@ export class CheckupMothersAdminService {
         healthPost: true,
         admin: true,
         fileDiagnosed: true,
+        mother: true,
       },
     });
   }
@@ -98,6 +99,7 @@ export class CheckupMothersAdminService {
           admin: true,
           healthPost: true,
           fileDiagnosed: true,
+          mother: true,
         },
       );
     } catch (error) {
@@ -141,31 +143,17 @@ export class CheckupMothersAdminService {
           id: createCheckupMothersAdminDto.motherId,
         },
       },
-    };
-
-    Object.assign(data, {
       admin: {
         connect: {
           id: admin.id,
         },
       },
-    });
-
-    if (createCheckupMothersAdminDto.healthPostId) {
-      const healthPost = await this.healthPostRepository.first({
-        id: createCheckupMothersAdminDto.healthPostId,
-      });
-      if (!healthPost) {
-        throw new Error('Health Post not found');
-      }
-      Object.assign(data, {
-        healthPost: {
-          connect: {
-            id: createCheckupMothersAdminDto.healthPostId,
-          },
+      healthPost: {
+        connect: {
+          id: admin.healthPostId ?? '',
         },
-      });
-    }
+      },
+    };
 
     // if (createCheckupMothersAdminDto.fileDiagnosed) {
     //   const fileDiagnosed = await this.filesService.upload({
@@ -188,6 +176,7 @@ export class CheckupMothersAdminService {
   public async update(
     id: string,
     updateCheckupMothersAdminDto: UpdateCheckupMotherDto,
+    admin: Admin,
   ) {
     try {
       let bmi: number | undefined;
@@ -214,41 +203,17 @@ export class CheckupMothersAdminService {
         bmiStatus,
         status: CheckupStatus.UNVERIFIED,
         type: OwnerType.ADMIN,
+        admin: {
+          connect: {
+            id: admin.id,
+          },
+        },
+        healthPost: {
+          connect: {
+            id: admin.healthPostId ?? '',
+          },
+        },
       };
-
-      if (updateCheckupMothersAdminDto.healthPostId) {
-        const healthPost = await this.healthPostRepository.first({
-          id: updateCheckupMothersAdminDto.healthPostId,
-        });
-        if (!healthPost) {
-          throw new Error('Health Post not found');
-        }
-
-        Object.assign(data, {
-          healthPost: {
-            connect: {
-              id: updateCheckupMothersAdminDto.healthPostId,
-            },
-          },
-        } satisfies Prisma.CheckupMotherUpdateInput);
-      }
-
-      if (updateCheckupMothersAdminDto.motherId) {
-        const parent = await this.motherRepository.first({
-          id: updateCheckupMothersAdminDto.motherId,
-        });
-        if (!parent) {
-          throw new Error('Parent not found');
-        }
-
-        Object.assign(data, {
-          parents: {
-            connect: {
-              id: updateCheckupMothersAdminDto.motherId,
-            },
-          },
-        });
-      }
 
       // if (updateCheckupMothersAdminDto.fileDiagnosed) {
       //   const fileDiagnosed = await this.filesService.upload({

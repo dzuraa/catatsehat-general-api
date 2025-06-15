@@ -27,80 +27,25 @@ class PostPartumAnswerDto {
 }
 
 export class CreatePostPartumAnswersDto {
-  @ApiProperty({
-    description: 'UUID of the post partum record',
-    example: 'record-uuid',
-  })
-  @IsString()
-  postPartumRecordId: string;
+  @ApiProperty()
+  motherId: string;
+
+  @ApiProperty()
+  dayPostPartumId: string;
 
   @ApiProperty({
-    description: 'Array of post partum answers (exactly 14 answers required)',
+    description: 'Array of post partum answers (exactly 18 answers required)',
     type: [PostPartumAnswerDto],
-    minItems: 14,
-    maxItems: 14,
-    example: [
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-      {
-        postPartumQuestionId: 'uuid',
-        answer: 'YES',
-      },
-    ],
+    minItems: 18,
+    maxItems: 18,
+    example: Array.from({ length: 18 }, () => ({
+      postPartumQuestionId: 'uuid',
+      answer: 'YES/NO',
+    })),
   })
   @ValidateNested({ each: true })
   @Type(() => PostPartumAnswerDto)
-  @ArrayMinSize(14) // validasi agar minimal 14 pertanyaan
-  @ArrayMaxSize(14) // validasi agar maksimal 14 pertanyaan
+  @ArrayMinSize(18)
+  @ArrayMaxSize(18)
   answers: PostPartumAnswerDto[];
 }

@@ -452,6 +452,36 @@ async function seedDayPostPartum() {
   }
 }
 
+async function seedWeekPregnancyMonitoring() {
+  const weeks: { weekNumber: number; name: string }[] = [];
+  for (let i = 6; i <= 42; i++) {
+    weeks.push({ weekNumber: i, name: `Minggu ${i}` });
+  }
+
+  try {
+    for (const week of weeks) {
+      const existingWeek = await prisma.weekPregnancyMonitoring.findFirst({
+        where: { weekNumber: week.weekNumber },
+      });
+
+      if (!existingWeek) {
+        const createdWeek = await prisma.weekPregnancyMonitoring.create({
+          data: week,
+        });
+
+        console.log(`Created WeekPregnancyMonitoring: ${createdWeek.name}`);
+      } else {
+        console.log(
+          `WeekPregnancyMonitoring already exists: ${existingWeek.name}`,
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error seeding WeekPregnancyMonitoring:', error);
+    throw error;
+  }
+}
+
 async function seedPostPartumQuestions() {
   const n = 18;
   const questions: { questionNumber: number; question: string }[] = [];
@@ -485,52 +515,66 @@ async function seedPostPartumQuestions() {
   }
 }
 
-// async function seedWeeks() {
-//   const weeks: { name: string }[] = [];
-//   for (let i = 6; i <= 42; i++) {
-//     weeks.push({ name: `Minggu ${i}` });
-//   }
+async function seedPregnancyMonitoringQuestions() {
+  const n = 13;
+  const questions: { questionNumber: number; question: string }[] = [];
 
-//   try {
-//     for (const week of weeks) {
-//       const existingWeek = await prisma.week.findFirst({
-//         where: { name: week.name },
-//       });
+  for (let i = 1; i <= n; i++) {
+    questions.push({
+      questionNumber: i,
+      question: `Pertanyaan ${i}`,
+    });
+  }
 
-//       if (!existingWeek) {
-//         const createdWeek = await prisma.week.create({
-//           data: { name: week.name },
-//         });
+  try {
+    for (const q of questions) {
+      const existingQuestion =
+        await prisma.pregnancyMonitoringQuestion.findFirst({
+          where: { questionNumber: q.questionNumber },
+        });
 
-//         console.log(`Created week: ${createdWeek.name}`);
-//       } else {
-//         console.log(`Week already exists: ${existingWeek.name}`);
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error in seeding weeks:', error);
-//     throw error;
-//   }
-// }
+      if (!existingQuestion) {
+        const createdQuestion = await prisma.pregnancyMonitoringQuestion.create(
+          {
+            data: q,
+          },
+        );
+
+        console.log(`Created question: ${createdQuestion.question}`);
+      } else {
+        console.log(`Question already exists: ${existingQuestion.question}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error seeding pregnancy monitoring questions:', error);
+    throw error;
+  }
+}
 
 async function main() {
   try {
     console.log('Starting seed process...');
 
-    // Seed locations first (provinces, regencies, districts, etc)
+    // seed locations first (provinces, regencies, districts, etc)
     await seedLocations();
 
-    // Then seed data master
+    // then seed data master
     await seedDataMaster();
 
-    //then seed month blood
+    // then seed month blood
     await seedMonths();
 
-    //then seed day
+    // then seed day
     await seedDayPostPartum();
 
-    //then seed week
+    // then seed week
+    await seedWeekPregnancyMonitoring();
+
+    // then seed post partum questions
     await seedPostPartumQuestions();
+
+    // then seed pregnancy monitoring questions
+    await seedPregnancyMonitoringQuestions();
 
     // Lastly, seed vaccines
     // await seedVaccines();

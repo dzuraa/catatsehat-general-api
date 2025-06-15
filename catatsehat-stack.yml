@@ -13,11 +13,8 @@ services:
     env_file:
       - /home/emokids/tugas-akhir/catatsehat/.env.dev
     networks:
-      - minio-network
       - postgres-network
 
 networks:
-  minio-network:
-    external: true
   postgres-network:
     external: true

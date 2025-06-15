@@ -1,3 +1,4 @@
+import { AdminGuard } from '@/app/auth';
 import { AdminDecorator } from '@/app/auth/decorators';
 import {
   Body,
@@ -10,8 +11,9 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Admin } from '@prisma/client';
 import {
   CreateCheckupMothersAdminDto,
@@ -22,6 +24,8 @@ import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 
 @ApiTags('CheckupMotherAdmin')
+@UseGuards(AdminGuard)
+@ApiSecurity('JWT')
 @Controller({
   path: 'admin/checkupMother',
   version: '1',
@@ -97,12 +101,14 @@ export class CheckupMotherHttpController {
   @Put(':id')
   public async update(
     @Param('id') id: string,
+    @AdminDecorator() admin: Admin,
     @Body() updateCheckupMotherDto: UpdateCheckupMotherDto,
   ) {
     try {
       const data = await this.checkupMotherAdminService.update(
         id,
         updateCheckupMotherDto,
+        admin,
       );
       return new ResponseEntity({
         data,

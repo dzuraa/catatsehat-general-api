@@ -48,9 +48,14 @@ export class MotherHttpController {
   }
 
   @Get()
-  public async index(@Query() paginateDto: PaginationQueryDto) {
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT')
+  public async index(
+    @Query() paginateDto: PaginationQueryDto,
+    @UserDecorator() user: User,
+  ) {
     try {
-      const data = await this.motherService.paginate(paginateDto);
+      const data = await this.motherService.paginate(paginateDto, user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -114,8 +119,22 @@ export class MotherHttpController {
   path: 'motherqr',
   version: '1',
 })
-export class ParentsAdminHttpController {
+export class MotherAdminHttpController {
   constructor(private readonly motherService: MotherService) {}
+
+  @Get()
+  public async index(@Query() paginateDto: PaginationQueryDto) {
+    try {
+      const data = await this.motherService.paginateAdmin(paginateDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
 
   @Get(':id/detail')
   public async detail(@Param('id') id: string) {
@@ -135,6 +154,44 @@ export class ParentsAdminHttpController {
   public async detailByCode(@Param('code') code: string) {
     try {
       const data = await this.motherService.detailByCode(code);
+
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Post(':id/refresh-code')
+  async refreshCode(@Param('id') id: string) {
+    try {
+      const data = await this.motherService.refreshCode(id);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Code refreshed successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+    }
+  }
+}
+
+@ApiTags('[PUBLIC] Mother')
+@Controller({
+  path: 'public/mother',
+  version: '1',
+})
+export class MotherPublicHttpController {
+  constructor(private readonly childService: MotherService) {}
+
+  @Get(':code/code')
+  public async detailByCode(@Param('code') code: string) {
+    try {
+      const data = await this.childService.detailByCode(code);
 
       return new ResponseEntity({
         data,
