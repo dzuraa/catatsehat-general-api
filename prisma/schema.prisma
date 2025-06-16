@@ -145,10 +145,14 @@ model Children {
   familyCardId       String?
   familyCard         File?   @relation("FamilyCard", fields: [familyCardId], references: [id])
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime?
-  checkupChildren CheckupChildren[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  checkupChildren    CheckupChildren[]
+  immunizationRecord ImmunizationRecord[]
+  childVaccine       ChildVaccine[]
+  childVaccineStage  ChildVaccineStage[]
 }
 
 model CheckupChildren {
@@ -173,6 +177,106 @@ model CheckupChildren {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+model Vaccine {
+  id   String @id @unique @default(uuid())
+  name String
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  vaccineStage       VaccineStage[]
+  immunizationRecord ImmunizationRecord[]
+  childVaccine       ChildVaccine[]
+}
+
+model VaccineStage {
+  id           String  @id @unique @default(uuid())
+  name         String
+  suggestedAge String?
+  order        Int?
+
+  vaccineId String?
+  vaccine   Vaccine? @relation(fields: [vaccineId], references: [id])
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  immunizationRecord ImmunizationRecord[]
+  childVaccineStage  ChildVaccineStage[]
+}
+
+model ImmunizationRecord {
+  id                 String  @id @unique @default(uuid())
+  dateGiven          Int?
+  note               String?
+  upcomingVaccine    String?
+  lastVaccineGiven   String?
+  vaccineStatus      Int?
+  immunizationStatus Int?
+
+  childrenId String?
+  children   Children? @relation(fields: [childrenId], references: [id])
+
+  vaccineId String?
+  vaccine   Vaccine? @relation(fields: [vaccineId], references: [id])
+
+  vaccineStageId String?
+  vaccineStage   VaccineStage? @relation(fields: [vaccineStageId], references: [id])
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+}
+
+model ChildVaccine {
+  id String @id @unique @default(uuid())
+
+  childrenId String?
+  children   Children? @relation(fields: [childrenId], references: [id])
+
+  vaccineId String
+  vaccine   Vaccine @relation(fields: [vaccineId], references: [id])
+
+  name               String
+  lastVaccineGiven   String?
+  upcomingVaccine    String?
+  immunizationStatus Int?    @default(0)
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  childVaccineStage ChildVaccineStage[]
+
+  // Add this unique constraint
+  @@unique([childrenId, vaccineId])
+}
+
+model ChildVaccineStage {
+  id String @id @unique @default(uuid())
+
+  childrenId String?
+  children   Children? @relation(fields: [childrenId], references: [id])
+
+  vaccineStageId String
+  vaccineStage   VaccineStage @relation(fields: [vaccineStageId], references: [id])
+
+  childVaccineId String?
+  childVaccine   ChildVaccine? @relation(fields: [childVaccineId], references: [id])
+
+  name          String
+  suggestedAge  String
+  dateGiven     Int?
+  order         Int
+  vaccineStatus Int?
+  note          String?
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  // Add this unique constraint
+  @@unique([childrenId, vaccineStageId])
 }
 
 model Mother {
