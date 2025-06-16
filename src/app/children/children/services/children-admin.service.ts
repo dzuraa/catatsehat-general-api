@@ -1,21 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ChildrenRepository } from '../repositories';
-import { FileService } from 'src/app/file/services/file.service';
 import { SearchChildrenDto } from '../dtos/search-children.dto';
 import { Prisma } from '@prisma/client';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
-import { MotherRepository } from 'src/app/mother/mother/repositories';
 import { env } from 'process';
-// import { ChildrenSeederService } from './children-seeder.service';
 
 @Injectable()
 export class ChildrenAdminService {
-  constructor(
-    private readonly childRepository: ChildrenRepository,
-    private readonly filesService: FileService,
-    private readonly motherRepository: MotherRepository,
-    // private readonly childrenSeederService: ChildrenSeederService,
-  ) {}
+  constructor(private readonly childRepository: ChildrenRepository) {}
 
   // Generate child access URL
   private generateChildAccessUrl(childCode: string): string {

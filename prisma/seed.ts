@@ -266,128 +266,128 @@ async function seedDataMaster() {
   }
 }
 
-// async function seedVaccines() {
-//   // Data Master Vaksin dan Tahapannya
-//   const vaccines = [
-//     {
-//       name: 'Hepatitis B (<24 Jam)',
-//       stages: [
-//         { name: 'Hepatitis B (<24 Jam)', suggestedAge: 'Dibawah 24 Jam' },
-//       ],
-//     },
-//     {
-//       name: 'BCG',
-//       stages: [{ name: 'BCG', suggestedAge: '0 - 1 Bulan' }],
-//     },
-//     {
-//       name: 'Polio Tetes',
-//       stages: [
-//         { name: 'Polio Tetes 1', suggestedAge: '0 - 1 Bulan' },
-//         { name: 'Polio Tetes 2', suggestedAge: '2 Bulan' },
-//         { name: 'Polio Tetes 3', suggestedAge: '3 Bulan' },
-//         { name: 'Polio Tetes 4', suggestedAge: '4 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'DPT-HB-Hib',
-//       stages: [
-//         { name: 'DPT-HB-Hib 1', suggestedAge: '2 Bulan' },
-//         { name: 'DPT-HB-Hib 2', suggestedAge: '3 Bulan' },
-//         { name: 'DPT-HB-Hib 3', suggestedAge: '4 Bulan' },
-//         { name: 'DPT-HB-Hib Lanjutan', suggestedAge: '18 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'Rota Virus (RV)',
-//       stages: [
-//         { name: 'Rota Virus (RV) 1', suggestedAge: '2 Bulan' },
-//         { name: 'Rota Virus (RV) 2', suggestedAge: '3 Bulan' },
-//         { name: 'Rota Virus (RV) 3', suggestedAge: '4 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'PCV',
-//       stages: [
-//         { name: 'PCV 1', suggestedAge: '2 Bulan' },
-//         { name: 'PCV 2', suggestedAge: '3 Bulan' },
-//         { name: 'PCV 3', suggestedAge: '12 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'Polio Suntik (IPV)',
-//       stages: [
-//         { name: 'Polio Suntik (IPV) 1', suggestedAge: '4 Bulan' },
-//         { name: 'Polio Suntik (IPV) 2', suggestedAge: '9 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'Campak -Rubella (MR)',
-//       stages: [
-//         { name: 'Campak -Rubella (MR)', suggestedAge: '9 Bulan' },
-//         { name: 'Campak -Rubella (MR) Lanjutan', suggestedAge: '18 Bulan' },
-//       ],
-//     },
-//     {
-//       name: 'Japanese Encephalitis (JE)',
-//       stages: [
-//         { name: 'Japanese Encephalitis (JE)', suggestedAge: '10 Bulan' },
-//       ],
-//     },
-//   ];
+async function seedVaccines() {
+  // Data Master Vaksin dan Tahapannya
+  const vaccines = [
+    {
+      name: 'Hepatitis B (<24 Jam)',
+      stages: [
+        { name: 'Hepatitis B (<24 Jam)', suggestedAge: 'Dibawah 24 Jam' },
+      ],
+    },
+    {
+      name: 'BCG',
+      stages: [{ name: 'BCG', suggestedAge: '0 - 1 Bulan' }],
+    },
+    {
+      name: 'Polio Tetes',
+      stages: [
+        { name: 'Polio Tetes 1', suggestedAge: '0 - 1 Bulan' },
+        { name: 'Polio Tetes 2', suggestedAge: '2 Bulan' },
+        { name: 'Polio Tetes 3', suggestedAge: '3 Bulan' },
+        { name: 'Polio Tetes 4', suggestedAge: '4 Bulan' },
+      ],
+    },
+    {
+      name: 'DPT-HB-Hib',
+      stages: [
+        { name: 'DPT-HB-Hib 1', suggestedAge: '2 Bulan' },
+        { name: 'DPT-HB-Hib 2', suggestedAge: '3 Bulan' },
+        { name: 'DPT-HB-Hib 3', suggestedAge: '4 Bulan' },
+        { name: 'DPT-HB-Hib Lanjutan', suggestedAge: '18 Bulan' },
+      ],
+    },
+    {
+      name: 'Rota Virus (RV)',
+      stages: [
+        { name: 'Rota Virus (RV) 1', suggestedAge: '2 Bulan' },
+        { name: 'Rota Virus (RV) 2', suggestedAge: '3 Bulan' },
+        { name: 'Rota Virus (RV) 3', suggestedAge: '4 Bulan' },
+      ],
+    },
+    {
+      name: 'PCV',
+      stages: [
+        { name: 'PCV 1', suggestedAge: '2 Bulan' },
+        { name: 'PCV 2', suggestedAge: '3 Bulan' },
+        { name: 'PCV 3', suggestedAge: '12 Bulan' },
+      ],
+    },
+    {
+      name: 'Polio Suntik (IPV)',
+      stages: [
+        { name: 'Polio Suntik (IPV) 1', suggestedAge: '4 Bulan' },
+        { name: 'Polio Suntik (IPV) 2', suggestedAge: '9 Bulan' },
+      ],
+    },
+    {
+      name: 'Campak -Rubella (MR)',
+      stages: [
+        { name: 'Campak -Rubella (MR)', suggestedAge: '9 Bulan' },
+        { name: 'Campak -Rubella (MR) Lanjutan', suggestedAge: '18 Bulan' },
+      ],
+    },
+    {
+      name: 'Japanese Encephalitis (JE)',
+      stages: [
+        { name: 'Japanese Encephalitis (JE)', suggestedAge: '10 Bulan' },
+      ],
+    },
+  ];
 
-//   try {
-//     for (const vaccine of vaccines) {
-//       // Periksa apakah vaksin sudah ada berdasarkan nama
-//       const existingVaccine = await prisma.vaccine.findFirst({
-//         where: { name: vaccine.name },
-//       });
+  try {
+    for (const vaccine of vaccines) {
+      // Periksa apakah vaksin sudah ada berdasarkan nama
+      const existingVaccine = await prisma.vaccine.findFirst({
+        where: { name: vaccine.name },
+      });
 
-//       if (!existingVaccine) {
-//         // Jika vaksin belum ada, tambahkan data vaksin beserta tahapannya
-//         const createdVaccine = await prisma.vaccine.create({
-//           data: {
-//             name: vaccine.name,
-//             VaccineStage: {
-//               create: vaccine.stages.map((stage) => ({
-//                 name: stage.name,
-//                 suggestedAge: stage.suggestedAge,
-//               })),
-//             },
-//           },
-//         });
+      if (!existingVaccine) {
+        // Jika vaksin belum ada, tambahkan data vaksin beserta tahapannya
+        const createdVaccine = await prisma.vaccine.create({
+          data: {
+            name: vaccine.name,
+            vaccineStage: {
+              create: vaccine.stages.map((stage) => ({
+                name: stage.name,
+                suggestedAge: stage.suggestedAge,
+              })),
+            },
+          },
+        });
 
-//         console.log(`Created vaccine: ${createdVaccine.name}`);
-//       } else {
-//         // Periksa apakah ada tahap baru yang perlu ditambahkan
-//         for (const stage of vaccine.stages) {
-//           const existingStage = await prisma.vaccineStage.findFirst({
-//             where: {
-//               name: stage.name,
-//               vaccineId: existingVaccine.id,
-//             },
-//           });
+        console.log(`Created vaccine: ${createdVaccine.name}`);
+      } else {
+        // Periksa apakah ada tahap baru yang perlu ditambahkan
+        for (const stage of vaccine.stages) {
+          const existingStage = await prisma.vaccineStage.findFirst({
+            where: {
+              name: stage.name,
+              vaccineId: existingVaccine.id,
+            },
+          });
 
-//           if (!existingStage) {
-//             // Tambahkan tahap baru jika belum ada
-//             await prisma.vaccineStage.create({
-//               data: {
-//                 name: stage.name,
-//                 suggestedAge: stage.suggestedAge,
-//                 vaccineId: existingVaccine.id,
-//               },
-//             });
-//             console.log(
-//               `Added new stage: ${stage.name} for vaccine: ${existingVaccine.name}`,
-//             );
-//           }
-//         }
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error in seeding vaccines:', error);
-//     throw error;
-//   }
-// }
+          if (!existingStage) {
+            // Tambahkan tahap baru jika belum ada
+            await prisma.vaccineStage.create({
+              data: {
+                name: stage.name,
+                suggestedAge: stage.suggestedAge,
+                vaccineId: existingVaccine.id,
+              },
+            });
+            console.log(
+              `Added new stage: ${stage.name} for vaccine: ${existingVaccine.name}`,
+            );
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error in seeding vaccines:', error);
+    throw error;
+  }
+}
 
 async function seedMonths() {
   const months = [
@@ -560,6 +560,9 @@ async function main() {
 
     // then seed data master
     await seedDataMaster();
+
+    // then seed data master vaccine
+    await seedVaccines();
 
     // then seed month blood
     await seedMonths();
