@@ -4,23 +4,24 @@ import {
   IsDateString,
   IsNumber,
   IsOptional,
-  Matches,
+  // Matches,
   IsEnum,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { BMIStatus, CheckupStatus } from '@prisma/client';
 
 export class CreateCheckupElderlyDto {
-  @ApiProperty()
-  @IsString()
-  name: string;
+  // @ApiProperty()
+  // @IsString()
+  // name: string;
+  // id: string;
 
-  @ApiProperty()
-  @IsString()
-  healthPostId: string;
+  // @ApiProperty()
+  // @IsString()
+  // healthPostId: string;
 
   @ApiProperty({
-    example: '2022-07-25T14:30:00.000Z',
+    example: '2022-07-25',
   })
   @IsDateString(
     {},
@@ -31,13 +32,13 @@ export class CreateCheckupElderlyDto {
   @IsString()
   attend: string;
 
-  @ApiProperty()
-  @IsString()
-  adminId: string;
+  // @ApiProperty()
+  // @IsString()
+  // adminId: string;
 
-  @ApiProperty()
-  @IsNumber()
-  month: number;
+  // @ApiProperty()
+  // @IsNumber()
+  // month: number;
 
   @ApiProperty({
     description: 'Height in centimeters',
@@ -101,12 +102,12 @@ export class CreateCheckupElderlyDto {
   @IsEnum(CheckupStatus)
   status: CheckupStatus;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Matches(/^data:application\/pdf;base64,/, {
-    message: 'Only PDF files are allowed',
-  })
-  fileDiagnosed?: string;
+  // @ApiPropertyOptional()
+  // @IsOptional()
+  // @Matches(/^data:application\/pdf;base64,/, {
+  //   message: 'Only PDF files are allowed',
+  // })
+  // fileDiagnosed?: string;
 
   @ApiProperty()
   @IsString()

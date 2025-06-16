@@ -3,11 +3,12 @@ import { ArticleHttpController } from './controllers';
 import { ArticleService } from './services';
 import { ArticleRepository } from './repositories';
 import { ArticleAdminHttpController } from './controllers/http/article-admin.controller';
-// import { FileService } from '../file/services';
+import { FileService } from '../file/services';
 
 @Module({
-  // imports: [FileService],
+  imports: [FileService],
   controllers: [ArticleHttpController, ArticleAdminHttpController],
   providers: [ArticleService, ArticleRepository],
+  exports: [ArticleService, ArticleRepository],
 })
 export class ArticleModule {}

@@ -509,6 +509,9 @@ model Article {
   adminId String?
   admin   Admin?  @relation(fields: [adminId], references: [id])
 
+  filePictureId String?
+  filePicture   File?   @relation("ArticlePicture", fields: [filePictureId], references: [id])
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -641,6 +644,7 @@ model File {
   checkupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
   fileChildPicture Report[]          @relation("FileChildPicture")
   fileHousePicture Report[]          @relation("FileHousePicture")
+  article          Article[]         @relation("ArticlePicture")
 }
 
 model Otp {
