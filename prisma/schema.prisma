@@ -65,6 +65,11 @@ enum HealthStatus {
   UNHEALTHY
 }
 
+enum ValueLungs {
+  VERIFIED
+  UNVERIFIED
+}
+
 model User {
   id           String     @id @unique @default(uuid())
   name         String
@@ -419,6 +424,7 @@ model Elderly {
   deletedAt DateTime?
 
   checkupElderly CheckupElderly[]
+  Lungs          Lungs[]
 }
 
 model CheckupElderly {
@@ -429,14 +435,13 @@ model CheckupElderly {
   bloodTension Float
   bloodSugar   Float
   attend       DateTime
-  month        Int?
   bmiStatus    BMIStatus?
   status       CheckupStatus @default(UNVERIFIED)
 
-  adminId           String?
-  elderlyId         String?
-  healthPostId      String?
-  lungsConclutionId String?
+  adminId      String?
+  elderlyId    String?
+  healthPostId String?
+  lungs        String?
 
   healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
   admin      Admin?      @relation(fields: [adminId], references: [id])
@@ -447,6 +452,54 @@ model CheckupElderly {
   deletedAt DateTime?
 }
 
+model Lungs {
+  id    String     @id @default(uuid())
+  value ValueLungs @default(UNVERIFIED)
+
+  elderlyId         String?
+  lungsConclutionId String?
+
+  elderly         Elderly?         @relation(fields: [elderlyId], references: [id])
+  lungsPivot      LungsPivot[]
+  lungsConclution LungsConclution? @relation(fields: [lungsConclutionId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model MasterDataLungs {
+  id       String @id @default(uuid())
+  question String
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime?
+  LungsPivot LungsPivot[]
+}
+
+model LungsConclution {
+  id         String @id @default(uuid())
+  conclution String
+  value      Float
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  Lungs     Lungs[]
+}
+
+model LungsPivot {
+  id    String  @id @default(uuid())
+  value Boolean
+
+  lungsId           String?
+  masterDataLungsId String?
+
+  lungs           Lungs?           @relation(fields: [lungsId], references: [id])
+  masterDataLungs MasterDataLungs? @relation(fields: [masterDataLungsId], references: [id])
+}
+
 model Article {
   id        String @id @unique @default(uuid())
   title     String
@@ -455,6 +508,9 @@ model Article {
 
   adminId String?
   admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  filePictureId String?
+  filePicture   File?   @relation("ArticlePicture", fields: [filePictureId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -588,6 +644,7 @@ model File {
   checkupChildren  CheckupChildren[] @relation("FileDiagnosedChildren")
   fileChildPicture Report[]          @relation("FileChildPicture")
   fileHousePicture Report[]          @relation("FileHousePicture")
+  article          Article[]         @relation("ArticlePicture")
 }
 
 model Otp {

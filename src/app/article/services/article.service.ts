@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { ArticleRepository } from '../repositories';
-// import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { CreateArticleDto, UpdateArticleDto, SearchArticleDto } from '../dtos';
 import { Filter } from '../repositories/article.repository';
 import { Prisma } from '@prisma/client';
-// import { FileService } from '@src/app/file/services';
+import { FileService } from 'src/app/file/services';
 
 @Injectable()
 export class ArticleService {
   constructor(
     private readonly articleRepository: ArticleRepository,
-    // private readonly fileService: FileService,
+    private readonly fileService: FileService,
   ) {}
 
   public paginate(paginateDto: SearchArticleDto) {
@@ -40,9 +39,9 @@ export class ArticleService {
       orderBy: {
         createdAt: 'desc',
       },
-      // include: {
-      //   filePicture: true,
-      // },
+      include: {
+        filePicture: true,
+      },
     });
   }
 
@@ -61,9 +60,9 @@ export class ArticleService {
           id,
           deletedAt: null,
         },
-        // {
-        //   filePicture: true,
-        // },
+        {
+          filePicture: true,
+        },
       );
     } catch (error) {
       throw new Error(error);
@@ -88,20 +87,20 @@ export class ArticleService {
         newsMaker: createArticleDto.newsMaker,
       };
 
-      // if (createArticleDto.filePicture) {
-      //   const filePicture = await this.fileService.upload({
-      //     file: createArticleDto.filePicture as string,
-      //     fileName: createArticleDto.title ?? '',
-      //   });
+      if (createArticleDto.filePicture) {
+        const filePicture = await this.fileService.upload({
+          file: createArticleDto.filePicture as string,
+          fileName: createArticleDto.title ?? '',
+        });
 
-      //   Object.assign(data, {
-      //     filePicture: {
-      //       connect: {
-      //         id: filePicture.id,
-      //       },
-      //     },
-      //   });
-      // }
+        Object.assign(data, {
+          filePicture: {
+            connect: {
+              id: filePicture.id,
+            },
+          },
+        });
+      }
 
       return this.articleRepository.create(data);
     } catch (error) {
@@ -118,20 +117,20 @@ export class ArticleService {
         newsMaker: updateArticleDto.newsMaker,
       };
 
-      // if (updateArticleDto.filePicture) {
-      //   const filePicture = await this.fileService.upload({
-      //     file: updateArticleDto.filePicture as string,
-      //     fileName: updateArticleDto.title ?? '',
-      //   });
+      if (updateArticleDto.filePicture) {
+        const filePicture = await this.fileService.upload({
+          file: updateArticleDto.filePicture as string,
+          fileName: updateArticleDto.title ?? '',
+        });
 
-      //   Object.assign(data, {
-      //     filePicture: {
-      //       connect: {
-      //         id: filePicture.id,
-      //       },
-      //     },
-      //   });
-      // }
+        Object.assign(data, {
+          filePicture: {
+            connect: {
+              id: filePicture.id,
+            },
+          },
+        });
+      }
 
       return this.articleRepository.update({ id }, data);
     } catch (error) {

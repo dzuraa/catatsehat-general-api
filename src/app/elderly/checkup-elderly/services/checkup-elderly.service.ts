@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { CheckupElderlyRepository } from '../repositories';
-// import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { CreateCheckupElderlyDto } from '../dtos';
 // import { FileService } from 'src/app/file/services';
-import { BMIStatus, CheckupStatus } from '@prisma/client';
+import { Admin, BMIStatus, CheckupStatus } from '@prisma/client';
 import { BMI_RANGES_ELDERLY } from 'src/common/constants/bmi.constant';
 import { SearchCheckupElderlyDto } from '../dtos/search-checkup-elderly.dto';
 // import { HealthPostsRepository } from 'src/app/healthposts/repositories';
 // import { AdminsRepository } from '@src/app/admins/repositories';
-
+import { PrismaService } from '@/platform/database/services/prisma.service';
 type CheckupElderlyWhereInput = {
   id?: string;
   deletedAt?: Date | null;
-  name?: {
-    contains?: string;
-    mode?: 'insensitive';
-    not?: null;
+  attend?: {
+    gte?: Date;
+    lte?: Date;
   };
   OR?: Array<{
-    name?: {
-      contains?: string;
-      mode?: 'insensitive';
+    elderly?: {
+      name?: {
+        contains?: string;
+        mode?: 'insensitive';
+      };
     };
     healthPost?: {
       name?: {
@@ -32,7 +32,7 @@ type CheckupElderlyWhereInput = {
 };
 
 type CheckupElderlyCreateInput = {
-  name: string;
+  // name: string;
   height: number;
   weight: number;
   bloodTension: number;
@@ -70,7 +70,7 @@ export class CheckupElderlyService {
     private readonly checkupElderlyRepository: CheckupElderlyRepository,
     // private readonly fileService: FileService,
     // private readonly healthPostRepository: HealthPostsRepository,
-    // private readonly adminRepository: AdminsRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   public calculateBmi(height: number, weight: number): number {
@@ -98,9 +98,11 @@ export class CheckupElderlyService {
     if (paginateDto.search) {
       whereCondition.OR = [
         {
-          name: {
-            contains: paginateDto.search,
-            mode: 'insensitive',
+          elderly: {
+            name: {
+              contains: paginateDto.search,
+              mode: 'insensitive',
+            },
           },
         },
         {
@@ -113,6 +115,25 @@ export class CheckupElderlyService {
         },
       ];
     }
+
+    // Add date filtering
+    if (paginateDto.date) {
+      const parts = paginateDto.date.split('-');
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in Date.UTC
+      const day = parseInt(parts[2], 10);
+
+      // Create UTC date for the beginning of the day
+      const startDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+      // Create UTC date for the end of the day
+      const endDate = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
+
+      whereCondition.attend = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+
     return this.checkupElderlyRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
@@ -120,6 +141,7 @@ export class CheckupElderlyService {
       },
       include: {
         healthPost: true,
+        elderly: true,
         // fileDiagnosed: true,
       },
     });
@@ -157,7 +179,10 @@ export class CheckupElderlyService {
     }
   }
 
-  public async create(createCheckupElderlyDto: CreateCheckupElderlyDto) {
+  public async create(
+    createCheckupElderlyDto: CreateCheckupElderlyDto,
+    user?: Admin,
+  ) {
     const bmi = this.calculateBmi(
       createCheckupElderlyDto.height,
       createCheckupElderlyDto.weight,
@@ -166,12 +191,11 @@ export class CheckupElderlyService {
     const bmiStatus = this.getBMIStatus(bmi);
 
     const data: CheckupElderlyCreateInput = {
-      name: createCheckupElderlyDto.name,
       height: createCheckupElderlyDto.height,
       weight: createCheckupElderlyDto.weight,
       bloodTension: createCheckupElderlyDto.bloodTension,
       bloodSugar: createCheckupElderlyDto.bloodSugar,
-      attend: new Date(createCheckupElderlyDto.attend),
+      attend: new Date(),
       bmi,
       bmiStatus,
       status: CheckupStatus.UNVERIFIED,
@@ -210,7 +234,38 @@ export class CheckupElderlyService {
     //   });
     // }
 
-    return await this.checkupElderlyRepository.create(data);
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: user?.id,
+      },
+      include: {
+        healthPost: true,
+      },
+    });
+
+    if (admin) {
+      Object.assign(data, {
+        healthPost: {
+          connect: {
+            id: admin?.healthPostId ?? undefined,
+          },
+        },
+        admin: {
+          connect: {
+            id: user?.id,
+          },
+        },
+      });
+    }
+
+    return await this.checkupElderlyRepository.create({
+      ...data,
+      elderly: {
+        connect: {
+          id: createCheckupElderlyDto.elderlyId,
+        },
+      },
+    });
   }
 
   public async update(
@@ -229,7 +284,6 @@ export class CheckupElderlyService {
       }
 
       const data: CheckupElderlyUpdateInput = {
-        name: updateCheckupElderlyDto.name,
         height: updateCheckupElderlyDto.height,
         weight: updateCheckupElderlyDto.weight,
         bloodTension: updateCheckupElderlyDto.bloodTension,

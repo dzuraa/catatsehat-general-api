@@ -1,25 +1,23 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpException,
   HttpStatus,
   Param,
   Post,
-  Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CheckupElderlyService } from 'src/app/elderly/checkup-elderly/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
-import {
-  CreateCheckupElderlyDto,
-  UpdateCheckupElderlyDto,
-} from 'src/app/elderly/checkup-elderly/dtos';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@/app/auth';
+import { CreateCheckupElderlyDto } from '../../dtos';
 
 @ApiTags('CheckupElderly')
+@UseGuards(AuthGuard)
 @Controller({
   path: 'checkupElderly',
   version: '1',
@@ -41,6 +39,7 @@ export class CheckupElderlyHttpController {
         message: 'Data created successfully',
       });
     } catch (error) {
+      console.log(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
@@ -71,40 +70,6 @@ export class CheckupElderlyHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @Delete(':id')
-  public async destroy(@Param('id') id: string) {
-    try {
-      const data = await this.checkupElderlyService.destroy(id);
-      return new ResponseEntity({
-        data,
-        status: HttpStatus.OK,
-        message: 'Data deleted successfully',
-      });
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Put(':id')
-  public async update(
-    @Param('id') id: string,
-    @Body() updateCheckupElderlyDto: UpdateCheckupElderlyDto,
-  ) {
-    try {
-      const data = await this.checkupElderlyService.update(
-        id,
-        updateCheckupElderlyDto,
-      );
-      return new ResponseEntity({
-        data,
-        status: HttpStatus.OK,
-        message: 'Data updated successfully',
-      });
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 }

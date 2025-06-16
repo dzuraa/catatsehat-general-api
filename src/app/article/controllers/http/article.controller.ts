@@ -9,14 +9,17 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ArticleService } from 'src/app/article/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { CreateArticleDto, UpdateArticleDto } from 'src/app/article/dtos';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@/app/auth';
 
 @ApiTags('Article')
+@UseGuards(AuthGuard)
 @Controller({
   path: 'article',
   version: '1',

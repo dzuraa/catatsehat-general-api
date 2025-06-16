@@ -68,7 +68,7 @@ export class CreateAdminDto {
   password: string;
 
   @ApiProperty({
-    example: 'SUOER_ADMIN / KADER',
+    example: 'SUPER_ADMIN / KADER',
   })
   @IsEnum(AdminType)
   type: `${AdminType}`;
