@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { SearchReportDto } from '../dtos';
 import { ReportRepository } from '../repositories';
+import { UpdateReportAdminDto } from '../dtos/update-report-admin.dto';
 
 @Injectable()
 export class ReportAdminService {
@@ -62,5 +63,9 @@ export class ReportAdminService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  public async update(id: string, updateReportAdminDto: UpdateReportAdminDto) {
+    return this.reportRepository.update({ id }, updateReportAdminDto);
   }
 }
