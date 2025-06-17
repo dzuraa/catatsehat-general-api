@@ -70,6 +70,11 @@ enum ValueLungs {
   UNVERIFIED
 }
 
+enum ReportStatus {
+  PENDING
+  RESOLVED
+}
+
 model User {
   id           String     @id @unique @default(uuid())
   name         String
@@ -622,13 +627,14 @@ model Article {
 }
 
 model Report {
-  id           String @id @unique @default(uuid())
+  id           String       @id @unique @default(uuid())
   reporter     String
   phoneNumber  String
   childName    String
   childAddress String
   observation  String
   gender       Gender
+  status       ReportStatus @default(PENDING)
 
   userId             String
   user               User    @relation(fields: [userId], references: [id])

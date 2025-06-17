@@ -18,6 +18,7 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthGuard, AdminGuard } from 'src/app/auth';
 import { User } from '@prisma/client';
 import { UserDecorator } from 'src/app/auth/decorators';
+import { UpdateReportAdminDto } from '../../dtos/update-report-admin.dto';
 
 @ApiTags('[USER] Report Stunting')
 @ApiSecurity('JWT')
@@ -146,6 +147,26 @@ export class ReportAdminHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Put(':id')
+  public async update(
+    @Param('id') id: string,
+    @Body() updateReportAdminDto: UpdateReportAdminDto,
+  ) {
+    try {
+      const data = await this.reportAdminService.update(
+        id,
+        updateReportAdminDto,
+      );
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data updated successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 }
