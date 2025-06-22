@@ -49,20 +49,16 @@ export class ReportAdminService {
   }
 
   public detail(id: string) {
-    try {
-      return this.reportRepository.firstOrThrow(
-        {
-          id,
-          deletedAt: null,
-        },
-        {
-          fileHousePicture: true,
-          fileChildPicture: true,
-        },
-      );
-    } catch (error) {
-      throw new Error(error);
-    }
+    return this.reportRepository.firstOrThrow(
+      {
+        id,
+        deletedAt: null,
+      },
+      {
+        fileHousePicture: true,
+        fileChildPicture: true,
+      },
+    );
   }
 
   public async update(id: string, updateReportAdminDto: UpdateReportAdminDto) {
