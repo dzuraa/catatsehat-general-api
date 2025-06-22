@@ -169,4 +169,18 @@ export class ReportAdminHttpController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Delete(':id')
+  public async destroy(@Param('id') id: string) {
+    try {
+      const data = await this.reportAdminService.destroy(id);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data deleted successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

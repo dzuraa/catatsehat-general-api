@@ -68,4 +68,10 @@ export class ReportAdminService {
   public async update(id: string, updateReportAdminDto: UpdateReportAdminDto) {
     return this.reportRepository.update({ id }, updateReportAdminDto);
   }
+
+  public async destroy(id: string) {
+    return this.reportRepository.delete({
+      id,
+    });
+  }
 }
