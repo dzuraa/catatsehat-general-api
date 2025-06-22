@@ -20,11 +20,14 @@ export class ChildrenService {
   ) {}
 
   // Generate child access URL
-  private generateChildAccessUrl(childCode: string): string {
+  // private generateChildAccessUrl(childCode: string): string {
     // const baseUrl = ENV.FRONTEND_BASE_URL;
     // const baseUrl = localhost:5173;
-    return `localhost:5173/public/option-page?code=${childCode}`;
-  }
+  //   return `localhost:5173/public/option-page?code=${childCode}`;
+  // }
+  private generateChildAccessUrl(childCode: string): string {
+  return `http://localhost:5173/public/option-page?code=${childCode}`;
+}
 
   public async paginate(paginateDto: SearchChildrenDto, user: User) {
     const whereCondition: Prisma.ChildrenWhereInput = {
