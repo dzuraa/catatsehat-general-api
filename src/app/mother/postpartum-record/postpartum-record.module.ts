@@ -6,6 +6,7 @@ import {
 import { PostpartumRecordService } from './services';
 import { PostpartumRecordRepository } from './repositories';
 import { MotherModule } from '../mother';
+import { PostpartumRecordAdminService } from './services/postpartum-record-admin.service';
 
 @Module({
   imports: [MotherModule],
@@ -13,6 +14,10 @@ import { MotherModule } from '../mother';
     PostpartumRecordHttpController,
     PostpartumRecordAdminHttpController,
   ],
-  providers: [PostpartumRecordService, PostpartumRecordRepository],
+  providers: [
+    PostpartumRecordService,
+    PostpartumRecordAdminService,
+    PostpartumRecordRepository,
+  ],
 })
 export class PostpartumRecordModule {}

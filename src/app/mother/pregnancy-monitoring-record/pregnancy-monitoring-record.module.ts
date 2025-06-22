@@ -6,6 +6,7 @@ import {
 import { PregnancyMonitoringRecordService } from './services';
 import { PregnancyMonitoringRecordRepository } from './repositories';
 import { MotherModule } from '../mother';
+import { PregnancyMonitoringRecordAdminService } from './services/pregnancy-monitoring-record-admin.service';
 
 @Module({
   imports: [MotherModule],
@@ -15,6 +16,7 @@ import { MotherModule } from '../mother';
   ],
   providers: [
     PregnancyMonitoringRecordService,
+    PregnancyMonitoringRecordAdminService,
     PregnancyMonitoringRecordRepository,
   ],
 })
