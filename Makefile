@@ -6,6 +6,7 @@ add:
 
 push:
 	docker run --rm -v "./":/app -w /app catatsehat git push
+
 pull:
 	docker run --rm -v "./":/app -w /app catatsehat git pull --rebase origin $(branch)
 
