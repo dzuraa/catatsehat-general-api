@@ -22,6 +22,7 @@ export class FileService {
     // Validate MIME type
     const allowedMimeTypes = [
       'image/jpeg',
+      'image/jpg',
       'image/png',
       'image/gif',
       'image/heic',

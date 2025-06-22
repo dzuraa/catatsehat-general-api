@@ -8,6 +8,7 @@ import { SearchCheckupElderlyDto } from '../dtos/search-checkup-elderly.dto';
 // import { HealthPostsRepository } from 'src/app/healthposts/repositories';
 // import { AdminsRepository } from '@src/app/admins/repositories';
 import { PrismaService } from '@/platform/database/services/prisma.service';
+import { FileService } from '@/app/file/services';
 type CheckupElderlyWhereInput = {
   id?: string;
   deletedAt?: Date | null;
@@ -68,7 +69,7 @@ type CheckupElderlyUpdateInput = {
 export class CheckupElderlyService {
   constructor(
     private readonly checkupElderlyRepository: CheckupElderlyRepository,
-    // private readonly fileService: FileService,
+    private readonly fileService: FileService,
     // private readonly healthPostRepository: HealthPostsRepository,
     private readonly prisma: PrismaService,
   ) {}
@@ -142,7 +143,7 @@ export class CheckupElderlyService {
       include: {
         healthPost: true,
         elderly: true,
-        // fileDiagnosed: true,
+        fileDiagnosed: true,
       },
     });
   }
@@ -201,38 +202,29 @@ export class CheckupElderlyService {
       status: CheckupStatus.UNVERIFIED,
     };
 
-    // if (createCheckupElderlyDto.healthPostId) {
-    //   const healthPost = await this.healthPostRepository.first({
-    //     id: createCheckupElderlyDto.healthPostId,
-    //   });
-    //   if (!healthPost) {
-    //     throw new Error('Health Post not found');
-    //   }
-
-    //   Object.assign(data, {
-    //     healthPost: {
-    //       connect: {
-    //         id: createCheckupElderlyDto.healthPostId,
-    //       },
+    // Object.assign(data, {
+    //   healthPost: {
+    //     connect: {
+    //       id: user?.healthPostId,
     //     },
-    //   });
-    // }
+    //   },
+    // });
 
-    // if (createCheckupElderlyDto.fileDiagnosed) {
-    //   const fileDiagnosed = await this.fileService.upload({
-    //     file: createCheckupElderlyDto.fileDiagnosed,
-    //     fileName: createCheckupElderlyDto.name ?? '',
-    //   });
+    if (createCheckupElderlyDto.fileDiagnosed) {
+      const fileDiagnosed = await this.fileService.upload({
+        file: createCheckupElderlyDto.fileDiagnosed,
+        fileName: `diagnosed-${createCheckupElderlyDto.elderlyId}`,
+      });
 
-    //   data.status = CheckupStatus.VERIFIED;
-    //   Object.assign(data, {
-    //     fileDiagnosed: {
-    //       connect: {
-    //         id: fileDiagnosed.id,
-    //       },
-    //     },
-    //   });
-    // }
+      data.status = CheckupStatus.VERIFIED;
+      Object.assign(data, {
+        fileDiagnosed: {
+          connect: {
+            id: fileDiagnosed.id,
+          },
+        },
+      });
+    }
 
     const admin = await this.prisma.admin.findUnique({
       where: {
@@ -243,16 +235,16 @@ export class CheckupElderlyService {
       },
     });
 
-    if (admin) {
+    if (admin && admin.healthPostId) {
       Object.assign(data, {
-        healthPost: {
-          connect: {
-            id: admin?.healthPostId ?? undefined,
-          },
-        },
         admin: {
           connect: {
             id: user?.id,
+          },
+        },
+        healthPost: admin.healthPostId && {
+          connect: {
+            id: admin.healthPostId,
           },
         },
       });

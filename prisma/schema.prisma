@@ -494,6 +494,9 @@ model CheckupElderly {
   healthPostId String?
   lungs        String?
 
+  fileDiagnosedId String?
+  fileDiagnosed   File?   @relation("FileDiagnosedElderly", fields: [fileDiagnosedId], references: [id])
+
   healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
   admin      Admin?      @relation(fields: [adminId], references: [id])
   elderly    Elderly?    @relation(fields: [elderlyId], references: [id])
@@ -560,8 +563,8 @@ model Article {
   adminId String?
   admin   Admin?  @relation(fields: [adminId], references: [id])
 
-  filePictureId String?
-  filePicture   File?   @relation("ArticlePicture", fields: [filePictureId], references: [id])
+  imageId String?
+  image   File?   @relation("ArticlePicture", fields: [imageId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -697,6 +700,7 @@ model File {
   fileChildPicture Report[]          @relation("FileChildPicture")
   fileHousePicture Report[]          @relation("FileHousePicture")
   article          Article[]         @relation("ArticlePicture")
+  checkupElderly   CheckupElderly[]  @relation("FileDiagnosedElderly")
 }
 
 model Otp {

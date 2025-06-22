@@ -6,6 +6,7 @@ import {
   IsOptional,
   // Matches,
   IsEnum,
+  Matches,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { BMIStatus, CheckupStatus } from '@prisma/client';
@@ -94,20 +95,12 @@ export class CreateCheckupElderlyDto {
   @IsEnum(BMIStatus)
   bmiStatus?: BMIStatus;
 
-  @ApiProperty({
-    enum: CheckupStatus,
-    default: CheckupStatus.UNVERIFIED,
-    description: 'Checkup verification status',
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Matches(/^data:application\/pdf;base64,/, {
+    message: 'Only PDF files are allowed',
   })
-  @IsEnum(CheckupStatus)
-  status: CheckupStatus;
-
-  // @ApiPropertyOptional()
-  // @IsOptional()
-  // @Matches(/^data:application\/pdf;base64,/, {
-  //   message: 'Only PDF files are allowed',
-  // })
-  // fileDiagnosed?: string;
+  fileDiagnosed?: string;
 
   @ApiProperty()
   @IsString()
