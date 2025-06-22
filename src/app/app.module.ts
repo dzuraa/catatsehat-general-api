@@ -30,6 +30,8 @@ import { ImmunizationRecordModule } from './children/immunization-record';
 import { VaccineModule } from './children/vaccine';
 import { VaccineStageModule } from './children/vaccine-stage';
 import { BloodRecordModule } from './mother/blood-record';
+import { MasterDataLungsModule } from './elderly/master-data-lungs';
+import { LungConclusionModule } from './elderly/lung-conclusion';
 
 @ApiTags('App Spec')
 @Controller()
@@ -80,6 +82,29 @@ class AppController {
     DistrictModule,
     RegencyModule,
     ProvinceModule,
+    CheckupElderlyModule,
+    ArticleModule,
+    ReportModule,
+    MasterElderlyModule,
+    HealthPostModule,
+    ScheduleModule,
+    ChildrenModule,
+    CheckupMotherModule,
+    MotherModule,
+    // PostPartumModule,
+    PostpartumRecordModule,
+    PostpartumQuestionModule,
+    DayPostpartumModule,
+    // BloodRecordModule,
+    // BloodStepModule,
+    // MonthBloodModule,
+    // BloodSupplementModule,
+    // PregnancyMonitoringModule,
+    PregnancyMonitoringRecordModule,
+    PregnancyMonitoringQuestionModule,
+    WeekPregnancyMonitoringModule,
+    MasterDataLungsModule,
+    LungConclusionModule,
   ],
   controllers: [AppController],
 })
