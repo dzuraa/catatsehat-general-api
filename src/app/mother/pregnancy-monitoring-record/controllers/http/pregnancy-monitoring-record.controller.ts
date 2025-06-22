@@ -1,19 +1,74 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Param,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { PregnancyMonitoringRecordService } from 'src/app/mother/pregnancy-monitoring-record/services';
-import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { AdminGuard, AuthGuard } from '@/app/auth';
+import { UserDecorator } from '@/app/auth/decorators';
+import { User } from '@prisma/client';
+import {
+  CreatePregnancyMonitoringRecordDto,
+  SearchPregnancyMonitoringRecordDto,
+} from '../../dtos';
+import { PregnancyMonitoringRecordAdminService } from '../../services/pregnancy-monitoring-record-admin.service';
+import { PregnancyMonitoringRecordService } from '../../services';
 
-@ApiTags('PregnancyMonitoringRecord')
+@ApiTags('[ADMIN] Pregnancy Monitoring Record')
+@ApiSecurity('JWT')
+@UseGuards(AdminGuard)
 @Controller({
-  path: 'pregnancyMonitoringRecord',
+  path: 'admin/pregnancyMonitoringRecord',
+  version: '1',
+})
+export class PregnancyMonitoringRecordAdminHttpController {
+  constructor(
+    private readonly pregnancyMonitoringRecordAdminService: PregnancyMonitoringRecordAdminService,
+  ) {}
+
+  @Get()
+  public async index(@Query() paginateDto: SearchPregnancyMonitoringRecordDto) {
+    try {
+      const data =
+        await this.pregnancyMonitoringRecordAdminService.paginate(paginateDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get(':id')
+  public async detail(@Param('id') id: string) {
+    try {
+      const data = await this.pregnancyMonitoringRecordAdminService.detail(id);
+
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+}
+
+@ApiTags('[USER] Pregnancy Monitoring Record')
+@ApiSecurity('JWT')
+@UseGuards(AuthGuard)
+@Controller({
+  path: 'user/pregnancyMonitoringRecord',
   version: '1',
 })
 export class PregnancyMonitoringRecordHttpController {
@@ -21,11 +76,37 @@ export class PregnancyMonitoringRecordHttpController {
     private readonly pregnancyMonitoringRecordService: PregnancyMonitoringRecordService,
   ) {}
 
-  @Get()
-  public async index(@Query() paginateDto: PaginationQueryDto) {
+  @Post()
+  public async create(
+    @Body()
+    createPregnancyMonitoringRecordDto: CreatePregnancyMonitoringRecordDto,
+    @UserDecorator() user: User,
+  ) {
     try {
-      const data =
-        await this.pregnancyMonitoringRecordService.paginate(paginateDto);
+      const data = await this.pregnancyMonitoringRecordService.create(
+        createPregnancyMonitoringRecordDto,
+        user,
+      );
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.CREATED,
+        message: 'Data created successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get()
+  public async index(
+    @Query() weekPregnancyMonitoringId: string,
+    @UserDecorator() user: User,
+  ) {
+    try {
+      const data = await this.pregnancyMonitoringRecordService.index(
+        weekPregnancyMonitoringId,
+        user,
+      );
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

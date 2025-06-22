@@ -5,7 +5,7 @@ import {
   MotherPublicHttpController,
 } from './controllers';
 import { MotherRepository } from './repositories';
-import { MotherService, PostPartumSeederService } from './services';
+import { MotherService } from './services';
 
 @Module({
   controllers: [
@@ -13,7 +13,7 @@ import { MotherService, PostPartumSeederService } from './services';
     MotherAdminHttpController,
     MotherPublicHttpController,
   ],
-  providers: [MotherService, MotherRepository, PostPartumSeederService],
+  providers: [MotherService, MotherRepository],
   exports: [MotherService, MotherRepository],
 })
 export class MotherModule {}

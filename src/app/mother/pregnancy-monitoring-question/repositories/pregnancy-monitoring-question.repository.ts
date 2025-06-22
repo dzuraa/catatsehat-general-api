@@ -10,7 +10,6 @@ export type Filter = {
   cursor?: Prisma.PregnancyMonitoringQuestionWhereUniqueInput;
   take?: number;
   skip?: number;
-  include?: Prisma.PregnancyMonitoringQuestionInclude;
 };
 
 @Injectable()
@@ -27,7 +26,6 @@ export class PregnancyMonitoringQuestionRepository {
         where: filter?.where,
         orderBy: filter?.orderBy,
         cursor: filter?.cursor,
-        include: filter?.include,
       }),
       this.prismaService.pregnancyMonitoringQuestion.count({
         where: filter?.where,

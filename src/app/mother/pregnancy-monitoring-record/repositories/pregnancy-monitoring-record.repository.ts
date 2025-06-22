@@ -4,7 +4,7 @@ import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { PaginatedEntity } from 'src/common/entities/paginated.entity';
 import { PrismaService } from 'src/platform/database/services/prisma.service';
 
-export type FilterRecord = {
+export type Filter = {
   where?: Prisma.PregnancyMonitoringRecordWhereInput;
   orderBy?: Prisma.PregnancyMonitoringRecordOrderByWithRelationInput;
   cursor?: Prisma.PregnancyMonitoringRecordWhereUniqueInput;
@@ -17,10 +17,7 @@ export type FilterRecord = {
 export class PregnancyMonitoringRecordRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  public async paginate(
-    paginateDto: PaginationQueryDto,
-    filter?: FilterRecord,
-  ) {
+  public async paginate(paginateDto: PaginationQueryDto, filter?: Filter) {
     const { limit = 10, page = 1 } = paginateDto;
 
     const [data, count] = await this.prismaService.$transaction([
@@ -55,39 +52,38 @@ export class PregnancyMonitoringRecordRepository {
     return this.prismaService.pregnancyMonitoringRecord.update({ where, data });
   }
 
+  public async delete(where: Prisma.PregnancyMonitoringRecordWhereUniqueInput) {
+    return this.prismaService.pregnancyMonitoringRecord.update({
+      where,
+      data: { deletedAt: new Date() },
+    });
+  }
+
   public async first(
     where: Prisma.PregnancyMonitoringRecordWhereUniqueInput,
     select?: Prisma.PregnancyMonitoringRecordSelect,
   ) {
-    return this.prismaService.pregnancyMonitoringRecord.findUnique({
-      where,
-      select,
-    });
+    return this.prismaService.pregnancyMonitoringRecord.findUnique({ where, select });
   }
 
   public async firstOrThrow(
     where: Prisma.PregnancyMonitoringRecordWhereUniqueInput,
     select?: Prisma.PregnancyMonitoringRecordSelect,
   ) {
-    const data = await this.prismaService.pregnancyMonitoringRecord.findUnique({
-      where,
-      select,
-    });
+    const data = await this.prismaService.pregnancyMonitoringRecord.findUnique({ where, select });
     if (!data) throw new Error('data.not_found');
     return data;
   }
 
-  public async find(filter: FilterRecord) {
+  public async find(filter: Filter) {
     return this.prismaService.pregnancyMonitoringRecord.findMany(filter);
   }
 
-  public async count(filter: Omit<FilterRecord, 'include'>) {
+  public async count(filter: Omit<Filter, 'include'>) {
     return this.prismaService.pregnancyMonitoringRecord.count(filter);
   }
 
-  public async any(filter: Omit<FilterRecord, 'include'>) {
-    return (
-      (await this.prismaService.pregnancyMonitoringRecord.count(filter)) > 0
-    );
+  public async any(filter: Omit<Filter, 'include'>) {
+    return (await this.prismaService.pregnancyMonitoringRecord.count(filter)) > 0;
   }
 }
