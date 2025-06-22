@@ -1,13 +1,12 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
 import { ReportStatus } from '@prisma/client';
 
 export class UpdateReportAdminDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     enum: ReportStatus,
-    example: `${ReportStatus.PENDING} / ${ReportStatus.RESOLVED}`,
+    example: ReportStatus.RESOLVED,
   })
-  @IsOptional()
   @IsEnum(ReportStatus)
   status: ReportStatus;
 }
