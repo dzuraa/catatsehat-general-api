@@ -5,23 +5,23 @@ import { PaginatedEntity } from 'src/common/entities/paginated.entity';
 import { PrismaService } from 'src/platform/database/services/prisma.service';
 
 export type Filter = {
-  where?: Prisma.PostPartumRecordWhereInput;
-  orderBy?: Prisma.PostPartumRecordOrderByWithRelationInput;
-  cursor?: Prisma.PostPartumRecordWhereUniqueInput;
+  where?: Prisma.BloodRecordWhereInput;
+  orderBy?: Prisma.BloodRecordOrderByWithRelationInput;
+  cursor?: Prisma.BloodRecordWhereUniqueInput;
   take?: number;
   skip?: number;
-  include?: Prisma.PostPartumRecordInclude;
+  include?: Prisma.BloodRecordInclude;
 };
 
 @Injectable()
-export class PostpartumRecordRepository {
+export class BloodRecordRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   public async paginate(paginateDto: PaginationQueryDto, filter?: Filter) {
     const { limit = 10, page = 1 } = paginateDto;
 
     const [data, count] = await this.prismaService.$transaction([
-      this.prismaService.postPartumRecord.findMany({
+      this.prismaService.bloodRecord.findMany({
         skip: filter?.skip ?? (+page - 1) * +limit,
         take: +limit,
         where: filter?.where,
@@ -29,7 +29,7 @@ export class PostpartumRecordRepository {
         cursor: filter?.cursor,
         include: filter?.include,
       }),
-      this.prismaService.postPartumRecord.count({
+      this.prismaService.bloodRecord.count({
         where: filter?.where,
       }),
     ]);
@@ -41,36 +41,36 @@ export class PostpartumRecordRepository {
     });
   }
 
-  public async create(data: Prisma.PostPartumRecordCreateInput) {
-    return this.prismaService.postPartumRecord.create({ data });
+  public async create(data: Prisma.BloodRecordCreateInput) {
+    return this.prismaService.bloodRecord.create({ data });
   }
 
   public async update(
-    where: Prisma.PostPartumRecordWhereUniqueInput,
-    data: Prisma.PostPartumRecordUpdateInput,
+    where: Prisma.BloodRecordWhereUniqueInput,
+    data: Prisma.BloodRecordUpdateInput,
   ) {
-    return this.prismaService.postPartumRecord.update({ where, data });
+    return this.prismaService.bloodRecord.update({ where, data });
   }
 
-  public async delete(where: Prisma.PostPartumRecordWhereUniqueInput) {
-    return this.prismaService.postPartumRecord.update({
+  public async delete(where: Prisma.BloodRecordWhereUniqueInput) {
+    return this.prismaService.bloodRecord.update({
       where,
       data: { deletedAt: new Date() },
     });
   }
 
   public async first(
-    where: Prisma.PostPartumRecordWhereUniqueInput,
-    select?: Prisma.PostPartumRecordSelect,
+    where: Prisma.BloodRecordWhereUniqueInput,
+    select?: Prisma.BloodRecordSelect,
   ) {
-    return this.prismaService.postPartumRecord.findUnique({ where, select });
+    return this.prismaService.bloodRecord.findUnique({ where, select });
   }
 
   public async firstOrThrow(
-    where: Prisma.PostPartumRecordWhereUniqueInput,
-    include?: Prisma.PostPartumRecordInclude,
+    where: Prisma.BloodRecordWhereUniqueInput,
+    include?: Prisma.BloodRecordInclude,
   ) {
-    const data = await this.prismaService.postPartumRecord.findUnique({
+    const data = await this.prismaService.bloodRecord.findUnique({
       where,
       include,
     });
@@ -79,14 +79,17 @@ export class PostpartumRecordRepository {
   }
 
   public async find(filter: Filter) {
-    return this.prismaService.postPartumRecord.findMany(filter);
+    return this.prismaService.bloodRecord.findMany({
+      ...filter,
+      include: { ...filter.include, monthBlood: true },
+    });
   }
 
   public async count(filter: Omit<Filter, 'include'>) {
-    return this.prismaService.postPartumRecord.count(filter);
+    return this.prismaService.bloodRecord.count(filter);
   }
 
   public async any(filter: Omit<Filter, 'include'>) {
-    return (await this.prismaService.postPartumRecord.count(filter)) > 0;
+    return (await this.prismaService.bloodRecord.count(filter)) > 0;
   }
 }

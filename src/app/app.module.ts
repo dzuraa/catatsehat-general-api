@@ -14,10 +14,8 @@ import { HealthPostModule } from './healthpost';
 import { CheckupMotherModule } from './mother/checkup-mother';
 import { DayPostpartumModule } from './mother/day-postpartum';
 import { MotherModule } from './mother/mother';
-import { PostPartumModule } from './mother/post-partum';
 import { PostpartumQuestionModule } from './mother/postpartum-question';
 import { PostpartumRecordModule } from './mother/postpartum-record';
-import { PregnancyMonitoringModule } from './mother/pregnancy-monitoring';
 import { PregnancyMonitoringQuestionModule } from './mother/pregnancy-monitoring-question';
 import { PregnancyMonitoringRecordModule } from './mother/pregnancy-monitoring-record';
 import { WeekPregnancyMonitoringModule } from './mother/week-pregnancy-monitoring';
@@ -31,6 +29,7 @@ import { UsersModule } from './users/users.module';
 import { ImmunizationRecordModule } from './children/immunization-record';
 import { VaccineModule } from './children/vaccine';
 import { VaccineStageModule } from './children/vaccine-stage';
+import { BloodRecordModule } from './mother/blood-record';
 
 @ApiTags('App Spec')
 @Controller()
@@ -62,31 +61,25 @@ class AppController {
     ImmunizationRecordModule,
     VaccineModule,
     VaccineStageModule,
+    MasterElderlyModule,
+    CheckupElderlyModule,
+    MotherModule,
+    CheckupMotherModule,
+    BloodRecordModule,
+    PostpartumRecordModule,
+    PregnancyMonitoringRecordModule,
+    PostpartumQuestionModule,
+    PregnancyMonitoringQuestionModule,
+    DayPostpartumModule,
+    WeekPregnancyMonitoringModule,
+    HealthPostModule,
+    ScheduleModule,
+    ReportModule,
+    ArticleModule,
     SubdistrictModule,
     DistrictModule,
     RegencyModule,
     ProvinceModule,
-    CheckupElderlyModule,
-    ArticleModule,
-    ReportModule,
-    MasterElderlyModule,
-    HealthPostModule,
-    ScheduleModule,
-    ChildrenModule,
-    CheckupMotherModule,
-    MotherModule,
-    PostPartumModule,
-    PostpartumRecordModule,
-    PostpartumQuestionModule,
-    DayPostpartumModule,
-    // BloodRecordModule,
-    // BloodStepModule,
-    // MonthBloodModule,
-    // BloodSupplementModule,
-    PregnancyMonitoringModule,
-    PregnancyMonitoringRecordModule,
-    PregnancyMonitoringQuestionModule,
-    WeekPregnancyMonitoringModule,
   ],
   controllers: [AppController],
 })

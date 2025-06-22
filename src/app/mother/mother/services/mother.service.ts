@@ -5,13 +5,13 @@ import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ENV } from 'src/config/env';
 import { CreateMotherDto, UpdateMotherDto } from '../dtos';
 import { MotherRepository } from '../repositories';
-import { PostPartumSeederService } from './postpartum-seeder.service';
+// import { PostPartumSeederService } from './postpartum-seeder.service';
 
 @Injectable()
 export class MotherService {
   constructor(
     private readonly motherRepository: MotherRepository,
-    private readonly postPartumSeederService: PostPartumSeederService,
+    // private readonly postPartumSeederService: PostPartumSeederService,
   ) {}
 
   private generateMotherAccessUrl(motherCode: string): string {
@@ -106,14 +106,14 @@ export class MotherService {
 
     const createdMother = await this.motherRepository.create(data);
 
-    const postPartumCheckupSeed =
-      await this.postPartumSeederService.seedPostPartumRecords(
-        createdMother.id,
-      );
+    // const postPartumCheckupSeed =
+    //   await this.postPartumSeederService.seedPostPartumRecords(
+    //     createdMother.id,
+    //   );
 
     return {
       mother: createdMother,
-      postPartumCheckupSeed,
+      // postPartumCheckupSeed,
     };
   }
 

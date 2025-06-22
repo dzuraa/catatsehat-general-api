@@ -44,11 +44,6 @@ enum Gender {
   FEMALE
 }
 
-enum StatusBlood {
-  DONE
-  NOT_DONE
-}
-
 enum OwnerType {
   ADMIN
   PUBLIC
@@ -119,7 +114,6 @@ model Admin {
   article         Article[]
   schedule        Schedule[]
   bloodRecord     BloodRecord[]
-  bloodSupplement BloodSupplement[]
   checkupMother   CheckupMother[]
   checkupChildren CheckupChildren[]
 }
@@ -303,8 +297,6 @@ model Mother {
 
   Children                  Children[]
   BloodRecord               BloodRecord[]
-  BloodSupplement           BloodSupplement[]
-  BloodStep                 BloodStep[]
   CheckupMother             CheckupMother[]
   PostPartumRecord          PostPartumRecord[]
   PregnancyMonitoringRecord PregnancyMonitoringRecord[]
@@ -317,62 +309,7 @@ model MonthBlood {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
-  bloodSupplement BloodSupplement[]
-  bloodRecord     BloodRecord[]
-}
-
-model BloodRecord {
-  id        String   @id @default(uuid())
-  date      DateTime
-  staffName String?
-  staffJob  String?
-  note      String?
-
-  adminId    String?
-  admin      Admin?     @relation(fields: [adminId], references: [id])
-  motherId   String
-  mother     Mother     @relation(fields: [motherId], references: [id])
-  monthId    String
-  monthBlood MonthBlood @relation(fields: [monthId], references: [id])
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-}
-
-model BloodSupplement {
-  id           String       @id @default(uuid())
-  statusBlood  StatusBlood?
-  totalConsume Int
-
-  motherId   String?
-  mother     Mother?     @relation(fields: [motherId], references: [id])
-  adminId    String?
-  admin      Admin?      @relation(fields: [adminId], references: [id])
-  monthId    String?
-  monthBlood MonthBlood? @relation(fields: [monthId], references: [id])
-
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-
-  bloodStep BloodStep[]
-}
-
-model BloodStep {
-  id   String   @id @default(uuid())
-  date DateTime
-  name String
-  job  String
-  note String
-
-  motherId          String?
-  mother            Mother?          @relation(fields: [motherId], references: [id])
-  bloodSupplementId String?
-  bloodSupplement   BloodSupplement? @relation(fields: [bloodSupplementId], references: [id])
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  bloodRecord BloodRecord[]
 }
 
 model DayPostPartum {
@@ -397,41 +334,82 @@ model WeekPregnancyMonitoring {
   PregnancyMonitoringRecord PregnancyMonitoringRecord[]
 }
 
+model BloodRecord {
+  id        String   @id @default(uuid())
+  date      DateTime
+  staffName String?
+  staffJob  String?
+  note      String?
+
+  adminId    String?
+  admin      Admin?     @relation(fields: [adminId], references: [id])
+  motherId   String
+  mother     Mother     @relation(fields: [motherId], references: [id])
+  monthId    String
+  monthBlood MonthBlood @relation(fields: [monthId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
 model PostPartumRecord {
-  id     String        @id @unique @default(uuid())
-  status HealthStatus?
+  id         String       @id @unique @default(uuid())
+  question1  Boolean
+  question2  Boolean
+  question3  Boolean
+  question4  Boolean
+  question5  Boolean
+  question6  Boolean
+  question7  Boolean
+  question8  Boolean
+  question9  Boolean
+  question10 Boolean
+  question11 Boolean
+  question12 Boolean
+  question13 Boolean
+  question14 Boolean
+  question15 Boolean
+  question16 Boolean
+  question17 Boolean
+  question18 Boolean
+  status     HealthStatus
 
-  motherId String
-  mother   Mother @relation(fields: [motherId], references: [id])
-
+  motherId        String
+  mother          Mother        @relation(fields: [motherId], references: [id])
   dayPostPartumId String
   dayPostPartum   DayPostPartum @relation(fields: [dayPostPartumId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  PostPartumAnswer PostPartumAnswer[]
-
-  // Unique constraint: satu ibu hanya punya satu record per hari
-  @@unique([motherId, dayPostPartumId])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model PregnancyMonitoringRecord {
-  id     String        @id @unique @default(uuid())
-  status HealthStatus?
+  id         String       @id @unique @default(uuid())
+  question1  Boolean
+  question2  Boolean
+  question3  Boolean
+  question4  Boolean
+  question5  Boolean
+  question6  Boolean
+  question7  Boolean
+  question8  Boolean
+  question9  Boolean
+  question10 Boolean
+  question11 Boolean
+  question12 Boolean
+  question13 Boolean
+  status     HealthStatus
 
-  motherId String
-  mother   Mother @relation(fields: [motherId], references: [id])
-
+  motherId                  String
+  mother                    Mother                  @relation(fields: [motherId], references: [id])
   weekPregnancyMonitoringId String
   weekPregnancyMonitoring   WeekPregnancyMonitoring @relation(fields: [weekPregnancyMonitoringId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  PregnancyMonitoringAnswer PregnancyMonitoringAnswer[]
-
-  @@unique([motherId, weekPregnancyMonitoringId])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model PostPartumQuestion {
@@ -441,8 +419,6 @@ model PostPartumQuestion {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  PostPartumAnswer PostPartumAnswer[]
 }
 
 model PregnancyMonitoringQuestion {
@@ -452,40 +428,6 @@ model PregnancyMonitoringQuestion {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  PregnancyMonitoringAnswer PregnancyMonitoringAnswer[]
-}
-
-model PostPartumAnswer {
-  id     String       @id @unique @default(uuid())
-  answer AnswerOption @default(NOT_ANSWERED)
-
-  postPartumRecordId String
-  postPartumRecord   PostPartumRecord @relation(fields: [postPartumRecordId], references: [id])
-
-  postPartumQuestionId String
-  postPartumQuestion   PostPartumQuestion @relation(fields: [postPartumQuestionId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([postPartumRecordId, postPartumQuestionId])
-}
-
-model PregnancyMonitoringAnswer {
-  id     String       @id @unique @default(uuid())
-  answer AnswerOption @default(NOT_ANSWERED)
-
-  pregnancyMonitoringRecordId String
-  pregnancyMonitoringRecord   PregnancyMonitoringRecord @relation(fields: [pregnancyMonitoringRecordId], references: [id])
-
-  pregnancyMonitoringQuestionId String
-  pregnancyMonitoringQuestion   PregnancyMonitoringQuestion @relation(fields: [pregnancyMonitoringQuestionId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([pregnancyMonitoringRecordId, pregnancyMonitoringQuestionId])
 }
 
 model CheckupMother {

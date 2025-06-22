@@ -1,11 +1,18 @@
 import { Module } from '@nestjs/common';
-import { PostpartumRecordHttpController } from './controllers';
-import { PostpartumRecordRepository } from './repositories';
+import {
+  PostpartumRecordAdminHttpController,
+  PostpartumRecordHttpController,
+} from './controllers';
 import { PostpartumRecordService } from './services';
+import { PostpartumRecordRepository } from './repositories';
+import { MotherModule } from '../mother';
 
 @Module({
-  controllers: [PostpartumRecordHttpController],
+  imports: [MotherModule],
+  controllers: [
+    PostpartumRecordHttpController,
+    PostpartumRecordAdminHttpController,
+  ],
   providers: [PostpartumRecordService, PostpartumRecordRepository],
-  exports: [PostpartumRecordRepository],
 })
 export class PostpartumRecordModule {}

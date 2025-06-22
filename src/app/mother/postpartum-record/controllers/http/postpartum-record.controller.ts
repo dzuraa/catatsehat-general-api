@@ -1,19 +1,74 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Param,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { PostpartumRecordService } from 'src/app/mother/postpartum-record/services';
-import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { PostpartumRecordAdminService } from '../../services/postpartum-record-admin.service';
+import { AdminGuard, AuthGuard } from '@/app/auth';
+import {
+  CreatePostpartumRecordDto,
+  SearchPostpartumRecordDto,
+} from '../../dtos';
+import { PostpartumRecordService } from '../../services';
+import { UserDecorator } from '@/app/auth/decorators';
+import { User } from '@prisma/client';
 
-@ApiTags('PostpartumRecord')
+@ApiTags('[ADMIN] Postpartum Record')
+@ApiSecurity('JWT')
+@UseGuards(AdminGuard)
 @Controller({
-  path: 'postPartumRecord',
+  path: 'admin/postPartumRecord',
+  version: '1',
+})
+export class PostpartumRecordAdminHttpController {
+  constructor(
+    private readonly postPartumRecordAdminService: PostpartumRecordAdminService,
+  ) {}
+
+  @Get()
+  public async index(@Query() paginateDto: SearchPostpartumRecordDto) {
+    try {
+      const data =
+        await this.postPartumRecordAdminService.paginate(paginateDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get(':id')
+  public async detail(@Param('id') id: string) {
+    try {
+      const data = await this.postPartumRecordAdminService.detail(id);
+
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+}
+
+@ApiTags('[USER] Postpartum Record')
+@ApiSecurity('JWT')
+@UseGuards(AuthGuard)
+@Controller({
+  path: 'user/postPartumRecord',
   version: '1',
 })
 export class PostpartumRecordHttpController {
@@ -21,10 +76,36 @@ export class PostpartumRecordHttpController {
     private readonly postPartumRecordService: PostpartumRecordService,
   ) {}
 
-  @Get()
-  public async index(@Query() paginateDto: PaginationQueryDto) {
+  @Post()
+  public async create(
+    @Body() createPostpartumRecordDto: CreatePostpartumRecordDto,
+    @UserDecorator() user: User,
+  ) {
     try {
-      const data = await this.postPartumRecordService.paginate(paginateDto);
+      const data = await this.postPartumRecordService.create(
+        createPostpartumRecordDto,
+        user,
+      );
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.CREATED,
+        message: 'Data created successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get()
+  public async index(
+    @Query() dayPostpartumId: string,
+    @UserDecorator() user: User,
+  ) {
+    try {
+      const data = await this.postPartumRecordService.index(
+        dayPostpartumId,
+        user,
+      );
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
