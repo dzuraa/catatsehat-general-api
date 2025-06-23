@@ -79,8 +79,19 @@ export class CheckupMotherRepository {
     return data;
   }
 
-  public async find(filter: Filter) {
-    return this.prismaService.checkupMother.findMany(filter);
+  public async findMany(
+    where: Prisma.CheckupMotherWhereInput,
+    include?: Prisma.CheckupMotherInclude,
+  ) {
+    return this.prismaService.checkupMother.findMany({
+      where,
+      include: {
+        mother: true,
+        healthPost: true,
+        admin: true,
+        ...include,
+      },
+    });
   }
 
   public async count(filter: Omit<Filter, 'include'>) {

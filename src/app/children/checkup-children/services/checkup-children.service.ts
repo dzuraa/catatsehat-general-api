@@ -4,11 +4,15 @@ import { BMIStatus, Gender } from '@prisma/client';
 import { BMI_RANGES } from 'src/common/constants/bmi.constant';
 import { SearchCheckupChildrenDto } from '../dtos/search-checkup-children.dto';
 import { DateTime } from 'luxon';
+import { Buffer } from 'exceljs';
+import * as ExcelJS from 'exceljs';
+import { ChildrenRepository } from '../../children/repositories';
 
 @Injectable()
 export class CheckupChildrenService {
   constructor(
     private readonly checkupChildrenRepository: CheckupChildrenRepository,
+    private readonly childrenRepository: ChildrenRepository,
   ) {}
 
   public calculateBmi(height: number, weight: number): number {
@@ -103,5 +107,103 @@ export class CheckupChildrenService {
     data.children = children;
 
     return data;
+  }
+
+  async exportExcel(childrenId: string): Promise<Buffer> {
+    const data = await this.checkupChildrenRepository.findMany(
+      {
+        childrenId,
+        deletedAt: null,
+      },
+      {
+        children: true,
+      },
+    );
+
+    const children = await this.childrenRepository.findFirst({
+      id: childrenId,
+      deletedAt: null,
+    });
+    if (!children) {
+      throw new Error('Child not found');
+    }
+
+    const childName = children.name;
+    const firstTwo = childName.split(' ').slice(0, 2).join(' ').toUpperCase();
+
+    // Buat worksheet dan title
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Checkup Data');
+    worksheet.columns = [
+      { width: 6 }, // No
+      { width: 18 }, // Tanggal
+      { width: 20 }, // Berat Badan
+      { width: 20 }, // Tinggi Badan
+      { width: 22 }, // Lingkar Kepala
+    ];
+
+    // Judul besar
+    worksheet.mergeCells('A1:E1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = `LAPORAN PEMERIKSAAN ANAK DENGAN NAMA ${firstTwo.toUpperCase()}`;
+    titleCell.font = { size: 1, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getRow(1).height = 28;
+
+    // Baris kosong
+    worksheet.addRow([]);
+
+    // Header (gunakan addRow langsung!)
+    const headerRow = worksheet.addRow([
+      'No',
+      'Tanggal',
+      'Berat Badan (kg)',
+      'Tinggi Badan (cm)',
+      'Lingkar Kepala (cm)',
+    ]);
+
+    // Styling header
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'D9D9D9' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    // Tambahkan data
+    data.forEach((item, index) => {
+      worksheet.addRow([
+        index + 1,
+        DateTime.fromISO(item.createdAt.toISOString()).toFormat('dd-MM-yy'),
+        item.weight,
+        item.height,
+        item.headCircumference,
+      ]);
+    });
+
+    // Tambahkan border ke semua data cell
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      if (rowNumber <= 1) return; // skip judul dan row kosong
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

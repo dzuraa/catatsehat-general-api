@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { BMIStatus, CheckupStatus, OwnerType, Prisma } from '@prisma/client';
+import {
+  BMIStatus,
+  CheckupStatus,
+  OwnerType,
+  Prisma,
+  User,
+} from '@prisma/client';
 // import { AdminRepository } from 'src/app/admin/repositories';
 // import { FilesService } from '@src/app/files/services';
 // import { HealthPostsRepository } from '@src/app/healthposts/repositories';
@@ -10,6 +16,10 @@ import { MotherRepository } from '../../mother/repositories';
 import { CreateCheckupMothersPublicDto } from '../dtos';
 import { CheckupMotherSearchDto } from '../dtos/search-checkup-mother.dto';
 import { CheckupMotherRepository } from '../repositories';
+import { Buffer } from 'exceljs';
+import * as ExcelJS from 'exceljs';
+import { DateTime } from 'luxon';
+import { translateBMI } from '@/common/helpers/bmi-status.helper';
 
 @Injectable()
 export class CheckupMothersPublicService {
@@ -21,10 +31,18 @@ export class CheckupMothersPublicService {
     // private readonly adminRepository: AdminRepository,
   ) {}
 
-  public paginate(paginateDto: CheckupMotherSearchDto, motherId: string) {
-    const whereCondition: Prisma.CheckupMotherWhereInput = {
+  public async paginate(paginateDto: CheckupMotherSearchDto, user: User) {
+    const mother = await this.motherRepository.findFirst({
+      userId: user.id,
       deletedAt: null,
-      motherId,
+    });
+    if (!mother) {
+      throw new Error('Mother not found');
+    }
+
+    const whereCondition: Prisma.CheckupMotherWhereInput = {
+      mother,
+      deletedAt: null,
     };
 
     if (paginateDto.search) {
@@ -55,6 +73,32 @@ export class CheckupMothersPublicService {
         },
       ];
     }
+
+    if (paginateDto.month) {
+      const monthStart = DateTime.fromISO(`${paginateDto.month}-01`)
+        .startOf('month')
+        .toJSDate();
+      const monthEnd = DateTime.fromISO(`${paginateDto.month}-01`)
+        .endOf('month')
+        .toJSDate();
+
+      whereCondition.createdAt = {
+        gte: monthStart,
+        lte: monthEnd,
+      };
+    }
+
+    if (paginateDto.createdAt) {
+      const inputDate = DateTime.fromISO(paginateDto.createdAt);
+      const dayStart = inputDate.startOf('day').toJSDate();
+      const dayEnd = inputDate.endOf('day').toJSDate();
+
+      whereCondition.createdAt = {
+        gte: dayStart,
+        lte: dayEnd,
+      };
+    }
+
     return this.checkupMotherRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
@@ -176,5 +220,110 @@ export class CheckupMothersPublicService {
         deletedAt: null,
       },
     });
+  }
+
+  async exportExcel(user: User): Promise<Buffer> {
+    const mother = await this.motherRepository.findFirst({
+      userId: user.id,
+      deletedAt: null,
+    });
+    if (!mother) {
+      throw new Error('Mother not found');
+    }
+
+    const data = await this.checkupMotherRepository.findMany({
+      mother,
+      deletedAt: null,
+    });
+
+    const motherName = mother.name;
+    const firstTwo = motherName.split(' ').slice(0, 2).join(' ').toUpperCase();
+
+    // Buat worksheet dan title
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Checkup Data');
+    worksheet.columns = [
+      { width: 6 }, // No
+      { width: 18 }, // Tanggal
+      { width: 20 }, // Berat Badan
+      { width: 20 }, // Tinggi Badan
+      { width: 22 }, // Lingkar Lengan Atas
+      { width: 22 }, // Usia Kehamilan
+      { width: 10 }, // BMI
+      { width: 20 }, // Status BMI
+      { width: 20 }, // Lokasi Pemeriksaan
+    ];
+
+    // Judul besar
+    worksheet.mergeCells('A1:I1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = `LAPORAN PEMERIKSAAN IBU DENGAN NAMA ${firstTwo.toUpperCase()}`;
+    titleCell.font = { size: 14, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getRow(1).height = 28;
+
+    // Baris kosong
+    worksheet.addRow([]);
+
+    // Header (gunakan addRow langsung!)
+    const headerRow = worksheet.addRow([
+      'No',
+      'Tanggal',
+      'Berat Badan (kg)',
+      'Tinggi Badan (cm)',
+      'Lingkar Lengan Atas (cm)',
+      'Usia Kehamilan (Bulan)',
+      'BMI',
+      'Status BMI',
+      'Lokasi Pemeriksaan',
+    ]);
+
+    // Styling header
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'D9D9D9' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    // Tambahkan data
+    data.forEach((item, index) => {
+      worksheet.addRow([
+        index + 1,
+        DateTime.fromISO(item.createdAt.toISOString()).toFormat('dd-MM-yy'),
+        item.weight,
+        item.height,
+        item.upperArmCircumference,
+        item.month,
+        item.bmi,
+        translateBMI(item.bmiStatus),
+        item.healthPost?.name || item.location,
+      ]);
+    });
+
+    // Tambahkan border ke semua data cell
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      if (rowNumber <= 1) return; // skip judul dan row kosong
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

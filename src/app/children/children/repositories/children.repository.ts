@@ -66,6 +66,13 @@ export class ChildrenRepository {
     return this.prismaService.children.findUnique({ where, select });
   }
 
+  public async findFirst(
+    where: Prisma.ChildrenWhereInput,
+    include?: Prisma.ChildrenInclude,
+  ) {
+    return this.prismaService.children.findFirst({ where, include });
+  }
+
   public async firstOrThrow(
     where: Prisma.ChildrenWhereUniqueInput,
     include?: Prisma.ChildrenInclude,
