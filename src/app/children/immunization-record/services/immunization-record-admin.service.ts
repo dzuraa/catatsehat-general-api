@@ -133,7 +133,7 @@ export class ImmunizationRecordAdminService {
           {
             vaccine: true,
             vaccineStage: true,
-            child: true,
+            children: true,
           },
         );
 
@@ -409,55 +409,50 @@ export class ImmunizationRecordAdminService {
     id: string,
     updateImmunizationsDto: UpdateImmunizationRecordDto,
   ) {
-    try {
-      const existingRecord =
-        await this.immunizationrecordRepository.firstOrThrow(
-          { id },
-          {
-            vaccine: true,
-            vaccineStage: true,
-            child: true,
-          },
-        );
+    const existingRecord = await this.immunizationrecordRepository.firstOrThrow(
+      { id },
+      {
+        vaccine: true,
+        vaccineStage: true,
+        children: true,
+      },
+    );
 
-      // Update ImmunizationRecord
-      const updatedRecord = await this.immunizationrecordRepository.update(
-        { id },
-        updateImmunizationsDto,
-      );
+    // Update ImmunizationRecord
+    const updatedRecord = await this.immunizationrecordRepository.update(
+      { id },
+      updateImmunizationsDto,
+    );
 
-      // Update ChildVaccineStage
-      if (existingRecord.vaccineStageId) {
-        const originalVaccineName = existingRecord.vaccine!.name;
-        const mappedVaccineName = VaccineNameMapping[originalVaccineName];
+    // Update ChildVaccineStage
+    if (existingRecord.vaccineStageId) {
+      const originalVaccineName = existingRecord.vaccine!.name;
+      const mappedVaccineName = VaccineNameMapping[originalVaccineName];
 
-        if (!mappedVaccineName) {
-          return updatedRecord;
-        }
-
-        const vaccineStatus = VaccinationStatusHelper.calculateVaccineStatus(
-          updatedRecord.dateGiven!,
-          mappedVaccineName,
-        );
-
-        await this.childVaccineStageRepository.update(
-          {
-            childrenId_vaccineStageId: {
-              childrenId: existingRecord.childrenId!,
-              vaccineStageId: existingRecord.vaccineStageId!,
-            },
-          },
-          {
-            dateGiven: updatedRecord.dateGiven,
-            note: updatedRecord.note,
-            vaccineStatus,
-          },
-        );
+      if (!mappedVaccineName) {
+        return updatedRecord;
       }
 
-      return updatedRecord;
-    } catch (error) {
-      throw new Error(`Error updating immunization record: ${error.message}`);
+      const vaccineStatus = VaccinationStatusHelper.calculateVaccineStatus(
+        updatedRecord.dateGiven!,
+        mappedVaccineName,
+      );
+
+      await this.childVaccineStageRepository.update(
+        {
+          childrenId_vaccineStageId: {
+            childrenId: existingRecord.childrenId!,
+            vaccineStageId: existingRecord.vaccineStageId!,
+          },
+        },
+        {
+          dateGiven: updatedRecord.dateGiven,
+          note: updatedRecord.note,
+          vaccineStatus,
+        },
+      );
     }
+
+    return updatedRecord;
   }
 }
