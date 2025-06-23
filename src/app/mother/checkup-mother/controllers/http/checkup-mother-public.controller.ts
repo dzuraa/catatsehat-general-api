@@ -4,11 +4,13 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
@@ -18,6 +20,7 @@ import { CheckupMothersPublicService } from 'src/app/mother/checkup-mother/servi
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { CheckupMotherSearchDto } from '../../dtos/search-checkup-mother.dto';
 import { CheckupMotherRepository } from '../../repositories';
+import { Response } from 'express';
 
 @ApiTags('CheckupMotherPublic')
 @Controller({
@@ -64,13 +67,10 @@ export class CheckupMothersHttpController {
   @Get()
   public async index(
     @Query() paginateDto: CheckupMotherSearchDto,
-    @Query('motherId') motherId: string,
+    @UserDecorator() user: User,
   ) {
     try {
-      const data = await this.checkupmotherService.paginate(
-        paginateDto,
-        motherId,
-      );
+      const data = await this.checkupmotherService.paginate(paginateDto, user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -115,6 +115,22 @@ export class CheckupMothersHttpController {
         status: HttpStatus.OK,
         message: 'Data fetched successfully',
       });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('export')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header('Content-Disposition', 'attachment; filename=checkup_mother.xlsx')
+  public async exportExcel(@UserDecorator() user: User, @Res() res: Response) {
+    try {
+      const buffer = await this.checkupmotherService.exportExcel(user);
+      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
+      res.end(buffer);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }

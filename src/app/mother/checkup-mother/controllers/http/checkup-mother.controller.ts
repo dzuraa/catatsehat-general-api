@@ -5,12 +5,14 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Put,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
@@ -22,6 +24,8 @@ import {
 import { CheckupMothersAdminService } from 'src/app/mother/checkup-mother/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { Response } from 'express';
+import { CheckupMotherSearchDto } from '../../dtos/search-checkup-mother.dto';
 
 @ApiTags('CheckupMotherAdmin')
 @UseGuards(AdminGuard)
@@ -69,7 +73,7 @@ export class CheckupMotherHttpController {
     }
   }
 
-  @Get(':id')
+  @Get(':id/detail')
   public async detail(@Param('id') id: string) {
     try {
       const data = await this.checkupMotherAdminService.detail(id);
@@ -117,6 +121,26 @@ export class CheckupMotherHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('export')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header('Content-Disposition', 'attachment; filename=checkup_mother.xlsx')
+  public async exportExcel(
+    @Query() filterDto: CheckupMotherSearchDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const buffer =
+        await this.checkupMotherAdminService.exportExcel(filterDto);
+      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
+      res.end(buffer);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 }

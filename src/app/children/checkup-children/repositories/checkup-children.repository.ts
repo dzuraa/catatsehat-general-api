@@ -106,4 +106,19 @@ export class CheckupChildrenRepository {
   public async any(filter: Omit<Filter, 'include'>) {
     return (await this.prismaService.checkupChildren.count(filter)) > 0;
   }
+
+  public async findMany(
+    where: Prisma.CheckupChildrenWhereInput,
+    include?: Prisma.CheckupChildrenInclude,
+  ) {
+    return this.prismaService.checkupChildren.findMany({
+      where,
+      include: {
+        children: true,
+        healthPost: true,
+        admin: true,
+        ...include,
+      },
+    });
+  }
 }

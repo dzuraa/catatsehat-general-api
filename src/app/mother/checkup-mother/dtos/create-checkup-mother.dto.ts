@@ -4,6 +4,10 @@ import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateCheckupMothersAdminDto {
   @ApiProperty()
+  @IsString()
+  motherId: string;
+
+  @ApiProperty()
   @IsNumber()
   month: number;
 
@@ -46,8 +50,4 @@ export class CreateCheckupMothersAdminDto {
   @ApiPropertyOptional()
   @IsOptional()
   fileDiagnosed?: string;
-
-  @ApiProperty()
-  @IsString()
-  motherId: string;
 }

@@ -3,12 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Put,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ResponseEntity } from 'src/common/entities/response.entity';
@@ -26,6 +28,7 @@ import {
 } from '../../services';
 import { AdminDecorator } from '@/app/auth/decorators';
 import { Admin } from '@prisma/client';
+import { Response } from 'express';
 
 @ApiTags('[ADMIN] Checkup Children')
 @ApiSecurity('JWT')
@@ -127,6 +130,26 @@ export class CheckupChildrenAdminHttpController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('export')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header('Content-Disposition', 'attachment; filename=checkup_children.xlsx')
+  public async exportExcel(
+    @Query() filterDto: SearchCheckupChildrenDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const buffer =
+        await this.checkupChildrenAdminService.exportExcel(filterDto);
+      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
+      res.end(buffer);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
 }
 
 @ApiTags('[USER] Checkup Children')
@@ -171,6 +194,25 @@ export class CheckupChildrenHttpController {
         status: HttpStatus.OK,
         message: 'Data fetched successfully',
       });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('export')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header('Content-Disposition', 'attachment; filename=checkup_children.xlsx')
+  public async exportExcel(
+    @Query('childrenId') childrenId: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const buffer = await this.checkupChildrenService.exportExcel(childrenId);
+      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
+      res.end(buffer);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
