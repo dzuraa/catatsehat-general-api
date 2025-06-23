@@ -160,11 +160,23 @@ export class CheckupElderlyService {
         },
       });
 
+      const lungs = await this.prisma.lungs.findFirst({
+        where: {
+          elderlyId: result[0].elderlyId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          lungsConclution: true,
+        },
+      });
+
       if (!result || result.length === 0) {
         throw new Error('Checkup elderly not found');
       }
 
-      return result[0];
+      return Object.assign(result[0], { lungs });
     } catch (error) {
       throw new Error(error);
     }

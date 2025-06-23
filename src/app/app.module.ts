@@ -32,6 +32,7 @@ import { VaccineStageModule } from './children/vaccine-stage';
 import { BloodRecordModule } from './mother/blood-record';
 import { MasterDataLungsModule } from './elderly/master-data-lungs';
 import { LungConclusionModule } from './elderly/lung-conclusion';
+import { LungsModule } from './elderly/lungs';
 
 @ApiTags('App Spec')
 @Controller()
@@ -105,6 +106,7 @@ class AppController {
     WeekPregnancyMonitoringModule,
     MasterDataLungsModule,
     LungConclusionModule,
+    LungsModule,
   ],
   controllers: [AppController],
 })

@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { MasterElderlyRepository } from '../repositories';
 import { CreateMasterElderlyDto, UpdateMasterElderlyDto } from '../dtos';
 import { SearchMasterElderlyDto } from '../dtos/search-master-elderly.dto';
-import { Prisma, User } from '@prisma/client';
+import { CheckupElderly, Prisma, User } from '@prisma/client';
+import { PrismaService } from '@/platform/database/services/prisma.service';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class MasterElderlyService {
   constructor(
     private readonly elderlyRepository: MasterElderlyRepository,
     // private readonly fileService: FileService,
+    private readonly prisma: PrismaService,
   ) {}
 
   public paginate(paginateDto: SearchMasterElderlyDto, user?: User) {
@@ -198,5 +201,44 @@ export class MasterElderlyService {
       console.log(error);
       throw new Error(error);
     }
+  }
+
+  async summary(year: number = new Date().getFullYear()) {
+    const months = Array.from({ length: 12 }, (_, i) =>
+      DateTime.local(year, i + 1).toLocaleString({ month: 'long' }),
+    );
+
+    const elders = await this.prisma.elderly.findMany({
+      where: {
+        deletedAt: null,
+      },
+    });
+
+    const result = await this.prisma.checkupElderly.findMany({
+      where: {
+        createdAt: {
+          gte: DateTime.local(year, 1).toJSDate(),
+          lt: DateTime.local(year + 1, 1).toJSDate(),
+        },
+      },
+
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    const elderlyCheckupByMonth: Record<string, CheckupElderly[]> = {};
+    months.forEach((month) => {
+      elderlyCheckupByMonth[month] = result.filter((item) =>
+        item.createdAt
+          .toLocaleString('en-US', { month: 'long' })
+          .includes(month),
+      );
+    });
+
+    return {
+      elderlyCheckupByMonth,
+      elders: elders,
+    };
   }
 }
