@@ -29,6 +29,7 @@ import {
 import { AdminDecorator } from '@/app/auth/decorators';
 import { Admin } from '@prisma/client';
 import { Response } from 'express';
+import { CheckupChildrenRepository } from '../../repositories';
 
 @ApiTags('[ADMIN] Checkup Children')
 @ApiSecurity('JWT')
@@ -162,6 +163,7 @@ export class CheckupChildrenAdminHttpController {
 export class CheckupChildrenHttpController {
   constructor(
     private readonly checkupChildrenService: CheckupChildrenService,
+    private readonly checkupChildrenRepository: CheckupChildrenRepository,
   ) {}
 
   @Get()
@@ -218,21 +220,21 @@ export class CheckupChildrenHttpController {
     }
   }
 
-  // @Get('bmi-chart')
-  // async getBMIChart(
-  //   @Query('childId') childId: string,
-  //   @Query('startDate') startDate: string,
-  //   @Query('endDate') endDate: string,
-  // ) {
-  //   const data = await this.checkupChildRepository.getBMIChartData(
-  //     childId,
-  //     startDate ? new Date(startDate) : undefined,
-  //     endDate ? new Date(endDate) : undefined,
-  //   );
-  //   return new ResponseEntity({
-  //     data,
-  //     status: HttpStatus.OK,
-  //     message: 'Data fetched successfully',
-  //   });
-  // }
+  @Get('bmi-chart')
+  async getBMIChart(
+    @Query('childId') childId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    const data = await this.checkupChildrenRepository.getBMIChartData(
+      childId,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+    return new ResponseEntity({
+      data,
+      status: HttpStatus.OK,
+      message: 'Data fetched successfully',
+    });
+  }
 }

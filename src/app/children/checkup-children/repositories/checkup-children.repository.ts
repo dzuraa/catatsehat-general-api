@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Gender, Prisma } from '@prisma/client';
+import { DateTime } from 'luxon';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { PaginatedEntity } from 'src/common/entities/paginated.entity';
 import { PrismaService } from 'src/platform/database/services/prisma.service';
@@ -120,5 +121,69 @@ export class CheckupChildrenRepository {
         ...include,
       },
     });
+  }
+
+  public async getBMIChartData(
+    childId?: string,
+    startDate: Date = DateTime.now().startOf('month').toJSDate(),
+    endDate: Date = DateTime.now().endOf('month').toJSDate(),
+  ) {
+    // check childId if none return data null
+    if (!childId || childId === undefined) {
+      return null;
+    }
+
+    const records = await this.prismaService.checkupChildren.findMany({
+      where: {
+        deletedAt: null,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        childrenId: childId || undefined,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    const d = await this.prismaService.checkupChildren.groupBy({
+      by: ['createdAt'],
+      _sum: {
+        bmi: true,
+      },
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        childrenId: childId || undefined,
+      },
+    });
+
+    const daysInMonth = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth() + 1,
+      0,
+    ).getDate();
+
+    const chartData = Array.from({ length: daysInMonth }, (_, i) => ({
+      day: i + 1,
+      bmi: null as number | null,
+    }));
+
+    records.forEach((record) => {
+      if (record.createdAt !== null) {
+        const day = new Date(record.createdAt).getDate() - 1;
+        if (day >= 0 && day < daysInMonth) {
+          chartData[day].bmi = record.bmi;
+        }
+      }
+    });
+
+    return d.map((record) => ({
+      day: record.createdAt,
+      bmi: record._sum.bmi,
+    }));
   }
 }
