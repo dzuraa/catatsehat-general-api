@@ -19,7 +19,7 @@ export class MotherService {
   //   return `${baseUrl}/public/option-mother?code=${motherCode}`;
   // }
     private generateMotherAccessUrl(motherCode: string): string {
-  return `http://localhost:5173/public/option-mother?code=${childCode}`;
+  return `http://localhost:5173/public/option-mother?code=${motherCode}`;
 }
 
   public paginate(paginateDto: PaginationQueryDto, user: User) {
