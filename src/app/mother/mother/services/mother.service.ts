@@ -15,7 +15,7 @@ export class MotherService {
   ) {}
 
   private generateMotherAccessUrl(motherCode: string): string {
-    const baseUrl = ENV.FRONTEND_BASE_URL;
+    const baseUrl = http://localhost:5173;
     return `${baseUrl}/public/option-mother?code=${motherCode}`;
   }
 
