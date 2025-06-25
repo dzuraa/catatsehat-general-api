@@ -119,7 +119,10 @@ export class BloodRecordHttpController {
   constructor(private readonly bloodRecordService: BloodRecordService) {}
 
   @Get()
-  public async index(@Query() monthId: string, @UserDecorator() user: User) {
+  public async index(
+    @Query('monthId') monthId: string,
+    @UserDecorator() user: User,
+  ) {
     try {
       const data = await this.bloodRecordService.index(monthId, user);
       return new ResponseEntity({
