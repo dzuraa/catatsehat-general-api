@@ -14,10 +14,13 @@ export class MotherService {
     // private readonly postPartumSeederService: PostPartumSeederService,
   ) {}
 
-  private generateMotherAccessUrl(motherCode: string): string {
-    const baseUrl = ENV.FRONTEND_BASE_URL;
-    return `${baseUrl}/public/option-mother?code=${motherCode}`;
-  }
+  // private generateMotherAccessUrl(motherCode: string): string {
+  //   const baseUrl = http://localhost:5173;
+  //   return `${baseUrl}/public/option-mother?code=${motherCode}`;
+  // }
+    private generateMotherAccessUrl(motherCode: string): string {
+  return `http://localhost:5173/public/option-mother?code=${motherCode}`;
+}
 
   public paginate(paginateDto: PaginationQueryDto, user: User) {
     const whereCondition: Prisma.MotherWhereInput = {
