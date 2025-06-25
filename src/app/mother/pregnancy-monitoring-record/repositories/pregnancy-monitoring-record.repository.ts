@@ -63,15 +63,21 @@ export class PregnancyMonitoringRecordRepository {
     where: Prisma.PregnancyMonitoringRecordWhereUniqueInput,
     select?: Prisma.PregnancyMonitoringRecordSelect,
   ) {
-    return this.prismaService.pregnancyMonitoringRecord.findUnique({ where, select });
+    return this.prismaService.pregnancyMonitoringRecord.findUnique({
+      where,
+      select,
+    });
   }
 
   public async firstOrThrow(
     where: Prisma.PregnancyMonitoringRecordWhereUniqueInput,
-    select?: Prisma.PregnancyMonitoringRecordSelect,
+    include?: Prisma.PregnancyMonitoringRecordInclude,
   ) {
-    const data = await this.prismaService.pregnancyMonitoringRecord.findUnique({ where, select });
-    if (!data) throw new Error('data.not_found');
+    const data = await this.prismaService.pregnancyMonitoringRecord.findUnique({
+      where,
+      include,
+    });
+    if (!data) throw new Error('Data not found');
     return data;
   }
 
@@ -84,6 +90,8 @@ export class PregnancyMonitoringRecordRepository {
   }
 
   public async any(filter: Omit<Filter, 'include'>) {
-    return (await this.prismaService.pregnancyMonitoringRecord.count(filter)) > 0;
+    return (
+      (await this.prismaService.pregnancyMonitoringRecord.count(filter)) > 0
+    );
   }
 }
