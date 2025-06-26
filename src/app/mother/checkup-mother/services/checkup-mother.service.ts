@@ -80,6 +80,11 @@ export class CheckupMothersAdminService {
         },
       ];
     }
+
+    if (paginateDto.bmiStatus) {
+      whereCondition.bmiStatus = paginateDto.bmiStatus;
+    }
+
     return this.checkupMotherRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
@@ -93,6 +98,7 @@ export class CheckupMothersAdminService {
       },
     });
   }
+
   public detail(id: string) {
     try {
       return this.checkupMotherRepository.firstOrThrow(
