@@ -30,6 +30,7 @@ import { ImmunizationRecordModule } from './children/immunization-record';
 import { VaccineModule } from './children/vaccine';
 import { VaccineStageModule } from './children/vaccine-stage';
 import { BloodRecordModule } from './mother/blood-record';
+import { MonthBloodModule } from './mother/month-blood';
 
 @ApiTags('App Spec')
 @Controller()
@@ -72,6 +73,7 @@ class AppController {
     PregnancyMonitoringQuestionModule,
     DayPostpartumModule,
     WeekPregnancyMonitoringModule,
+    MonthBloodModule,
     HealthPostModule,
     ScheduleModule,
     ReportModule,
