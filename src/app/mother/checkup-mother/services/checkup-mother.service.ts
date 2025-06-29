@@ -85,6 +85,31 @@ export class CheckupMothersAdminService {
       whereCondition.bmiStatus = paginateDto.bmiStatus;
     }
 
+    if (paginateDto.month) {
+      const monthStart = DateTime.fromISO(`${paginateDto.month}-01`)
+        .startOf('month')
+        .toJSDate();
+      const monthEnd = DateTime.fromISO(`${paginateDto.month}-01`)
+        .endOf('month')
+        .toJSDate();
+
+      whereCondition.createdAt = {
+        gte: monthStart,
+        lte: monthEnd,
+      };
+    }
+
+    if (paginateDto.createdAt) {
+      const inputDate = DateTime.fromISO(paginateDto.createdAt);
+      const dayStart = inputDate.startOf('day').toJSDate();
+      const dayEnd = inputDate.endOf('day').toJSDate();
+
+      whereCondition.createdAt = {
+        gte: dayStart,
+        lte: dayEnd,
+      };
+    }
+
     return this.checkupMotherRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
