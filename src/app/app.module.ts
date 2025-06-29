@@ -31,6 +31,7 @@ import { VaccineModule } from './children/vaccine';
 import { VaccineStageModule } from './children/vaccine-stage';
 import { BloodRecordModule } from './mother/blood-record';
 import { MonthBloodModule } from './mother/month-blood';
+import { ImmunizationOptionalRecordModule } from './children/immunization-optional-record';
 
 @ApiTags('App Spec')
 @Controller()
@@ -60,6 +61,7 @@ class AppController {
     ChildrenModule,
     CheckupChildrenModule,
     ImmunizationRecordModule,
+    ImmunizationOptionalRecordModule,
     VaccineModule,
     VaccineStageModule,
     MasterElderlyModule,

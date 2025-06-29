@@ -148,10 +148,11 @@ model Children {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  checkupChildren    CheckupChildren[]
-  immunizationRecord ImmunizationRecord[]
-  childVaccine       ChildVaccine[]
-  childVaccineStage  ChildVaccineStage[]
+  checkupChildren            CheckupChildren[]
+  immunizationRecord         ImmunizationRecord[]
+  childVaccine               ChildVaccine[]
+  childVaccineStage          ChildVaccineStage[]
+  ImmunizationOptionalRecord ImmunizationOptionalRecord[]
 }
 
 model CheckupChildren {
@@ -226,6 +227,20 @@ model ImmunizationRecord {
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+}
+
+model ImmunizationOptionalRecord {
+  id        String  @id @unique @default(uuid())
+  name      String
+  dateGiven Int
+  note      String?
+
+  childrenId String
+  children   Children @relation(fields: [childrenId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -335,7 +350,7 @@ model WeekPregnancyMonitoring {
 }
 
 model BloodRecord {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   date      DateTime
   type      OwnerType @default(ADMIN)
   staffName String?
