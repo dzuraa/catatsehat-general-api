@@ -6,11 +6,13 @@ import {
   UpdateImmunizationOptionalRecordDto,
 } from '../dtos';
 import { Prisma } from '@prisma/client';
+import { ChildrenRepository } from '../../children/repositories';
 
 @Injectable()
 export class ImmunizationOptionalRecordAdminService {
   constructor(
     private readonly immunizationOptionalRecordRepository: ImmunizationOptionalRecordRepository,
+    private readonly childrenRepository: ChildrenRepository,
   ) {}
 
   public paginate(paginateDto: SearchImmunizationOptionalRecordDto) {
@@ -75,11 +77,10 @@ export class ImmunizationOptionalRecordAdminService {
   public async create(
     createImmunizationOptionalRecordDto: CreateImmunizationOptionalRecordDto,
   ) {
-    const children =
-      await this.immunizationOptionalRecordRepository.firstOrThrow({
-        id: createImmunizationOptionalRecordDto.childrenId,
-        deletedAt: null,
-      });
+    const children = await this.childrenRepository.firstOrThrow({
+      id: createImmunizationOptionalRecordDto.childrenId,
+      deletedAt: null,
+    });
 
     const data: Prisma.ImmunizationOptionalRecordCreateInput = {
       name: createImmunizationOptionalRecordDto.name,
@@ -93,6 +94,8 @@ export class ImmunizationOptionalRecordAdminService {
     if (createImmunizationOptionalRecordDto.note) {
       data.note = createImmunizationOptionalRecordDto.note;
     }
+
+    return this.immunizationOptionalRecordRepository.create(data);
   }
 
   public async update(

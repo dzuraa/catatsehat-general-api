@@ -6,8 +6,10 @@ import {
 import { ImmunizationOptionalRecordService } from './services';
 import { ImmunizationOptionalRecordRepository } from './repositories';
 import { ImmunizationOptionalRecordAdminService } from './services/immunization-optional-record-admin.service';
+import { ChildrenModule } from '../children';
 
 @Module({
+  imports: [ChildrenModule],
   controllers: [
     ImmunizationOptionalRecordHttpController,
     ImmunizationOptionalRecordAdminHttpController,
