@@ -337,6 +337,7 @@ model WeekPregnancyMonitoring {
 model BloodRecord {
   id        String   @id @default(uuid())
   date      DateTime
+  type      OwnerType @default(ADMIN)
   staffName String?
   staffJob  String?
   note      String?
