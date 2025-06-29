@@ -7,7 +7,7 @@ import { Prisma, User } from '@prisma/client';
 import { omit } from 'lodash';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
 import { MotherRepository } from 'src/app/mother/mother/repositories';
-import { ENV } from '@/config/env';
+// import { ENV } from '@/config/env';
 import { ChildrenSeederService } from './children-seeder.service';
 import { DateTime } from 'luxon';
 
