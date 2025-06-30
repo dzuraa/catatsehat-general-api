@@ -81,9 +81,7 @@ export class PregnancyMonitoringRecordService {
       });
 
     if (existingRecord) {
-      throw new Error(
-        'Pregnancy monitoring record already exists for this week',
-      );
+      throw new Error('Data sudah tersedia untuk pilihan minggu ini');
     }
 
     const questions = [

@@ -79,7 +79,7 @@ export class PostpartumRecordService {
     });
 
     if (existingRecord) {
-      throw new Error('Postpartum record already exists for this day');
+      throw new Error('Data sudah tersedia untuk pilihan hari ini');
     }
 
     const questions = [
