@@ -8,6 +8,7 @@ import { BloodRecordService } from './services';
 import { BloodRecordRepository } from './repositories';
 import { MotherModule } from '../mother';
 import { BloodRecordAdminService } from './services/blood-record-admin.service';
+import { BloodRecordPublicService } from './services/blood-record-public.service';
 
 @Module({
   imports: [MotherModule],
@@ -19,6 +20,7 @@ import { BloodRecordAdminService } from './services/blood-record-admin.service';
   providers: [
     BloodRecordService,
     BloodRecordAdminService,
+    BloodRecordPublicService,
     BloodRecordRepository,
   ],
 })
