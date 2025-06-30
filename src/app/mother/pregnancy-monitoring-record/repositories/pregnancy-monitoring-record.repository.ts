@@ -59,6 +59,16 @@ export class PregnancyMonitoringRecordRepository {
     });
   }
 
+  public async findFirst(
+    where: Prisma.PregnancyMonitoringRecordWhereInput,
+    select?: Prisma.PregnancyMonitoringRecordSelect,
+  ) {
+    return this.prismaService.pregnancyMonitoringRecord.findFirst({
+      where,
+      select,
+    });
+  }
+
   public async first(
     where: Prisma.PregnancyMonitoringRecordWhereUniqueInput,
     select?: Prisma.PregnancyMonitoringRecordSelect,

@@ -72,6 +72,20 @@ export class PregnancyMonitoringRecordService {
       throw new Error('Mother not found');
     }
 
+    const existingRecord =
+      await this.pregnancyMonitoringRecordRepository.findFirst({
+        weekPregnancyMonitoringId:
+          createPregnancyMonitoringRecordDto.weekPregnancyMonitoringId,
+        motherId: createPregnancyMonitoringRecordDto.motherId,
+        deletedAt: null,
+      });
+
+    if (existingRecord) {
+      throw new Error(
+        'Pregnancy monitoring record already exists for this week',
+      );
+    }
+
     const questions = [
       createPregnancyMonitoringRecordDto.question1,
       createPregnancyMonitoringRecordDto.question2,
