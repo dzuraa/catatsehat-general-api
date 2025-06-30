@@ -9,6 +9,17 @@ export class SubdistrictService {
   public async findMany(subDistrictFilterDto: SubDistrictFilterDto) {
     const filter: Filter = {
       where: {},
+      include: {
+        district: {
+          include: {
+            regency: {
+              include: {
+                province: true,
+              },
+            },
+          },
+        },
+      },
     };
 
     if (subDistrictFilterDto.districtId) {
