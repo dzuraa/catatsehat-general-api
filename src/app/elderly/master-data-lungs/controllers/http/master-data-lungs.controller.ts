@@ -9,39 +9,33 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { MasterElderlyService } from 'src/app/elderly/master-elderly/services';
+import { MasterDataLungsService } from 'src/app/elderly/master-data-lungs/services';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import {
-  CreateMasterElderlyDto,
-  UpdateMasterElderlyDto,
-} from 'src/app/elderly/master-elderly/dtos';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { User } from '@prisma/client';
-import { UserDecorator } from '@/app/auth/decorators';
-import { AdminGuard } from '@/app/auth';
+  CreateMasterDataLungsDto,
+  UpdateMasterDataLungsDto,
+} from 'src/app/elderly/master-data-lungs/dtos';
+import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('MasterElderly')
-@ApiSecurity('JWT')
-@UseGuards(AdminGuard)
+@ApiTags('MasterDataLungs')
 @Controller({
-  path: 'admin/elderly',
+  path: 'masterDataLungs',
   version: '1',
 })
-export class MasterElderlyAdminHttpController {
-  constructor(private readonly elderlyService: MasterElderlyService) {}
+export class MasterDataLungsHttpController {
+  constructor(
+    private readonly masterDataLungsService: MasterDataLungsService,
+  ) {}
 
   @Post()
   public async create(
-    @Body() createMasterElderlyDto: CreateMasterElderlyDto,
-    @UserDecorator() user: User,
+    @Body() createMasterDataLungsDto: CreateMasterDataLungsDto,
   ) {
     try {
-      const data = await this.elderlyService.create(
-        createMasterElderlyDto,
-        user,
+      const data = await this.masterDataLungsService.create(
+        createMasterDataLungsDto,
       );
       return new ResponseEntity({
         data,
@@ -53,24 +47,10 @@ export class MasterElderlyAdminHttpController {
     }
   }
 
-  @Get('summary')
-  public async summary() {
-    try {
-      const data = await this.elderlyService.summary();
-      return new ResponseEntity({
-        data,
-        status: HttpStatus.OK,
-        message: 'Data fetched successfully',
-      });
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
-  }
-
   @Get()
   public async index(@Query() paginateDto: PaginationQueryDto) {
     try {
-      const data = await this.elderlyService.paginate(paginateDto);
+      const data = await this.masterDataLungsService.paginate(paginateDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -84,7 +64,7 @@ export class MasterElderlyAdminHttpController {
   @Get(':id')
   public async detail(@Param('id') id: string) {
     try {
-      const data = await this.elderlyService.detail(id);
+      const data = await this.masterDataLungsService.detail(id);
 
       return new ResponseEntity({
         data,
@@ -99,7 +79,7 @@ export class MasterElderlyAdminHttpController {
   @Delete(':id')
   public async destroy(@Param('id') id: string) {
     try {
-      const data = await this.elderlyService.destroy(id);
+      const data = await this.masterDataLungsService.destroy(id);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,
@@ -113,10 +93,13 @@ export class MasterElderlyAdminHttpController {
   @Put(':id')
   public async update(
     @Param('id') id: string,
-    @Body() updateMasterElderlyDto: UpdateMasterElderlyDto,
+    @Body() updateMasterDataLungsDto: UpdateMasterDataLungsDto,
   ) {
     try {
-      const data = await this.elderlyService.update(id, updateMasterElderlyDto);
+      const data = await this.masterDataLungsService.update(
+        id,
+        updateMasterDataLungsDto,
+      );
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

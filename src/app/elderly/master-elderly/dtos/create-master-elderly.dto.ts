@@ -1,12 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
-import {
-  IsString,
-  IsOptional,
-  IsDateString,
-  IsEnum,
-  // IsNumber,
-} from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsEnum } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateMasterElderlyDto {
@@ -43,14 +37,6 @@ export class CreateMasterElderlyDto {
   @ApiProperty()
   @IsString()
   address: string;
-
-  // @ApiPropertyOptional({
-  //   type: 'string',
-  //   format: 'binary',
-  // })
-  // @IsOptional()
-  // @IsString()
-  // elderlyPicture?: string;
 
   @ApiPropertyOptional({
     type: 'string',

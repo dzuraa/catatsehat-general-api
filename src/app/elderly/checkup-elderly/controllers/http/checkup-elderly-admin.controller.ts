@@ -5,10 +5,12 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
   Param,
   Post,
   Put,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { CheckupElderlyService } from 'src/app/elderly/checkup-elderly/services';
@@ -22,6 +24,9 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AdminGuard } from '@/app/auth';
 import { UserDecorator } from '@/app/auth/decorators';
 import { Admin } from '@prisma/client';
+import { ExportCheckupDto } from '../../dtos/export-checkup.dto';
+import { catchError, map } from 'rxjs';
+import { Response } from 'express';
 
 @ApiTags('CheckupElderly')
 @UseGuards(AdminGuard)
@@ -115,5 +120,29 @@ export class CheckupElderlyAdminHttpController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @Post('export')
+  public async export(
+    @Body() searchDto: ExportCheckupDto,
+    @Res() res: Response,
+  ) {
+    return this.checkupElderlyService.export(searchDto).pipe(
+      map((data) => {
+        res.setHeader(
+          'Content-Disposition',
+          'attachment; filename=data-pemeriksaan-lansia.xlsx',
+        );
+        res.setHeader(
+          'Content-Type',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+        res.send(data);
+      }),
+      catchError((error) => {
+        Logger.error(error);
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }),
+    );
   }
 }
