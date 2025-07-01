@@ -10,7 +10,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -26,8 +25,8 @@ import { AdminGuard } from '@/app/auth';
 import { UserDecorator } from '@/app/auth/decorators';
 import { Admin } from '@prisma/client';
 import { ExportCheckupDto } from '../../dtos/export-checkup.dto';
-import { buffer, catchError, map } from 'rxjs';
-import { Request, Response } from 'express';
+import { catchError, map } from 'rxjs';
+import { Response } from 'express';
 
 @ApiTags('CheckupElderly')
 @UseGuards(AdminGuard)

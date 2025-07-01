@@ -4,23 +4,13 @@ import {
   IsDateString,
   IsNumber,
   IsOptional,
-  // Matches,
   IsEnum,
   Matches,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { BMIStatus, CheckupStatus } from '@prisma/client';
+import { BMIStatus } from '@prisma/client';
 
 export class CreateCheckupElderlyDto {
-  // @ApiProperty()
-  // @IsString()
-  // name: string;
-  // id: string;
-
-  // @ApiProperty()
-  // @IsString()
-  // healthPostId: string;
-
   @ApiProperty({
     example: '2022-07-25',
   })
@@ -32,14 +22,6 @@ export class CreateCheckupElderlyDto {
   )
   @IsString()
   attend: string;
-
-  // @ApiProperty()
-  // @IsString()
-  // adminId: string;
-
-  // @ApiProperty()
-  // @IsNumber()
-  // month: number;
 
   @ApiProperty({
     description: 'Height in centimeters',

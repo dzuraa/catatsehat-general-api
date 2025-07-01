@@ -10,7 +10,6 @@ import { DateTime } from 'luxon';
 export class MasterElderlyService {
   constructor(
     private readonly elderlyRepository: MasterElderlyRepository,
-    // private readonly fileService: FileService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -43,10 +42,6 @@ export class MasterElderlyService {
       orderBy: {
         createdAt: 'desc',
       },
-      // include: {
-      //   elderlyPicture: true,
-      //   fileElderlyIdentity: true,
-      // },
     });
   }
 
@@ -59,16 +54,10 @@ export class MasterElderlyService {
   }
 
   public async detail(id: string) {
-    const elderly = await this.elderlyRepository.firstOrThrow(
-      {
-        id,
-        deletedAt: null,
-      },
-      // {
-      //   // elderlyPicture: true,
-      //   fileElderlyIdentity: true,
-      // },
-    );
+    const elderly = await this.elderlyRepository.firstOrThrow({
+      id,
+      deletedAt: null,
+    });
 
     return elderly;
   }
@@ -101,35 +90,13 @@ export class MasterElderlyService {
           dateOfBirth: createMasterElderlyDto.dateOfBirth,
         });
       }
-
+      console.log(user);
       // Relation to user
       Object.assign(data, {
         user: {
           connect: { id: user?.id ?? '1d86e9e1-19f8-4812-933a-cd864efe147f' },
         },
       });
-
-      // if (createMasterElderlyDto.elderlyPicture) {
-      //   const elderlyPicture = await this.fileService.upload({
-      //     file: createMasterElderlyDto.elderlyPicture,
-      //     fileName: createMasterElderlyDto.name,
-      //   });
-
-      //   Object.assign(data, {
-      //     elderlyPicture: { connect: { id: elderlyPicture.id } },
-      //   });
-      // }
-
-      // if (createMasterElderlyDto.fileElderlyIdentity) {
-      //   const fileElderlyIdentity = await this.fileService.upload({
-      //     file: createMasterElderlyDto.fileElderlyIdentity,
-      //     fileName: createMasterElderlyDto.name,
-      //   });
-
-      //   Object.assign(data, {
-      //     fileElderlyIdentity: { connect: { id: fileElderlyIdentity.id } },
-      //   });
-      // }
 
       const createdElderly = await this.elderlyRepository.create(
         data as Prisma.ElderlyCreateInput,
@@ -146,11 +113,6 @@ export class MasterElderlyService {
     updateMasterElderlyDto: UpdateMasterElderlyDto,
   ) {
     try {
-      // Prepare data for fields not related to file uploads
-      // const data: Prisma.ElderlyUpdateInput = omit(updateMasterElderlyDto, [
-      //   'elderlyPicture',
-      //   'fileElderlyIdentity',
-      // ]);
       const data: Prisma.ElderlyUpdateInput = {};
 
       if (updateMasterElderlyDto.dateOfBirth) {
@@ -175,25 +137,6 @@ export class MasterElderlyService {
       if (updateMasterElderlyDto.address) {
         data.address = updateMasterElderlyDto.address;
       }
-
-      // Handle file uploads and connections for each file field
-      // if (updateMasterElderlyDto.elderlyPicture) {
-      //   const fileElderlyPicture = await this.fileService.upload({
-      //     file: updateMasterElderlyDto.elderlyPicture,
-      //     fileName: updateMasterElderlyDto.name as string,
-      //   });
-
-      //   data.elderlyPicture = { connect: { id: fileElderlyPicture.id } };
-      // }
-
-      // if (updateMasterElderlyDto.fileElderlyIdentity) {
-      //   const fileElderlyIdentity = await this.fileService.upload({
-      //     file: updateMasterElderlyDto.fileElderlyIdentity,
-      //     fileName: updateMasterElderlyDto.name as string,
-      //   });
-
-      //   data.fileElderlyIdentity = { connect: { id: fileElderlyIdentity.id } };
-      // }
 
       // Update the elderly record with the prepared data
       return await this.elderlyRepository.update({ id }, data);

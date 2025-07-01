@@ -7,7 +7,10 @@ export class CreateLungConclusionDto {
     example: 6,
   })
   @IsInt()
-  value: number;
+  from: number;
+  @ApiProperty()
+  @IsInt()
+  to: number;
 
   @ApiProperty()
   @IsString()

@@ -537,7 +537,8 @@ model LungsConclution {
   id          String  @id @default(uuid())
   description String?
   conclusion  String
-  value       Float
+  from        Float
+  to          Float
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

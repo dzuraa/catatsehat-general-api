@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CheckupElderlyRepository } from '../repositories';
 import { CreateCheckupElderlyDto } from '../dtos';
-// import { FileService } from 'src/app/file/services';
 import { Admin, BMIStatus, CheckupStatus } from '@prisma/client';
 import { BMI_RANGES_ELDERLY } from 'src/common/constants/bmi.constant';
 import { SearchCheckupElderlyDto } from '../dtos/search-checkup-elderly.dto';
-// import { HealthPostsRepository } from 'src/app/healthposts/repositories';
-// import { AdminsRepository } from '@src/app/admins/repositories';
 import { PrismaService } from '@/platform/database/services/prisma.service';
 import { FileService } from '@/app/file/services';
 import { DateTime } from 'luxon';
@@ -38,7 +35,6 @@ type CheckupElderlyWhereInput = {
 };
 
 type CheckupElderlyCreateInput = {
-  // name: string;
   height: number;
   weight: number;
   bloodTension: number;
@@ -75,7 +71,6 @@ export class CheckupElderlyService {
   constructor(
     private readonly checkupElderlyRepository: CheckupElderlyRepository,
     private readonly fileService: FileService,
-    // private readonly healthPostRepository: HealthPostsRepository,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -220,14 +215,6 @@ export class CheckupElderlyService {
       status: CheckupStatus.UNVERIFIED,
     };
 
-    // Object.assign(data, {
-    //   healthPost: {
-    //     connect: {
-    //       id: user?.healthPostId,
-    //     },
-    //   },
-    // });
-
     if (createCheckupElderlyDto.fileDiagnosed) {
       const fileDiagnosed = await this.fileService.upload({
         file: createCheckupElderlyDto.fileDiagnosed,
@@ -304,37 +291,6 @@ export class CheckupElderlyService {
         bmi,
         bmiStatus,
       };
-
-      // if (updateCheckupElderlyDto.healthPostId) {
-      //   const healthPost = await this.healthPostRepository.first({
-      //     id: updateCheckupElderlyDto.healthPostId,
-      //   });
-      //   if (!healthPost) {
-      //     throw new Error('Health Post not found');
-      //   }
-
-      //   Object.assign(data, {
-      //     healthPost: {
-      //       connect: {
-      //         id: updateCheckupElderlyDto.healthPostId,
-      //       },
-      //     },
-      //   });
-      // }
-
-      // if (updateCheckupElderlyDto.fileDiagnosed) {
-      //   const fileDiagnosed = await this.fileService.upload({
-      //     file: updateCheckupElderlyDto.fileDiagnosed,
-      //     fileName: updateCheckupElderlyDto.name ?? 'document',
-      //   });
-      //   Object.assign(data, {
-      //     fileDiagnosed: {
-      //       connect: {
-      //         id: fileDiagnosed.id,
-      //       },
-      //     },
-      //   });
-      // }
 
       return await this.checkupElderlyRepository.update({ id }, data);
     } catch (error) {
@@ -446,18 +402,4 @@ export class CheckupElderlyService {
         }),
       );
   }
-
-  // public async verifyCheckup(id: string, fileId: string) {
-  //   try {
-  //     // Update the status to VERIFIED and upload the file
-  //     const updatedCheckup = await this.checkupElderlyRepository.update(
-  //       { id },
-  //       { fileDiagnosed: { connect: { id: fileId } }, status: 'VERIFIED' },
-  //     );
-
-  //     return updatedCheckup;
-  //   } catch (error) {
-  //     throw new Error(error.message);
-  //   }
-  // }
 }
