@@ -60,6 +60,7 @@ export class CheckupChildrenAdminHttpController {
         message: 'Data created successfully',
       });
     } catch (error) {
+      console.log(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
@@ -75,6 +76,7 @@ export class CheckupChildrenAdminHttpController {
         message: 'Data fetched successfully',
       });
     } catch (error) {
+      console.log(error);
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }

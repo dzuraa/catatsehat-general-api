@@ -1,6 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { BMIStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, Matches } from 'class-validator';
+import { IsDateString, IsOptional, Matches } from 'class-validator';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 
 export class CheckupMotherSearchDto extends PaginationQueryDto {
@@ -21,14 +20,4 @@ export class CheckupMotherSearchDto extends PaginationQueryDto {
   @IsOptional()
   @IsDateString()
   createdAt?: string;
-
-  @ApiPropertyOptional({
-    enum: BMIStatus,
-    description: 'Filter by BMI status enum',
-  })
-  @IsOptional()
-  @IsEnum(BMIStatus, {
-    message: 'bmiStatus must be one of the defined enum values',
-  })
-  bmiStatus?: BMIStatus;
 }

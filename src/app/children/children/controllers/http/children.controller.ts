@@ -48,6 +48,7 @@ export class ChildrenHttpController {
         message: 'Data created successfully',
       });
     } catch (error) {
+      console.log(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }

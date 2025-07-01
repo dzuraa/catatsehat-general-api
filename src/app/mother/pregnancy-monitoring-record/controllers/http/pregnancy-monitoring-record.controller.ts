@@ -99,7 +99,7 @@ export class PregnancyMonitoringRecordHttpController {
 
   @Get()
   public async index(
-    @Query('weekPregnancyMonitoringId') weekPregnancyMonitoringId: string,
+    @Query() weekPregnancyMonitoringId: string,
     @UserDecorator() user: User,
   ) {
     try {

@@ -6,6 +6,10 @@ import {
   OwnerType,
   Prisma,
 } from '@prisma/client';
+import { AdminRepository } from 'src/app/admin/repositories';
+// import { FilesService } from '@src/app/files/services';
+// import { HealthPostsRepository } from '@src/app/healthposts/repositories';
+import { HealthPostRepository } from '@/app/healthpost/repositories';
 import { BMI_RANGES_MOTHER } from 'src/common/constants/bmi.constant';
 import { MotherRepository } from '../../mother/repositories';
 import { CreateCheckupMothersAdminDto, UpdateCheckupMotherDto } from '../dtos';
@@ -15,13 +19,14 @@ import { DateTime } from 'luxon';
 import { translateBMI } from '@/common/helpers/bmi-status.helper';
 import { Buffer } from 'exceljs';
 import ExcelJS from 'exceljs';
-import { FileService } from '@/app/file/services';
 
 @Injectable()
 export class CheckupMothersAdminService {
   constructor(
     private readonly checkupMotherRepository: CheckupMotherRepository,
-    private readonly filesService: FileService,
+    // private readonly filesService: FilesService,
+    private readonly healthPostRepository: HealthPostRepository,
+    private readonly adminRepository: AdminRepository,
     private readonly motherRepository: MotherRepository,
   ) {}
 
@@ -75,36 +80,6 @@ export class CheckupMothersAdminService {
         },
       ];
     }
-
-    if (paginateDto.bmiStatus) {
-      whereCondition.bmiStatus = paginateDto.bmiStatus;
-    }
-
-    if (paginateDto.month) {
-      const monthStart = DateTime.fromISO(`${paginateDto.month}-01`)
-        .startOf('month')
-        .toJSDate();
-      const monthEnd = DateTime.fromISO(`${paginateDto.month}-01`)
-        .endOf('month')
-        .toJSDate();
-
-      whereCondition.createdAt = {
-        gte: monthStart,
-        lte: monthEnd,
-      };
-    }
-
-    if (paginateDto.createdAt) {
-      const inputDate = DateTime.fromISO(paginateDto.createdAt);
-      const dayStart = inputDate.startOf('day').toJSDate();
-      const dayEnd = inputDate.endOf('day').toJSDate();
-
-      whereCondition.createdAt = {
-        gte: dayStart,
-        lte: dayEnd,
-      };
-    }
-
     return this.checkupMotherRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
@@ -118,7 +93,6 @@ export class CheckupMothersAdminService {
       },
     });
   }
-
   public detail(id: string) {
     try {
       return this.checkupMotherRepository.firstOrThrow(
@@ -157,11 +131,6 @@ export class CheckupMothersAdminService {
       createCheckupMothersAdminDto.weight,
     );
 
-    const mother = await this.motherRepository.firstOrThrow({
-      id: createCheckupMothersAdminDto.motherId,
-      deletedAt: null,
-    });
-
     const bmiStatus = this.getBMIStatus(bmi);
 
     const data: Prisma.CheckupMotherCreateInput = {
@@ -176,7 +145,7 @@ export class CheckupMothersAdminService {
       type: OwnerType.ADMIN,
       mother: {
         connect: {
-          id: mother.id,
+          id: createCheckupMothersAdminDto.motherId,
         },
       },
       admin: {
@@ -191,21 +160,21 @@ export class CheckupMothersAdminService {
       },
     };
 
-    if (createCheckupMothersAdminDto.fileDiagnosed) {
-      const fileDiagnosed = await this.filesService.upload({
-        file: createCheckupMothersAdminDto.fileDiagnosed,
-        fileName: mother.name ?? '',
-      });
+    // if (createCheckupMothersAdminDto.fileDiagnosed) {
+    //   const fileDiagnosed = await this.filesService.upload({
+    //     file: createCheckupMothersAdminDto.fileDiagnosed,
+    //     fileName: createCheckupMothersAdminDto.name ?? '',
+    //   });
 
-      data.status = CheckupStatus.VERIFIED;
-      Object.assign(data, {
-        fileDiagnosed: {
-          connect: {
-            id: fileDiagnosed.id,
-          },
-        },
-      });
-    }
+    //   data.status = CheckupStatus.VERIFIED;
+    //   Object.assign(data, {
+    //     fileDiagnosed: {
+    //       connect: {
+    //         id: fileDiagnosed.id,
+    //       },
+    //     },
+    //   });
+    // }
     return await this.checkupMotherRepository.create(data);
   }
 
@@ -215,11 +184,6 @@ export class CheckupMothersAdminService {
     admin: Admin,
   ) {
     try {
-      const mother = await this.motherRepository.firstOrThrow({
-        id: updateCheckupMothersAdminDto.motherId,
-        deletedAt: null,
-      });
-
       let bmi: number | undefined;
       let bmiStatus: BMIStatus | undefined;
       if (
@@ -256,19 +220,19 @@ export class CheckupMothersAdminService {
         },
       };
 
-      if (updateCheckupMothersAdminDto.fileDiagnosed) {
-        const fileDiagnosed = await this.filesService.upload({
-          file: updateCheckupMothersAdminDto.fileDiagnosed,
-          fileName: mother.name ?? 'document',
-        });
-        Object.assign(data, {
-          fileDiagnosed: {
-            connect: {
-              id: fileDiagnosed.id,
-            },
-          },
-        });
-      }
+      // if (updateCheckupMothersAdminDto.fileDiagnosed) {
+      //   const fileDiagnosed = await this.filesService.upload({
+      //     file: updateCheckupMothersAdminDto.fileDiagnosed,
+      //     fileName: updateCheckupMothersAdminDto.name ?? 'document',
+      //   });
+      //   Object.assign(data, {
+      //     fileDiagnosed: {
+      //       connect: {
+      //         id: fileDiagnosed.id,
+      //       },
+      //     },
+      //   });
+      // }
 
       return await this.checkupMotherRepository.update({ id }, data);
     } catch (error) {

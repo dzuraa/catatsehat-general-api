@@ -7,9 +7,8 @@ import { Prisma, User } from '@prisma/client';
 import { omit } from 'lodash';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
 import { MotherRepository } from 'src/app/mother/mother/repositories';
-// import { ENV } from '@/config/env';
+import { ENV } from '@/config/env';
 import { ChildrenSeederService } from './children-seeder.service';
-import { DateTime } from 'luxon';
 
 @Injectable()
 export class ChildrenService {
@@ -22,13 +21,13 @@ export class ChildrenService {
 
   // Generate child access URL
   // private generateChildAccessUrl(childCode: string): string {
-  // const baseUrl = ENV.FRONTEND_BASE_URL;
-  // const baseUrl = localhost:5173;
+    // const baseUrl = ENV.FRONTEND_BASE_URL;
+    // const baseUrl = localhost:5173;
   //   return `localhost:5173/public/option-page?code=${childCode}`;
   // }
   private generateChildAccessUrl(childCode: string): string {
-    return `http://localhost:5173/public/option-page?code=${childCode}`;
-  }
+  return `http://localhost:5173/public/option-page?code=${childCode}`;
+}
 
   public async paginate(paginateDto: SearchChildrenDto, user: User) {
     const whereCondition: Prisma.ChildrenWhereInput = {
@@ -48,7 +47,7 @@ export class ChildrenService {
       ];
     }
 
-    const data = await this.childRepository.paginate(paginateDto, {
+    return await this.childRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
         createdAt: 'desc',
@@ -60,22 +59,6 @@ export class ChildrenService {
         familyCard: true,
       },
     });
-
-    const childrenArray = Array.isArray(data) ? data : data.data;
-    const dataWithAge = childrenArray.map((child) => {
-      const birth = DateTime.fromISO(child.dateOfBirth.toISOString());
-      const now = DateTime.now();
-      const age = now.diff(birth, 'years').years;
-      const ageRounded = Math.floor(age);
-      return {
-        ...child,
-        age: ageRounded,
-      };
-    });
-
-    return {
-      data: dataWithAge,
-    };
   }
 
   public count() {

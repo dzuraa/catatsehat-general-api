@@ -7,7 +7,7 @@ services:
         condition: on-failure
       resources:
         limits:
-          memory: 2048M
+          memory: 1024M
     ports:
       - "5000:3000"
     env_file:

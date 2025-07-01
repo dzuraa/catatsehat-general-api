@@ -18,12 +18,13 @@ import {
   CreateMasterElderlyDto,
   UpdateMasterElderlyDto,
 } from 'src/app/elderly/master-elderly/dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { UserDecorator } from '@/app/auth/decorators';
 import { AdminGuard } from '@/app/auth';
 
 @ApiTags('MasterElderly')
+@ApiSecurity('JWT')
 @UseGuards(AdminGuard)
 @Controller({
   path: 'admin/elderly',
@@ -49,6 +50,20 @@ export class MasterElderlyAdminHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('summary')
+  public async summary() {
+    try {
+      const data = await this.elderlyService.summary();
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 

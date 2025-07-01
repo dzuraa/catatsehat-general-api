@@ -3,14 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
@@ -24,7 +22,6 @@ import {
   UpdateImmunizationRecordDto,
 } from '../../dtos';
 import { ImmunizationRecordAdminService } from '../../services/immunization-record-admin.service';
-import { Response } from 'express';
 
 @ApiTags('[ADMIN] Immunizations')
 @ApiSecurity('JWT')
@@ -146,26 +143,6 @@ export class ImmunizationRecordAdminHttpController {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
-
-  @Get('export-vaccine')
-  @Header(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  )
-  @Header('Content-Disposition', 'attachment; filename=vaccine_report.xlsx')
-  public async export(
-    @Query() filterDto: SearchImmunizationRecordDto,
-    @Res() res: Response,
-  ) {
-    try {
-      const buffer =
-        await this.immunizationRecordAdminService.exportExcel(filterDto);
-      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
-      res.end(buffer);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
 }
 
 @ApiTags('[USER] Immunization')
@@ -254,26 +231,6 @@ export class ImmunizationHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Get('export-vaccine')
-  @Header(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  )
-  @Header('Content-Disposition', 'attachment; filename=vaccine_report.xlsx')
-  public async export(
-    @Query('childrenId') childrenId: string,
-    @Res() res: Response,
-  ) {
-    try {
-      const buffer =
-        await this.immunizationRecordService.exportExcel(childrenId);
-      res.setHeader('Content-Length', Buffer.byteLength(buffer).toString());
-      res.end(buffer);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

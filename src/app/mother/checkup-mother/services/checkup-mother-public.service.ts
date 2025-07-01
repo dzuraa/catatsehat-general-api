@@ -6,6 +6,11 @@ import {
   Prisma,
   User,
 } from '@prisma/client';
+// import { AdminRepository } from 'src/app/admin/repositories';
+// import { FilesService } from '@src/app/files/services';
+// import { HealthPostsRepository } from '@src/app/healthposts/repositories';
+// import { BMI_RANGES_MOTHER } from '@src/common/constants/bmi.constant';
+import { HealthPostRepository } from '@/app/healthpost/repositories';
 import { BMI_RANGES_MOTHER } from '@/common/constants/bmi.constant';
 import { MotherRepository } from '../../mother/repositories';
 import { CreateCheckupMothersPublicDto } from '../dtos';
@@ -15,14 +20,15 @@ import { Buffer } from 'exceljs';
 import * as ExcelJS from 'exceljs';
 import { DateTime } from 'luxon';
 import { translateBMI } from '@/common/helpers/bmi-status.helper';
-import { FileService } from '@/app/file/services';
 
 @Injectable()
 export class CheckupMothersPublicService {
   constructor(
     private readonly checkupMotherRepository: CheckupMotherRepository,
-    private readonly filesService: FileService,
+    // private readonly filesService: FilesService,
     private readonly motherRepository: MotherRepository,
+    private readonly healthPostRepository: HealthPostRepository,
+    // private readonly adminRepository: AdminRepository,
   ) {}
 
   public async paginate(paginateDto: CheckupMotherSearchDto, user: User) {
@@ -143,11 +149,6 @@ export class CheckupMothersPublicService {
   public async create(
     createCheckupMothersAdminDto: CreateCheckupMothersPublicDto,
   ) {
-    const mother = await this.motherRepository.firstOrThrow({
-      id: createCheckupMothersAdminDto.motherId,
-      deletedAt: null,
-    });
-
     const bmi = this.calculateBmi(
       createCheckupMothersAdminDto.height,
       createCheckupMothersAdminDto.weight,
@@ -169,7 +170,7 @@ export class CheckupMothersPublicService {
       type: OwnerType.PUBLIC,
       mother: {
         connect: {
-          id: mother.id,
+          id: createCheckupMothersAdminDto.motherId,
         },
       },
     };
@@ -191,21 +192,21 @@ export class CheckupMothersPublicService {
       });
     }
 
-    if (createCheckupMothersAdminDto.fileDiagnosed) {
-      const fileDiagnosed = await this.filesService.upload({
-        file: createCheckupMothersAdminDto.fileDiagnosed,
-        fileName: mother.name ?? '',
-      });
+    // if (createCheckupMothersAdminDto.fileDiagnosed) {
+    //   const fileDiagnosed = await this.filesService.upload({
+    //     file: createCheckupMothersAdminDto.fileDiagnosed,
+    //     fileName: createCheckupMothersAdminDto.name ?? '',
+    //   });
 
-      data.status = CheckupStatus.VERIFIED;
-      Object.assign(data, {
-        fileDiagnosed: {
-          connect: {
-            id: fileDiagnosed.id,
-          },
-        },
-      });
-    }
+    //   data.status = CheckupStatus.VERIFIED;
+    //   Object.assign(data, {
+    //     fileDiagnosed: {
+    //       connect: {
+    //         id: fileDiagnosed.id,
+    //       },
+    //     },
+    //   });
+    // }
     return await this.checkupMotherRepository.create(data);
   }
 

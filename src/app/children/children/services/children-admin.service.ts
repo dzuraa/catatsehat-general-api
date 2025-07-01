@@ -4,7 +4,6 @@ import { SearchChildrenDto } from '../dtos/search-children.dto';
 import { Prisma } from '@prisma/client';
 import { alphaNumeric } from 'src/common/functions/crypto.function';
 import { env } from 'process';
-import { DateTime } from 'luxon';
 
 @Injectable()
 export class ChildrenAdminService {
@@ -16,7 +15,7 @@ export class ChildrenAdminService {
     return `${baseUrl}/public/option-page?code=${childCode}`;
   }
 
-  public async paginate(paginateDto: SearchChildrenDto) {
+  public paginate(paginateDto: SearchChildrenDto) {
     const whereCondition: Prisma.ChildrenWhereInput = {
       deletedAt: null,
     };
@@ -33,7 +32,7 @@ export class ChildrenAdminService {
       ];
     }
 
-    const data = await this.childRepository.paginate(paginateDto, {
+    return this.childRepository.paginate(paginateDto, {
       where: whereCondition,
       orderBy: {
         createdAt: 'desc',
@@ -45,22 +44,6 @@ export class ChildrenAdminService {
         familyCard: true,
       },
     });
-
-    const childrenArray = Array.isArray(data) ? data : data.data;
-    const dataWithAge = childrenArray.map((child) => {
-      const birth = DateTime.fromISO(child.dateOfBirth.toISOString());
-      const now = DateTime.now();
-      const age = now.diff(birth, 'years').years;
-      const ageRounded = Math.floor(age);
-      return {
-        ...child,
-        age: ageRounded,
-      };
-    });
-
-    return {
-      data: dataWithAge,
-    };
   }
 
   public count() {

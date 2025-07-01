@@ -88,26 +88,7 @@ export class ImmunizationRecordRepository {
   }
 
   public async find(filter: Filter) {
-    return this.prismaService.immunizationRecord.findMany({
-      ...filter,
-      include: {
-        ...filter.include,
-        vaccine: true,
-        vaccineStage: true,
-        children: true,
-      },
-    });
-  }
-
-  public async findMany<T extends Prisma.ImmunizationRecordInclude>(
-    where: Prisma.ImmunizationRecordWhereInput,
-    include?: T,
-  ): Promise<Prisma.ImmunizationRecordGetPayload<{ include: T }>[]> {
-    const data = await this.prismaService.immunizationRecord.findMany({
-      where,
-      include,
-    });
-    return data as Prisma.ImmunizationRecordGetPayload<{ include: T }>[];
+    return this.prismaService.immunizationRecord.findMany(filter);
   }
 
   public async count(filter: Omit<Filter, 'include'>) {

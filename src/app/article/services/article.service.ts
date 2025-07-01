@@ -40,7 +40,7 @@ export class ArticleService {
         createdAt: 'desc',
       },
       include: {
-        filePicture: true,
+        image: true,
       },
     });
   }
@@ -61,7 +61,12 @@ export class ArticleService {
           deletedAt: null,
         },
         {
-          filePicture: true,
+          image: true,
+          title: true,
+          content: true,
+          newsMaker: true,
+          id: true,
+          createdAt: true,
         },
       );
     } catch (error) {
@@ -87,16 +92,16 @@ export class ArticleService {
         newsMaker: createArticleDto.newsMaker,
       };
 
-      if (createArticleDto.filePicture) {
-        const filePicture = await this.fileService.upload({
-          file: createArticleDto.filePicture as string,
+      if (createArticleDto.image) {
+        const image = await this.fileService.upload({
+          file: createArticleDto.image as string,
           fileName: createArticleDto.title ?? '',
         });
 
         Object.assign(data, {
-          filePicture: {
+          image: {
             connect: {
-              id: filePicture.id,
+              id: image.id,
             },
           },
         });
@@ -117,16 +122,16 @@ export class ArticleService {
         newsMaker: updateArticleDto.newsMaker,
       };
 
-      if (updateArticleDto.filePicture) {
-        const filePicture = await this.fileService.upload({
-          file: updateArticleDto.filePicture as string,
+      if (updateArticleDto.image) {
+        const image = await this.fileService.upload({
+          file: updateArticleDto.image as string,
           fileName: updateArticleDto.title ?? '',
         });
 
         Object.assign(data, {
-          filePicture: {
+          image: {
             connect: {
-              id: filePicture.id,
+              id: image.id,
             },
           },
         });

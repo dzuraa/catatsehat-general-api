@@ -22,6 +22,7 @@ import {
   UpdateCheckupMotherDto,
 } from 'src/app/mother/checkup-mother/dtos';
 import { CheckupMothersAdminService } from 'src/app/mother/checkup-mother/services';
+import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { Response } from 'express';
 import { CheckupMotherSearchDto } from '../../dtos/search-checkup-mother.dto';
@@ -59,7 +60,7 @@ export class CheckupMotherHttpController {
   }
 
   @Get()
-  public async index(@Query() paginateDto: CheckupMotherSearchDto) {
+  public async index(@Query() paginateDto: PaginationQueryDto) {
     try {
       const data = await this.checkupMotherAdminService.paginate(paginateDto);
       return new ResponseEntity({

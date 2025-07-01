@@ -11,7 +11,6 @@ export type Filter = {
   take?: number;
   skip?: number;
   include?: Prisma.ChildVaccineInclude;
-  select?: Prisma.ChildVaccineSelect;
 };
 
 @Injectable()
@@ -72,17 +71,15 @@ export class ChildVaccineRepository {
     return data;
   }
 
-  public async findMany(filter: Prisma.ChildVaccineFindManyArgs) {
-    return this.prismaService.childVaccine.findMany({
-      ...filter,
-      include: {
-        childVaccineStage: true,
-        ...filter.include,
-      },
-    });
+  public async find(filter: Prisma.ChildVaccineFindManyArgs) {
+    return this.prismaService.childVaccine.findMany(filter);
   }
 
-  public async find(filter: Filter) {
-    return this.prismaService.childVaccine.findMany(filter);
+  public async count(filter: Omit<Filter, 'include'>) {
+    return this.prismaService.childVaccine.count(filter);
+  }
+
+  public async any(filter: Omit<Filter, 'include'>) {
+    return (await this.prismaService.childVaccine.count(filter)) > 0;
   }
 }

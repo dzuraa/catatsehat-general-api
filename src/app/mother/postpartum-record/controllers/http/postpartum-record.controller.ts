@@ -98,7 +98,7 @@ export class PostpartumRecordHttpController {
 
   @Get()
   public async index(
-    @Query('dayPostpartumId') dayPostpartumId: string,
+    @Query() dayPostpartumId: string,
     @UserDecorator() user: User,
   ) {
     try {
