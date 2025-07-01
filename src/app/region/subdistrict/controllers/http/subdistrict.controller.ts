@@ -22,7 +22,7 @@ export class SubdistrictHttpController {
   @Get()
   public async index(@Query() subDistrictFilterDto: SubDistrictFilterDto) {
     try {
-      const data = await this.subDistrictService.findMany(subDistrictFilterDto);
+      const data = await this.subDistrictService.paginate(subDistrictFilterDto);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

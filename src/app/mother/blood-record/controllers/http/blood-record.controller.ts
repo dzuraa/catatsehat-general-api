@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -22,6 +23,7 @@ import {
   CreateBloodRecordDto,
   UpdateBloodRecordDto,
 } from '../../dtos';
+import { BloodRecordPublicService } from '../../services/blood-record-public.service';
 
 @ApiTags('[ADMIN] Blood Record')
 @ApiSecurity('JWT')
@@ -106,6 +108,47 @@ export class BloodRecordAdminHttpController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Delete(':id')
+  public async destroy(@Param('id') id: string) {
+    try {
+      const data = await this.bloodRecordAdminService.destroy(id);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data deleted successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+}
+
+@ApiTags('[PUBLIC] Blood Record')
+@Controller({
+  path: 'public/bloodRecord',
+  version: '1',
+})
+export class BloodRecordPublicHttpController {
+  constructor(
+    private readonly bloodRecordPublicService: BloodRecordPublicService,
+  ) {}
+
+  @Post()
+  public async create(@Body() createBloodRecordDto: CreateBloodRecordDto) {
+    try {
+      const data =
+        await this.bloodRecordPublicService.create(createBloodRecordDto);
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.CREATED,
+        message: 'Data created successfully',
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
 
 @ApiTags('[USER] Blood Record')
@@ -119,7 +162,10 @@ export class BloodRecordHttpController {
   constructor(private readonly bloodRecordService: BloodRecordService) {}
 
   @Get()
-  public async index(@Query() monthId: string, @UserDecorator() user: User) {
+  public async index(
+    @Query('monthId') monthId: string,
+    @UserDecorator() user: User,
+  ) {
     try {
       const data = await this.bloodRecordService.index(monthId, user);
       return new ResponseEntity({

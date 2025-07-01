@@ -124,4 +124,8 @@ export class BloodRecordAdminService {
 
     return this.bloodRecordRepository.update({ id }, data);
   }
+
+  public async destroy(id: string) {
+    return this.bloodRecordRepository.delete({ id });
+  }
 }

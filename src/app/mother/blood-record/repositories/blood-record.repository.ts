@@ -72,7 +72,10 @@ export class BloodRecordRepository {
   ) {
     const data = await this.prismaService.bloodRecord.findUnique({
       where,
-      include,
+      include: {
+        ...include,
+        monthBlood: true,
+      },
     });
     if (!data) throw new Error('Data not found');
     return data;

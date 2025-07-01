@@ -11,6 +11,7 @@ export type Filter = {
   take?: number;
   skip?: number;
   include?: Prisma.SubDistrictInclude;
+  select?: Prisma.SubDistrictSelect;
 };
 
 @Injectable()
@@ -27,7 +28,7 @@ export class SubdistrictRepository {
         where: filter?.where,
         orderBy: filter?.orderBy,
         cursor: filter?.cursor,
-        include: filter?.include,
+        select: filter?.select,
       }),
       this.prismaService.subDistrict.count({
         where: filter?.where,
@@ -66,13 +67,5 @@ export class SubdistrictRepository {
 
   public async find(filter: Filter) {
     return this.prismaService.subDistrict.findMany(filter);
-  }
-
-  public async count(filter: Omit<Filter, 'include'>) {
-    return this.prismaService.subDistrict.count(filter);
-  }
-
-  public async any(filter: Omit<Filter, 'include'>) {
-    return (await this.prismaService.subDistrict.count(filter)) > 0;
   }
 }

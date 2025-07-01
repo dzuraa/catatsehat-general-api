@@ -59,6 +59,16 @@ export class PostpartumRecordRepository {
     });
   }
 
+  public async findFirst(
+    where: Prisma.PostPartumRecordWhereInput,
+    select?: Prisma.PostPartumRecordSelect,
+  ) {
+    return this.prismaService.postPartumRecord.findFirst({
+      where,
+      select,
+    });
+  }
+
   public async first(
     where: Prisma.PostPartumRecordWhereUniqueInput,
     select?: Prisma.PostPartumRecordSelect,

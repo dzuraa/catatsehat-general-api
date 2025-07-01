@@ -6,9 +6,34 @@ import { SubDistrictFilterDto } from '../dtos';
 export class SubdistrictService {
   constructor(private readonly subDistrictRepository: SubdistrictRepository) {}
 
-  public async findMany(subDistrictFilterDto: SubDistrictFilterDto) {
+  public async paginate(subDistrictFilterDto: SubDistrictFilterDto) {
     const filter: Filter = {
       where: {},
+      orderBy: {
+        name: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        district: {
+          select: {
+            id: true,
+            name: true,
+            regency: {
+              select: {
+                id: true,
+                name: true,
+                province: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     };
 
     if (subDistrictFilterDto.districtId) {
@@ -25,7 +50,10 @@ export class SubdistrictService {
         },
       });
     }
-    return await this.subDistrictRepository.findMany(filter);
+    return await this.subDistrictRepository.paginate(
+      subDistrictFilterDto,
+      filter,
+    );
   }
 
   public detail(id: string) {

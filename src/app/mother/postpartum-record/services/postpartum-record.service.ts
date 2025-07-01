@@ -72,6 +72,16 @@ export class PostpartumRecordService {
       throw new Error('Mother not found');
     }
 
+    const existingRecord = await this.postPartumRecordRepository.findFirst({
+      dayPostPartumId: createPostpartumRecordDto.dayPostPartumId,
+      motherId: createPostpartumRecordDto.motherId,
+      deletedAt: null,
+    });
+
+    if (existingRecord) {
+      throw new Error('Data sudah tersedia untuk pilihan hari ini');
+    }
+
     const questions = [
       createPostpartumRecordDto.question1,
       createPostpartumRecordDto.question2,
