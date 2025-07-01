@@ -8,4 +8,7 @@ export class PaginationQueryDto {
   @IsNumberString()
   @IsOptional()
   limit: number;
+
+  @IsOptional()
+  search?: string;
 }
