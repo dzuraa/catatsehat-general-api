@@ -148,10 +148,11 @@ model Children {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  checkupChildren    CheckupChildren[]
-  immunizationRecord ImmunizationRecord[]
-  childVaccine       ChildVaccine[]
-  childVaccineStage  ChildVaccineStage[]
+  checkupChildren            CheckupChildren[]
+  immunizationRecord         ImmunizationRecord[]
+  childVaccine               ChildVaccine[]
+  childVaccineStage          ChildVaccineStage[]
+  ImmunizationOptionalRecord ImmunizationOptionalRecord[]
 }
 
 model CheckupChildren {
@@ -226,6 +227,20 @@ model ImmunizationRecord {
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+}
+
+model ImmunizationOptionalRecord {
+  id        String  @id @unique @default(uuid())
+  name      String
+  dateGiven Int
+  note      String?
+
+  childrenId String
+  children   Children @relation(fields: [childrenId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -335,8 +350,9 @@ model WeekPregnancyMonitoring {
 }
 
 model BloodRecord {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   date      DateTime
+  type      OwnerType @default(ADMIN)
   staffName String?
   staffJob  String?
   note      String?
@@ -494,6 +510,9 @@ model CheckupElderly {
   healthPostId String?
   lungs        String?
 
+  fileDiagnosedId String?
+  fileDiagnosed   File?   @relation("FileDiagnosedElderly", fields: [fileDiagnosedId], references: [id])
+
   healthPost HealthPost? @relation(fields: [healthPostId], references: [id])
   admin      Admin?      @relation(fields: [adminId], references: [id])
   elderly    Elderly?    @relation(fields: [elderlyId], references: [id])
@@ -504,8 +523,8 @@ model CheckupElderly {
 }
 
 model Lungs {
-  id    String     @id @default(uuid())
-  value ValueLungs @default(UNVERIFIED)
+  id    String @id @default(uuid())
+  score Int    @default(0)
 
   elderlyId         String?
   lungsConclutionId String?
@@ -520,8 +539,9 @@ model Lungs {
 }
 
 model MasterDataLungs {
-  id       String @id @default(uuid())
-  question String
+  id          String  @id @default(uuid())
+  question    String
+  description String?
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -530,9 +550,11 @@ model MasterDataLungs {
 }
 
 model LungsConclution {
-  id         String @id @default(uuid())
-  conclution String
-  value      Float
+  id          String  @id @default(uuid())
+  description String?
+  conclusion  String
+  from        Float
+  to          Float
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -541,8 +563,8 @@ model LungsConclution {
 }
 
 model LungsPivot {
-  id    String  @id @default(uuid())
-  value Boolean
+  id    String @id @default(uuid())
+  value Int    @default(0)
 
   lungsId           String?
   masterDataLungsId String?
@@ -560,8 +582,8 @@ model Article {
   adminId String?
   admin   Admin?  @relation(fields: [adminId], references: [id])
 
-  filePictureId String?
-  filePicture   File?   @relation("ArticlePicture", fields: [filePictureId], references: [id])
+  imageId String?
+  image   File?   @relation("ArticlePicture", fields: [imageId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -697,6 +719,7 @@ model File {
   fileChildPicture Report[]          @relation("FileChildPicture")
   fileHousePicture Report[]          @relation("FileHousePicture")
   article          Article[]         @relation("ArticlePicture")
+  checkupElderly   CheckupElderly[]  @relation("FileDiagnosedElderly")
 }
 
 model Otp {

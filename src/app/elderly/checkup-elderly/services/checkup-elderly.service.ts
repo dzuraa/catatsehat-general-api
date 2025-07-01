@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CheckupElderlyRepository } from '../repositories';
 import { CreateCheckupElderlyDto } from '../dtos';
-// import { FileService } from 'src/app/file/services';
 import { Admin, BMIStatus, CheckupStatus } from '@prisma/client';
 import { BMI_RANGES_ELDERLY } from 'src/common/constants/bmi.constant';
 import { SearchCheckupElderlyDto } from '../dtos/search-checkup-elderly.dto';
-// import { HealthPostsRepository } from 'src/app/healthposts/repositories';
-// import { AdminsRepository } from '@src/app/admins/repositories';
 import { PrismaService } from '@/platform/database/services/prisma.service';
+import { FileService } from '@/app/file/services';
+import { DateTime } from 'luxon';
+import { forkJoin, from, map, switchMap } from 'rxjs';
+import { ExportCheckupDto } from '../dtos/export-checkup.dto';
+import * as ExcelJS from 'exceljs';
+
 type CheckupElderlyWhereInput = {
   id?: string;
   deletedAt?: Date | null;
@@ -32,7 +35,6 @@ type CheckupElderlyWhereInput = {
 };
 
 type CheckupElderlyCreateInput = {
-  // name: string;
   height: number;
   weight: number;
   bloodTension: number;
@@ -68,8 +70,7 @@ type CheckupElderlyUpdateInput = {
 export class CheckupElderlyService {
   constructor(
     private readonly checkupElderlyRepository: CheckupElderlyRepository,
-    // private readonly fileService: FileService,
-    // private readonly healthPostRepository: HealthPostsRepository,
+    private readonly fileService: FileService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -118,15 +119,16 @@ export class CheckupElderlyService {
 
     // Add date filtering
     if (paginateDto.date) {
-      const parts = paginateDto.date.split('-');
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in Date.UTC
-      const day = parseInt(parts[2], 10);
-
-      // Create UTC date for the beginning of the day
-      const startDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-      // Create UTC date for the end of the day
-      const endDate = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
+      const start = DateTime.fromFormat(
+        paginateDto.date.split(',')[0],
+        'yyyy-MM-dd',
+      );
+      const end = DateTime.fromFormat(
+        paginateDto.date.split(',')[1],
+        'yyyy-MM-dd',
+      );
+      const startDate = start.startOf('day').toJSDate();
+      const endDate = end.endOf('day').toJSDate();
 
       whereCondition.attend = {
         gte: startDate,
@@ -142,7 +144,7 @@ export class CheckupElderlyService {
       include: {
         healthPost: true,
         elderly: true,
-        // fileDiagnosed: true,
+        fileDiagnosed: true,
       },
     });
   }
@@ -159,11 +161,23 @@ export class CheckupElderlyService {
         },
       });
 
+      const lungs = await this.prisma.lungs.findFirst({
+        where: {
+          elderlyId: result[0].elderlyId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          lungsConclution: true,
+        },
+      });
+
       if (!result || result.length === 0) {
         throw new Error('Checkup elderly not found');
       }
 
-      return result[0];
+      return Object.assign(result[0], { lungs });
     } catch (error) {
       throw new Error(error);
     }
@@ -201,38 +215,21 @@ export class CheckupElderlyService {
       status: CheckupStatus.UNVERIFIED,
     };
 
-    // if (createCheckupElderlyDto.healthPostId) {
-    //   const healthPost = await this.healthPostRepository.first({
-    //     id: createCheckupElderlyDto.healthPostId,
-    //   });
-    //   if (!healthPost) {
-    //     throw new Error('Health Post not found');
-    //   }
+    if (createCheckupElderlyDto.fileDiagnosed) {
+      const fileDiagnosed = await this.fileService.upload({
+        file: createCheckupElderlyDto.fileDiagnosed,
+        fileName: `diagnosed-${createCheckupElderlyDto.elderlyId}`,
+      });
 
-    //   Object.assign(data, {
-    //     healthPost: {
-    //       connect: {
-    //         id: createCheckupElderlyDto.healthPostId,
-    //       },
-    //     },
-    //   });
-    // }
-
-    // if (createCheckupElderlyDto.fileDiagnosed) {
-    //   const fileDiagnosed = await this.fileService.upload({
-    //     file: createCheckupElderlyDto.fileDiagnosed,
-    //     fileName: createCheckupElderlyDto.name ?? '',
-    //   });
-
-    //   data.status = CheckupStatus.VERIFIED;
-    //   Object.assign(data, {
-    //     fileDiagnosed: {
-    //       connect: {
-    //         id: fileDiagnosed.id,
-    //       },
-    //     },
-    //   });
-    // }
+      data.status = CheckupStatus.VERIFIED;
+      Object.assign(data, {
+        fileDiagnosed: {
+          connect: {
+            id: fileDiagnosed.id,
+          },
+        },
+      });
+    }
 
     const admin = await this.prisma.admin.findUnique({
       where: {
@@ -243,16 +240,16 @@ export class CheckupElderlyService {
       },
     });
 
-    if (admin) {
+    if (admin && admin.healthPostId) {
       Object.assign(data, {
-        healthPost: {
-          connect: {
-            id: admin?.healthPostId ?? undefined,
-          },
-        },
         admin: {
           connect: {
             id: user?.id,
+          },
+        },
+        healthPost: admin.healthPostId && {
+          connect: {
+            id: admin.healthPostId,
           },
         },
       });
@@ -295,37 +292,6 @@ export class CheckupElderlyService {
         bmiStatus,
       };
 
-      // if (updateCheckupElderlyDto.healthPostId) {
-      //   const healthPost = await this.healthPostRepository.first({
-      //     id: updateCheckupElderlyDto.healthPostId,
-      //   });
-      //   if (!healthPost) {
-      //     throw new Error('Health Post not found');
-      //   }
-
-      //   Object.assign(data, {
-      //     healthPost: {
-      //       connect: {
-      //         id: updateCheckupElderlyDto.healthPostId,
-      //       },
-      //     },
-      //   });
-      // }
-
-      // if (updateCheckupElderlyDto.fileDiagnosed) {
-      //   const fileDiagnosed = await this.fileService.upload({
-      //     file: updateCheckupElderlyDto.fileDiagnosed,
-      //     fileName: updateCheckupElderlyDto.name ?? 'document',
-      //   });
-      //   Object.assign(data, {
-      //     fileDiagnosed: {
-      //       connect: {
-      //         id: fileDiagnosed.id,
-      //       },
-      //     },
-      //   });
-      // }
-
       return await this.checkupElderlyRepository.update({ id }, data);
     } catch (error) {
       console.log(error);
@@ -333,17 +299,107 @@ export class CheckupElderlyService {
     }
   }
 
-  // public async verifyCheckup(id: string, fileId: string) {
-  //   try {
-  //     // Update the status to VERIFIED and upload the file
-  //     const updatedCheckup = await this.checkupElderlyRepository.update(
-  //       { id },
-  //       { fileDiagnosed: { connect: { id: fileId } }, status: 'VERIFIED' },
-  //     );
+  export(searchDto: ExportCheckupDto) {
+    const elderlyCheckups$ = from(
+      this.prisma.checkupElderly.findMany({
+        where: {
+          ...(searchDto.startDate && {
+            createdAt: { gte: searchDto.startDate },
+          }),
+          ...(searchDto.endDate && { createdAt: { lte: searchDto.endDate } }),
+        },
+        include: {
+          elderly: true,
+          fileDiagnosed: true,
+        },
+      }),
+    );
 
-  //     return updatedCheckup;
-  //   } catch (error) {
-  //     throw new Error(error.message);
-  //   }
-  // }
+    const lungs$ = from(
+      this.prisma.lungs.findMany({
+        where: {
+          ...(searchDto.startDate && {
+            createdAt: { gte: searchDto.startDate },
+          }),
+          ...(searchDto.endDate && { createdAt: { lte: searchDto.endDate } }),
+        },
+        include: {
+          lungsConclution: true,
+        },
+      }),
+    );
+
+    return forkJoin([elderlyCheckups$, lungs$])
+      .pipe(
+        map(([elderlyData, lungsData]) => {
+          return {
+            elderlyCheckups: elderlyData.map((item) => ({
+              ...item,
+              createdAt: item.createdAt.toISOString(),
+              lungs: lungsData.find(
+                (lung) => lung.elderlyId === item.elderlyId,
+              ),
+            })),
+          };
+        }),
+      )
+      .pipe(
+        switchMap((data) => {
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('Elderly Checkup Data');
+
+          worksheet.columns = [
+            { header: 'Nama', key: 'name', width: 20 },
+            { header: 'Umur (Tahun)', key: 'age', width: 15 },
+            { header: 'Jenis Kelamin', key: 'gender', width: 15 },
+            { header: 'Tinggi Badan (cm)', key: 'height', width: 20 },
+            { header: 'Berat Badan (kg)', key: 'weight', width: 20 },
+            { header: 'Tekanan Darah (mmHg)', key: 'bloodTension', width: 20 },
+            { header: 'Gula Darah (mg/dL)', key: 'bloodSugar', width: 20 },
+            { header: 'Paru-Paru', key: 'lungs', width: 30 },
+            { header: 'Indeks Masa Tubuh', key: 'bmi', width: 30 },
+            { header: 'Surat Rujukan', key: 'referralLetter', width: 20 },
+          ];
+
+          worksheet.getRow(1).eachCell((cell) => {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'A6C9F5' }, // Light blue background
+            };
+            cell.font = { bold: true };
+          });
+
+          worksheet.columns.forEach((column) => {
+            column.alignment = { horizontal: 'left' };
+          });
+
+          const countAge = (date: Date) => {
+            const birthDate = DateTime.fromJSDate(date);
+            const now = DateTime.now();
+            return now.diff(birthDate, 'years').years || 0;
+          };
+
+          data.elderlyCheckups.forEach((item) => {
+            worksheet.addRow({
+              name: item.elderly?.name,
+              age: countAge(item.elderly?.dateOfBirth as Date).toFixed() ?? 0,
+              gender:
+                item.elderly?.gender && item.elderly?.gender === 'MALE'
+                  ? 'Laki-laki'
+                  : 'Perempuan',
+              height: item.height.toFixed(),
+              weight: item.weight.toFixed(),
+              bloodTension: item.bloodTension,
+              bloodSugar: item.bloodSugar,
+              lungs: item.lungs?.lungsConclution?.conclusion,
+              bmi: item.bmi,
+              referralLetter: item.fileDiagnosed?.path,
+            });
+          });
+
+          return workbook.xlsx.writeBuffer();
+        }),
+      );
+  }
 }

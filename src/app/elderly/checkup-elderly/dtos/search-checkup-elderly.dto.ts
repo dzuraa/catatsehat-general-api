@@ -10,7 +10,7 @@ export class SearchCheckupElderlyDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by checkup date (yyyy-MM-dd)',
-    example: '2025-03-20',
+    example: '2025-03-20,2025-03-21',
   })
   @IsOptional()
   @IsDateString(
