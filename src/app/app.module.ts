@@ -30,6 +30,9 @@ import { ImmunizationRecordModule } from './children/immunization-record';
 import { VaccineModule } from './children/vaccine';
 import { VaccineStageModule } from './children/vaccine-stage';
 import { BloodRecordModule } from './mother/blood-record';
+import { MasterDataLungsModule } from './elderly/master-data-lungs';
+import { LungConclusionModule } from './elderly/lung-conclusion';
+import { LungsModule } from './elderly/lungs';
 import { MonthBloodModule } from './mother/month-blood';
 import { ImmunizationOptionalRecordModule } from './children/immunization-optional-record';
 
@@ -84,6 +87,30 @@ class AppController {
     DistrictModule,
     RegencyModule,
     ProvinceModule,
+    CheckupElderlyModule,
+    ArticleModule,
+    ReportModule,
+    MasterElderlyModule,
+    HealthPostModule,
+    ScheduleModule,
+    ChildrenModule,
+    CheckupMotherModule,
+    MotherModule,
+    // PostPartumModule,
+    PostpartumRecordModule,
+    PostpartumQuestionModule,
+    DayPostpartumModule,
+    // BloodRecordModule,
+    // BloodStepModule,
+    // MonthBloodModule,
+    // BloodSupplementModule,
+    // PregnancyMonitoringModule,
+    PregnancyMonitoringRecordModule,
+    PregnancyMonitoringQuestionModule,
+    WeekPregnancyMonitoringModule,
+    MasterDataLungsModule,
+    LungConclusionModule,
+    LungsModule,
   ],
   controllers: [AppController],
 })
