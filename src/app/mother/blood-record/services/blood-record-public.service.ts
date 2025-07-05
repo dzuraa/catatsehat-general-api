@@ -1,7 +1,9 @@
 import { OwnerType, Prisma } from '@prisma/client';
 import { CreateBloodRecordDto } from '../dtos';
 import { BloodRecordRepository } from '../repositories';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class BloodRecordPublicService {
   constructor(private readonly bloodRecordRepository: BloodRecordRepository) {}
 
