@@ -119,16 +119,10 @@ export class CheckupElderlyService {
 
     // Add date filtering
     if (paginateDto.date) {
-      const start = DateTime.fromFormat(
-        paginateDto.date.split(',')[0],
-        'yyyy-MM-dd',
-      );
-      const end = DateTime.fromFormat(
-        paginateDto.date.split(',')[1],
-        'yyyy-MM-dd',
-      );
-      const startDate = start.startOf('day').toJSDate();
-      const endDate = end.endOf('day').toJSDate();
+      const start = DateTime.fromISO(paginateDto.date);
+      const end = DateTime.fromISO(paginateDto.date);
+      const startDate = start.startOf('day').toUTC().toJSDate();
+      const endDate = end.endOf('day').toUTC().toJSDate();
 
       whereCondition.attend = {
         gte: startDate,
