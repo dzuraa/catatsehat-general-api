@@ -158,7 +158,7 @@ export class ImmunizationRecordService {
     ];
 
     // Title
-    worksheet.mergeCells('A1:F1');
+    worksheet.mergeCells('A1:E1');
     const titleCell = worksheet.getCell('A1');
     titleCell.value = 'LAPORAN STATUS VAKSINASI ANAK';
     titleCell.font = { size: 14, bold: true };
