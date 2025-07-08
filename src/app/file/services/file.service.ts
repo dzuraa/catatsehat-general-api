@@ -89,11 +89,7 @@ export class FileService {
       fileName: payload.fileName,
       mimeType: payload.mimeType,
       type,
-      path: [
-        'https://catatsehat.site/minio',
-        ENV.S3_BUCKET_NAME,
-        payload.fileName,
-      ].join('/'),
+      path: [ENV.S3_ENDPOINT, ENV.S3_BUCKET_NAME, payload.fileName].join('/'),
       size: file.length,
     });
   }
