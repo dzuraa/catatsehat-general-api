@@ -95,4 +95,11 @@ export class BloodRecordRepository {
   public async any(filter: Omit<Filter, 'include'>) {
     return (await this.prismaService.bloodRecord.count(filter)) > 0;
   }
+
+  public async findFirst(
+    where: Prisma.BloodRecordWhereInput,
+    select?: Prisma.BloodRecordSelect,
+  ) {
+    return this.prismaService.bloodRecord.findFirst({ where, select });
+  }
 }
