@@ -421,40 +421,44 @@ export class ImmunizationRecordAdminService {
       },
     );
 
-    // Update ImmunizationRecord
-    const updatedRecord = await this.immunizationrecordRepository.update(
-      { id },
-      updateImmunizationsDto,
-    );
+    let vaccineStatus: number | null = null;
 
-    // Update ChildVaccineStage
+    // Hitung vaccineStatus jika bisa
     if (existingRecord.vaccineStageId) {
       const originalVaccineName = existingRecord.vaccine!.name;
       const mappedVaccineName = VaccineNameMapping[originalVaccineName];
 
-      if (!mappedVaccineName) {
-        return updatedRecord;
-      }
+      if (mappedVaccineName) {
+        vaccineStatus = VaccinationStatusHelper.calculateVaccineStatus(
+          updateImmunizationsDto.dateGiven!,
+          mappedVaccineName,
+        );
 
-      const vaccineStatus = VaccinationStatusHelper.calculateVaccineStatus(
-        updatedRecord.dateGiven!,
-        mappedVaccineName,
-      );
-
-      await this.childVaccineStageRepository.update(
-        {
-          childrenId_vaccineStageId: {
-            childrenId: existingRecord.childrenId!,
-            vaccineStageId: existingRecord.vaccineStageId!,
+        // Update juga ke tabel ChildVaccineStage
+        await this.childVaccineStageRepository.update(
+          {
+            childrenId_vaccineStageId: {
+              childrenId: existingRecord.childrenId!,
+              vaccineStageId: existingRecord.vaccineStageId!,
+            },
           },
-        },
-        {
-          dateGiven: updatedRecord.dateGiven,
-          note: updatedRecord.note,
-          vaccineStatus,
-        },
-      );
+          {
+            dateGiven: updateImmunizationsDto.dateGiven,
+            note: updateImmunizationsDto.note,
+            vaccineStatus,
+          },
+        );
+      }
     }
+
+    // Update ImmunizationRecord, termasuk vaccineStatus jika tersedia
+    const updatedRecord = await this.immunizationrecordRepository.update(
+      { id },
+      {
+        ...updateImmunizationsDto,
+        vaccineStatus, // null-safe
+      },
+    );
 
     return updatedRecord;
   }
