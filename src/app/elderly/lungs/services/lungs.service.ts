@@ -32,9 +32,11 @@ export class LungsService {
               ? {
                   gte: DateTime.fromISO(paginateDto.date)
                     .startOf('day')
+                    .toUTC()
                     .toJSDate(),
                   lte: DateTime.fromISO(paginateDto.date)
                     .endOf('day')
+                    .toUTC()
                     .toJSDate(),
                 }
               : undefined,
