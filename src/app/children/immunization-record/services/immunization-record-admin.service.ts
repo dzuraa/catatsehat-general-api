@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
-// import { vaccineAgeRules } from '../constants/status.constant';
-import {
-  ChildVaccineStage,
-  ImmunizationRecord,
-  Prisma,
-  Vaccine,
-} from '@prisma/client';
+import { ChildVaccineStage, Prisma, VaccineStage } from '@prisma/client';
 import { VaccineNameMapping } from '../helper/vaccination-mapping.helper';
 import { VaccinationStatusHelper } from '../helper/immunization.helper';
 import { ImmunizationRecordRepository } from '../repositories';
@@ -22,6 +16,10 @@ import {
 import { DateTime } from 'luxon';
 import ExcelJs from 'exceljs';
 import { Buffer } from 'exceljs';
+
+type ChildVaccineStageWithRelation = ChildVaccineStage & {
+  vaccineStage: VaccineStage;
+};
 
 @Injectable()
 export class ImmunizationRecordAdminService {
@@ -221,7 +219,7 @@ export class ImmunizationRecordAdminService {
     try {
       const { childrenId, immunizations } = createImmunizationArrayDto;
 
-      // Validate if immunization records already exist
+      // Cek apakah sudah ada data imunisasi yang diisi
       const existingStages = await this.childVaccineStageRepository.find({
         where: {
           childrenId,
@@ -241,6 +239,7 @@ export class ImmunizationRecordAdminService {
         );
       }
 
+      // Ambil data vaccineStage dan relasi vaccine
       const vaccineStages = await this.vaccineStageRepository.findMany({
         where: {
           id: {
@@ -252,24 +251,28 @@ export class ImmunizationRecordAdminService {
         },
       });
 
-      const immunizationsByVaccine = vaccineStages.reduce((acc, stage) => {
-        const vaccineId = stage.vaccineId!;
-        if (!acc[vaccineId]) {
-          acc[vaccineId] = {
-            stages: [],
-            vaccine: stage.vaccineId,
-          };
-        }
-        acc[vaccineId].stages.push(stage);
-        return acc;
-      }, {});
+      // Group berdasarkan vaccineId
+      const immunizationsByVaccine = vaccineStages.reduce(
+        (acc, stage) => {
+          const vaccineId = stage.vaccineId;
+          if (vaccineId !== null) {
+            if (!acc[vaccineId]) {
+              acc[vaccineId] = {
+                stages: [],
+                vaccine: vaccineId,
+              };
+            }
+            acc[vaccineId].stages.push(stage);
+          }
+          return acc;
+        },
+        {} as Record<string, { stages: typeof vaccineStages; vaccine: string }>,
+      );
 
       for (const [vaccineId, data] of Object.entries(immunizationsByVaccine)) {
-        const vaccineStages = (
-          data as { stages: ChildVaccineStage[]; vaccine: Vaccine }
-        ).stages;
-        const stageUpdates: Promise<ChildVaccineStage>[] = [];
-        const immunizationRecords: Promise<ImmunizationRecord>[] = [];
+        const vaccineStages = data.stages;
+        const stageUpdates: Promise<any>[] = [];
+        const immunizationRecords: Promise<any>[] = [];
         const stageStatuses = new Map<string, number | null>();
 
         for (const stage of vaccineStages) {
@@ -319,17 +322,22 @@ export class ImmunizationRecordAdminService {
           }
         }
 
-        const allStages = await this.childVaccineStageRepository.find({
-          where: {
-            childrenId,
-            vaccineStage: {
-              vaccineId,
+        // ✅ Jalankan semua update sebelum lanjut
+        await Promise.all([...stageUpdates, ...immunizationRecords]);
+
+        // 🔁 Ambil ulang semua stage yang relevan
+        const allStages: ChildVaccineStageWithRelation[] =
+          (await this.childVaccineStageRepository.find({
+            where: {
+              childrenId,
+              vaccineStage: {
+                vaccineId,
+              },
             },
-          },
-          include: {
-            vaccineStage: true,
-          },
-        });
+            include: {
+              vaccineStage: true,
+            },
+          })) as ChildVaccineStageWithRelation[];
 
         allStages.forEach((stage) => {
           stageStatuses.set(stage.vaccineStageId, stage.vaccineStatus ?? null);
@@ -345,14 +353,17 @@ export class ImmunizationRecordAdminService {
           note: stage.note,
         }));
 
+        // ✅ Hitung status imunisasi setelah semua data lengkap
         const immunizationStatus =
           VaccinationStatusHelper.determineImmunizationStatus(mergedStages);
 
-        const lastStage = vaccineStages[vaccineStages.length - 1];
-        const nextStage = await this.getNextVaccineStage(
-          vaccineId,
-          lastStage.id,
-        );
+        const nextStage = await this.getNextVaccineStage(childrenId, vaccineId);
+        const lastGivenStage = allStages
+          .filter((s) => s.dateGiven !== null)
+          .sort(
+            (a, b) => (a.vaccineStage.order ?? 0) - (b.vaccineStage.order ?? 0),
+          )
+          .pop();
 
         await this.childVaccineRepository.update(
           {
@@ -362,7 +373,7 @@ export class ImmunizationRecordAdminService {
             },
           },
           {
-            lastVaccineGiven: lastStage.name,
+            lastVaccineGiven: lastGivenStage?.vaccineStage.name || null,
             upcomingVaccine: nextStage?.name || null,
             immunizationStatus,
           },
@@ -374,8 +385,6 @@ export class ImmunizationRecordAdminService {
             code: null,
           },
         );
-
-        await Promise.all([...stageUpdates, ...immunizationRecords]);
       }
 
       return {
@@ -386,26 +395,33 @@ export class ImmunizationRecordAdminService {
     }
   }
 
-  private async getNextVaccineStage(vaccineId: string, currentStageId: string) {
-    // Dapatkan order dari stage saat ini
-    const currentStage = await this.vaccineStageRepository.findFirst({
-      where: {
-        id: currentStageId,
-      },
-    });
+  private async getNextVaccineStage(
+    childrenId: string,
+    vaccineId: string,
+  ): Promise<VaccineStage | null> {
+    // Ambil semua stage untuk vaccine ini dan anak ini
+    const stages: ChildVaccineStageWithRelation[] =
+      (await this.childVaccineStageRepository.find({
+        where: {
+          childrenId,
+          vaccineStage: {
+            vaccineId,
+          },
+        },
+        include: {
+          vaccineStage: true,
+        },
+        orderBy: {
+          vaccineStage: {
+            order: 'asc',
+          },
+        },
+      })) as ChildVaccineStageWithRelation[];
 
-    // Cari stage berikutnya
-    return await this.vaccineStageRepository.findFirst({
-      where: {
-        vaccineId,
-        id: {
-          not: currentStageId,
-        },
-        order: {
-          gt: currentStage?.order ?? 0,
-        },
-      },
-    });
+    // Cari stage pertama yang belum diberikan
+    const nextStage = stages.find((stage) => stage.dateGiven === null);
+
+    return nextStage?.vaccineStage ?? null;
   }
 
   public async update(
