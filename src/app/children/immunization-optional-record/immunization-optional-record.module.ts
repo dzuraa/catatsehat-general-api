@@ -19,5 +19,10 @@ import { ChildrenModule } from '../children';
     ImmunizationOptionalRecordAdminService,
     ImmunizationOptionalRecordRepository,
   ],
+  exports: [
+    ImmunizationOptionalRecordService,
+    ImmunizationOptionalRecordAdminService,
+    ImmunizationOptionalRecordRepository,
+  ],
 })
 export class ImmunizationOptionalRecordModule {}
