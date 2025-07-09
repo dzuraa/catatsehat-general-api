@@ -599,6 +599,7 @@ model Report {
   observation  String
   gender       Gender
   status       ReportStatus @default(PENDING)
+  note         String?
 
   userId             String
   user               User    @relation(fields: [userId], references: [id])
