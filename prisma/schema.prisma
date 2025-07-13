@@ -343,10 +343,23 @@ model WeekPregnancyMonitoring {
   weekNumber Int
   name       String @unique
 
+  trimesterId String?
+  trimester   Trimester? @relation(fields: [trimesterId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   PregnancyMonitoringRecord PregnancyMonitoringRecord[]
+}
+
+model Trimester {
+  id   String @id @unique @default(uuid())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  WeekPregnancyMonitoring WeekPregnancyMonitoring[]
 }
 
 model BloodRecord {
@@ -633,7 +646,8 @@ model HealthPost {
 }
 
 model Schedule {
-  id      String   @id @unique @default(uuid())
+  id      String    @id @unique @default(uuid())
+  date    DateTime?
   startAt DateTime
   endAt   DateTime
   address String

@@ -99,14 +99,29 @@ export class PregnancyMonitoringRecordHttpController {
 
   @Get()
   public async index(
-    @Query('weekPregnancyMonitoringId') weekPregnancyMonitoringId: string,
+    @Query() filterDto: SearchPregnancyMonitoringRecordDto,
     @UserDecorator() user: User,
   ) {
     try {
       const data = await this.pregnancyMonitoringRecordService.index(
-        weekPregnancyMonitoringId,
+        filterDto,
         user,
       );
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/week-used')
+  public async getWeekUsed(@UserDecorator() user: User) {
+    try {
+      const data =
+        await this.pregnancyMonitoringRecordService.getWeekUsed(user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

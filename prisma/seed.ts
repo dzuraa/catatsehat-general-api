@@ -459,14 +459,47 @@ async function seedWeekPregnancyMonitoring() {
   }
 
   try {
+    // Pastikan Trimester sudah ada
+    const existingTrimesters = await prisma.trimester.findMany();
+    const trimesterNames = ['Trimester 1', 'Trimester 2', 'Trimester 3'];
+
+    for (const name of trimesterNames) {
+      if (!existingTrimesters.find((t) => t.name === name)) {
+        await prisma.trimester.create({ data: { name } });
+        console.log(`Created Trimester: ${name}`);
+      }
+    }
+
+    // Ambil ulang agar dapat ID-nya
+    const trimesters = await prisma.trimester.findMany();
+    const trimesterMap = {
+      'Trimester 1': trimesters.find((t) => t.name === 'Trimester 1')!.id,
+      'Trimester 2': trimesters.find((t) => t.name === 'Trimester 2')!.id,
+      'Trimester 3': trimesters.find((t) => t.name === 'Trimester 3')!.id,
+    };
+
     for (const week of weeks) {
+      // Tentukan trimester berdasarkan minggu
+      let trimesterId = '';
+      if (week.weekNumber >= 6 && week.weekNumber <= 13) {
+        trimesterId = trimesterMap['Trimester 1'];
+      } else if (week.weekNumber >= 14 && week.weekNumber <= 27) {
+        trimesterId = trimesterMap['Trimester 2'];
+      } else if (week.weekNumber >= 28 && week.weekNumber <= 42) {
+        trimesterId = trimesterMap['Trimester 3'];
+      }
+
       const existingWeek = await prisma.weekPregnancyMonitoring.findFirst({
         where: { weekNumber: week.weekNumber },
       });
 
       if (!existingWeek) {
         const createdWeek = await prisma.weekPregnancyMonitoring.create({
-          data: week,
+          data: {
+            weekNumber: week.weekNumber,
+            name: week.name,
+            trimesterId,
+          },
         });
 
         console.log(`Created WeekPregnancyMonitoring: ${createdWeek.name}`);
@@ -474,6 +507,15 @@ async function seedWeekPregnancyMonitoring() {
         console.log(
           `WeekPregnancyMonitoring already exists: ${existingWeek.name}`,
         );
+
+        // Optional: update trimesterId kalau masih null
+        if (!existingWeek.trimesterId) {
+          await prisma.weekPregnancyMonitoring.update({
+            where: { id: existingWeek.id },
+            data: { trimesterId },
+          });
+          console.log(`Updated trimesterId for: ${existingWeek.name}`);
+        }
       }
     }
   } catch (error) {

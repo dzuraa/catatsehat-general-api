@@ -35,6 +35,7 @@ import { LungConclusionModule } from './elderly/lung-conclusion';
 import { LungsModule } from './elderly/lungs';
 import { MonthBloodModule } from './mother/month-blood';
 import { ImmunizationOptionalRecordModule } from './children/immunization-optional-record';
+import { TrimesterModule } from './mother/trimester';
 
 @ApiTags('App Spec')
 @Controller()
@@ -108,6 +109,7 @@ class AppController {
     PregnancyMonitoringRecordModule,
     PregnancyMonitoringQuestionModule,
     WeekPregnancyMonitoringModule,
+    TrimesterModule,
     MasterDataLungsModule,
     LungConclusionModule,
     LungsModule,

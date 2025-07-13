@@ -15,6 +15,7 @@ import { PostpartumRecordAdminService } from '../../services/postpartum-record-a
 import { AdminGuard, AuthGuard } from '@/app/auth';
 import {
   CreatePostpartumRecordDto,
+  FilterPostpartumRecordDto,
   SearchPostpartumRecordDto,
 } from '../../dtos';
 import { PostpartumRecordService } from '../../services';
@@ -98,14 +99,28 @@ export class PostpartumRecordHttpController {
 
   @Get()
   public async index(
-    @Query('dayPostpartumId') dayPostpartumId: string,
+    @Query() filterPostPartum: FilterPostpartumRecordDto,
     @UserDecorator() user: User,
   ) {
     try {
       const data = await this.postPartumRecordService.index(
-        dayPostpartumId,
+        filterPostPartum,
         user,
       );
+      return new ResponseEntity({
+        data,
+        status: HttpStatus.OK,
+        message: 'Data fetched successfully',
+      });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/day-used')
+  public async getDayUsed(@UserDecorator() user: User) {
+    try {
+      const data = await this.postPartumRecordService.getDayUsed(user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

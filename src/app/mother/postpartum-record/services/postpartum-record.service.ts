@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostpartumRecordRepository } from '../repositories';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
-import { CreatePostpartumRecordDto } from '../dtos';
+import { CreatePostpartumRecordDto, FilterPostpartumRecordDto } from '../dtos';
 import { HealthStatus, Prisma, User } from '@prisma/client';
 import { MotherRepository } from '../../mother/repositories';
 
@@ -16,7 +16,7 @@ export class PostpartumRecordService {
     return this.postPartumRecordRepository.paginate(paginateDto);
   }
 
-  public async index(dayPostPartumId: string, user: User) {
+  public async index(filterPostPartum: FilterPostpartumRecordDto, user: User) {
     const mother = await this.motherRepository.findFirst({
       userId: user.id,
       deletedAt: null,
@@ -27,12 +27,38 @@ export class PostpartumRecordService {
     }
 
     const whereCondition: Prisma.PostPartumRecordWhereInput = {
-      dayPostPartumId,
       mother: {
         id: mother.id,
       },
       deletedAt: null,
     };
+
+    if (filterPostPartum.dayPostpartumId) {
+      whereCondition.dayPostPartum = {
+        id: filterPostPartum.dayPostpartumId,
+      };
+    }
+
+    if (filterPostPartum.search) {
+      whereCondition.OR = [
+        {
+          mother: {
+            name: {
+              contains: filterPostPartum.search.trim(),
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          dayPostPartum: {
+            name: {
+              contains: filterPostPartum.search.trim(),
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
 
     return this.postPartumRecordRepository.find({
       where: whereCondition,
@@ -44,6 +70,30 @@ export class PostpartumRecordService {
         dayPostPartum: true,
       },
     });
+  }
+
+  public async getDayUsed(user: User) {
+    const mother = await this.motherRepository.findFirst({
+      userId: user.id,
+      deletedAt: null,
+    });
+
+    if (!mother) {
+      throw new Error('Mother not found');
+    }
+
+    const records = await this.postPartumRecordRepository.find({
+      where: {
+        motherId: mother.id,
+        deletedAt: null,
+      },
+      select: {
+        dayPostPartumId: true,
+      },
+    });
+
+    // Hasilnya array of IDs yang sudah digunakan
+    return records.map((r) => r.dayPostPartumId);
   }
 
   public detail(id: string) {

@@ -6,4 +6,12 @@ export class SearchPregnancyMonitoringRecordDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  weekPregnancyMonitoringId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  trimesterId?: string;
 }
