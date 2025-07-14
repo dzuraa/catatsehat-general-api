@@ -16,7 +16,6 @@ import { AdminGuard, AuthGuard } from '@/app/auth';
 import {
   CreatePostpartumRecordDto,
   FilterPostpartumRecordDto,
-  SearchPostpartumRecordDto,
 } from '../../dtos';
 import { PostpartumRecordService } from '../../services';
 import { UserDecorator } from '@/app/auth/decorators';
@@ -35,7 +34,7 @@ export class PostpartumRecordAdminHttpController {
   ) {}
 
   @Get()
-  public async index(@Query() paginateDto: SearchPostpartumRecordDto) {
+  public async index(@Query() paginateDto: FilterPostpartumRecordDto) {
     try {
       const data =
         await this.postPartumRecordAdminService.paginate(paginateDto);

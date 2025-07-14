@@ -6,4 +6,8 @@ export class BloodRecordSearchDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  monthId?: string;
 }

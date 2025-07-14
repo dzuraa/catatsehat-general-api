@@ -3,6 +3,7 @@ import { BloodRecordRepository } from '../repositories';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { Prisma, User } from '@prisma/client';
 import { MotherRepository } from '../../mother/repositories';
+import { BloodRecordSearchDto } from '../dtos';
 
 @Injectable()
 export class BloodRecordService {
@@ -15,7 +16,7 @@ export class BloodRecordService {
     return this.bloodRecordRepository.paginate(paginateDto);
   }
 
-  public async index(monthId: string, user: User) {
+  public async index(filterDto: BloodRecordSearchDto, user: User) {
     const mother = await this.motherRepository.findFirst({
       userId: user.id,
       deletedAt: null,
@@ -26,12 +27,38 @@ export class BloodRecordService {
     }
 
     const whereCondition: Prisma.BloodRecordWhereInput = {
-      monthId,
       mother: {
         id: mother.id,
       },
       deletedAt: null,
     };
+
+    if (filterDto.monthId) {
+      whereCondition.monthBlood = {
+        id: filterDto.monthId,
+      };
+    }
+
+    if (filterDto.search) {
+      whereCondition.OR = [
+        {
+          monthBlood: {
+            name: {
+              contains: filterDto.search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          admin: {
+            name: {
+              contains: filterDto.search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
 
     const records = await this.bloodRecordRepository.find({
       where: whereCondition,
