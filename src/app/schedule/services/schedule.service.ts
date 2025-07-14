@@ -10,7 +10,7 @@ export class ScheduleService {
   public paginate(paginateDto: SearchScheduleDto) {
     const whereCondition: Prisma.ScheduleWhereInput = {
       deletedAt: null,
-      endAt: {
+      date: {
         gte: new Date(),
       },
     };
@@ -59,7 +59,7 @@ export class ScheduleService {
       {
         id,
         deletedAt: null,
-        endAt: {
+        date: {
           gte: new Date(),
         },
       },
