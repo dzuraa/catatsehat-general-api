@@ -14,6 +14,12 @@ export class PostpartumRecordAdminService {
       deletedAt: null,
     };
 
+    if (paginateDto.dayPostpartumId) {
+      whereCondition.dayPostPartum = {
+        id: paginateDto.dayPostpartumId,
+      };
+    }
+
     if (paginateDto.search) {
       whereCondition.OR = [
         {

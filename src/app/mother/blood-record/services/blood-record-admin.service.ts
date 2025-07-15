@@ -13,6 +13,12 @@ export class BloodRecordAdminService {
       deletedAt: null,
     };
 
+    if (paginateDto.monthId) {
+      whereCondition.monthBlood = {
+        id: paginateDto.monthId,
+      };
+    }
+
     if (paginateDto.search) {
       whereCondition.OR = [
         {

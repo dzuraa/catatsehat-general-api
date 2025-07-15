@@ -14,6 +14,18 @@ export class PregnancyMonitoringRecordAdminService {
       deletedAt: null,
     };
 
+    if (paginateDto.weekPregnancyMonitoringId) {
+      whereCondition.weekPregnancyMonitoring = {
+        id: paginateDto.weekPregnancyMonitoringId,
+      };
+    }
+
+    if (paginateDto.trimesterId) {
+      whereCondition.weekPregnancyMonitoring = {
+        trimesterId: paginateDto.trimesterId,
+      };
+    }
+
     if (paginateDto.search) {
       whereCondition.OR = [
         {

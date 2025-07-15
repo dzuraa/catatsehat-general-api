@@ -71,16 +71,37 @@ export class BloodRecordService {
       },
     });
 
-    const monthName = records[0]?.monthBlood.name ?? '-';
-    const totalConsume = records.length;
-    const statusBlood = totalConsume > 0 ? 'DONE' : 'NOT_DONE';
+    // Kelompokkan berdasarkan bulan
+    const grouped = records.reduce(
+      (acc, record) => {
+        const monthKey = record.monthBlood.name; // Bisa ganti ke monthBlood.id kalau perlu unik
+        if (!acc[monthKey]) {
+          acc[monthKey] = {
+            monthName: record.monthBlood.name,
+            totalConsume: 0,
+            statusBlood: 'NOT_DONE',
+            data: [],
+          };
+        }
 
-    return {
-      monthName,
-      totalConsume,
-      statusBlood,
-      data: records,
-    };
+        acc[monthKey].data.push(record);
+        acc[monthKey].totalConsume += 1;
+        acc[monthKey].statusBlood = 'DONE';
+
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          monthName: string;
+          totalConsume: number;
+          statusBlood: string;
+          data: typeof records;
+        }
+      >,
+    );
+
+    return Object.values(grouped); // controller yang akan bungkus response-nya
   }
 
   public detail(id: string) {
