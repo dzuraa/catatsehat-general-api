@@ -750,3 +750,17 @@ model Otp {
   expiresAt  DateTime
   isVerified Boolean  @default(false)
 }
+
+model BMICategory {
+  id     String    @id @unique @default(uuid())
+  minAge Float
+  maxAge Float
+  minBMI Float
+  maxBMI Float
+  gender Gender
+  status BMIStatus
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}

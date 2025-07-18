@@ -1,5 +1,6 @@
+import { BMI_RANGES } from '../src/common/constants/bmi.constant';
 import { hashSync } from '@node-rs/bcrypt';
-import { AdminType, PrismaClient } from '@prisma/client';
+import { AdminType, Gender, PrismaClient } from '@prisma/client';
 import * as csv from 'csv-parser';
 import { configDotenv } from 'dotenv';
 import { createReadStream } from 'fs';
@@ -593,6 +594,34 @@ async function seedPregnancyMonitoringQuestions() {
   }
 }
 
+async function bmiChildrenRanges() {
+  for (const genderKey of Object.keys(BMI_RANGES)) {
+    const gender = genderKey as Gender;
+    const ageGroups = BMI_RANGES[gender];
+
+    for (const ageGroup of ageGroups) {
+      const { min: minAge, max: maxAge, ranges } = ageGroup;
+
+      for (const range of ranges) {
+        const { min: minBMI, max, status } = range;
+
+        await prisma.bMICategory.create({
+          data: {
+            gender,
+            minAge,
+            maxAge,
+            minBMI,
+            maxBMI: max === Infinity ? 9999.99 : max,
+            status,
+          },
+        });
+      }
+    }
+  }
+
+  console.log('✅ BMI category seed berhasil!');
+}
+
 async function main() {
   try {
     console.log('Starting seed process...');
@@ -622,7 +651,10 @@ async function main() {
     await seedPregnancyMonitoringQuestions();
 
     // Lastly, seed vaccines
-    // await seedVaccines();
+    await seedVaccines();
+
+    // seed bmi children ranges
+    await bmiChildrenRanges();
 
     console.log('Seed process completed successfully');
   } catch (error) {

@@ -36,6 +36,7 @@ import { LungsModule } from './elderly/lungs';
 import { MonthBloodModule } from './mother/month-blood';
 import { ImmunizationOptionalRecordModule } from './children/immunization-optional-record';
 import { TrimesterModule } from './mother/trimester';
+import { BmiCategoryModule } from './bmi-category';
 
 @ApiTags('App Spec')
 @Controller()
@@ -113,6 +114,7 @@ class AppController {
     MasterDataLungsModule,
     LungConclusionModule,
     LungsModule,
+    BmiCategoryModule,
   ],
   controllers: [AppController],
 })
