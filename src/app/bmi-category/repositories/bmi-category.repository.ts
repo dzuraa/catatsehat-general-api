@@ -6,7 +6,7 @@ import { PrismaService } from 'src/platform/database/services/prisma.service';
 
 export type Filter = {
   where?: Prisma.BMICategoryWhereInput;
-  orderBy?: Prisma.BMICategoryOrderByWithRelationInput;
+  orderBy?: Prisma.Enumerable<Prisma.BMICategoryOrderByWithRelationInput>;
   cursor?: Prisma.BMICategoryWhereUniqueInput;
   take?: number;
   skip?: number;

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BmiCategoryRepository } from '../repositories';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { CreateBmiCategoryDto, UpdateBmiCategoryDto } from '../dtos';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BmiCategoryService {
@@ -12,6 +13,12 @@ export class BmiCategoryService {
       where: {
         deletedAt: null,
       },
+      orderBy: [
+        { gender: 'asc' },
+        { minAge: 'asc' },
+        { maxAge: 'asc' },
+        { minBMI: 'asc' },
+      ] as Prisma.BMICategoryOrderByWithRelationInput[],
     });
   }
 
