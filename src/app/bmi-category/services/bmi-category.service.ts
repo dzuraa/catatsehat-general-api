@@ -8,13 +8,18 @@ export class BmiCategoryService {
   constructor(private readonly bMICategoryRepository: BmiCategoryRepository) {}
 
   public paginate(paginateDto: PaginationQueryDto) {
-    return this.bMICategoryRepository.paginate(paginateDto);
+    return this.bMICategoryRepository.paginate(paginateDto, {
+      where: {
+        deletedAt: null,
+      },
+    });
   }
 
   public detail(id: string) {
     try {
       return this.bMICategoryRepository.firstOrThrow({
         id,
+        deletedAt: null,
       });
     } catch (error) {
       throw new Error(error);
