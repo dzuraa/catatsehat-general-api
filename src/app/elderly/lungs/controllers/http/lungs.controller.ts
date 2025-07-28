@@ -9,12 +9,14 @@ import {
   Post,
   Put,
   Query,
+  Res,
 } from '@nestjs/common';
 import { LungsService } from 'src/app/elderly/lungs/services';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { CreateLungsDto, UpdateLungsDto } from 'src/app/elderly/lungs/dtos';
 import { ApiTags } from '@nestjs/swagger';
 import { GetLungsDto } from '../../dtos/get-lugs.dto';
+import { Response } from 'express';
 
 @ApiTags('Lungs')
 @Controller({
@@ -48,6 +50,22 @@ export class LungsHttpController {
         message: 'Data fetched successfully',
       });
     } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('pdf')
+  public async pdf2(@Query('id') id: string, @Res() res: Response) {
+    try {
+      const data = await this.lungsService.generatePdf(id);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="data-pemeriksaan-paru-${data.lungs?.elderly?.name}.pdf"`,
+      });
+      console.log(id);
+      return res.status(HttpStatus.OK).send(data.pdf);
+    } catch (error) {
+      console.error(error);
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
@@ -95,6 +113,20 @@ export class LungsHttpController {
       });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('pdf')
+  public async pdf(@Body('id') id: string, @Res() res: Response) {
+    try {
+      const data = await this.lungsService.generatePdf(id);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="data-pemeriksaan-paru-${id}.pdf"`,
+      });
+      return res.status(HttpStatus.OK).send(data.pdf);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 }

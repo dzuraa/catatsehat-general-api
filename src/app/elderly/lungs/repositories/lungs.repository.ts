@@ -86,4 +86,23 @@ export class LungsRepository {
   public async any(filter: Omit<Filter, 'include'>) {
     return (await this.prismaService.lungs.count(filter)) > 0;
   }
+
+  public async getData(id: string) {
+    try {
+      return this.prismaService.lungs.findUnique({
+        where: { id },
+        include: {
+          elderly: true,
+          lungsConclution: true,
+          lungsPivot: {
+            include: {
+              masterDataLungs: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
