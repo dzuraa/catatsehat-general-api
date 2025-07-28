@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { BloodRecordRepository } from '../repositories';
 import { Admin, Prisma } from '@prisma/client';
-import { BloodRecordSearchDto } from '../dtos/search-blood-record.dto';
 import { CreateBloodRecordDto, UpdateBloodRecordDto } from '../dtos';
+import { BloodRecordSearchDto } from '../dtos/search-blood-record.dto';
+import { BloodRecordRepository } from '../repositories';
 
 @Injectable()
 export class BloodRecordAdminService {
@@ -12,6 +12,12 @@ export class BloodRecordAdminService {
     const whereCondition: Prisma.BloodRecordWhereInput = {
       deletedAt: null,
     };
+
+    if (paginateDto.monthId) {
+      whereCondition.monthBlood = {
+        id: paginateDto.monthId,
+      };
+    }
 
     if (paginateDto.search) {
       whereCondition.OR = [
@@ -73,6 +79,15 @@ export class BloodRecordAdminService {
     createBloodRecordDto: CreateBloodRecordDto,
     admin: Admin,
   ) {
+    const existingRecord = await this.bloodRecordRepository.findFirst({
+      motherId: createBloodRecordDto.motherId,
+      date: createBloodRecordDto.date,
+      monthId: createBloodRecordDto.monthId,
+    });
+
+    if (existingRecord) {
+      throw new Error('Tidak dapat membuat pada tanggal ini, data sudah ada');
+    }
     const data: Prisma.BloodRecordCreateInput = {
       date: createBloodRecordDto.date,
       monthBlood: {

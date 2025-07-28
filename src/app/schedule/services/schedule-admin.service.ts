@@ -85,6 +85,7 @@ export class ScheduleServiceAdmin {
       healthPost: { connect: { id: createScheduleDto.healthPostId } },
       staff: { connect: { id: createScheduleDto.staffId } },
       address: createScheduleDto.address,
+      date: createScheduleDto.date,
       startAt: createScheduleDto.startAt,
       endAt: createScheduleDto.endAt,
       note: createScheduleDto.note,
@@ -95,6 +96,7 @@ export class ScheduleServiceAdmin {
   public async update(id: string, updateScheduleDto: UpdateScheduleDto) {
     const data: Prisma.ScheduleUpdateInput = {
       address: updateScheduleDto.address,
+      date: updateScheduleDto.date,
       startAt: updateScheduleDto.startAt,
       endAt: updateScheduleDto.endAt,
       note: updateScheduleDto.note,

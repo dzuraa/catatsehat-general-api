@@ -8,6 +8,9 @@ import { translateStatus } from '@/common/helpers/vaccine-status.helper';
 import { formatMonthAge } from '@/common/helpers/month-age.helper';
 import { Buffer } from 'exceljs';
 import * as ExcelJS from 'exceljs';
+import { ChildrenRepository } from '../../children/repositories';
+import { ImmunizationOptionalRecordRepository } from '../../immunization-optional-record/repositories';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class ImmunizationRecordService {
@@ -15,6 +18,8 @@ export class ImmunizationRecordService {
     private readonly immunizationrecordRepository: ImmunizationRecordRepository,
     private readonly childVaccineRepository: ChildVaccineRepository,
     private readonly childVaccineStageRepository: ChildVaccineStageRepository,
+    private readonly childrenRepository: ChildrenRepository,
+    private readonly immunizationOptionalRecordRepository: ImmunizationOptionalRecordRepository,
   ) {}
 
   public async paginate(paginateDto: PaginationQueryDto, childrenId?: string) {
@@ -133,50 +138,54 @@ export class ImmunizationRecordService {
   }
 
   async exportExcel(childrenId: string): Promise<Buffer> {
-    const childVaccines = await this.childVaccineRepository.findMany({
-      where: {
-        childrenId,
-      },
-      include: {
-        childVaccineStage: {
-          orderBy: { order: 'asc' },
+    const [childVaccines, child, optionalVaccines] = await Promise.all([
+      this.childVaccineRepository.findMany({
+        where: { childrenId },
+        include: {
+          childVaccineStage: {
+            orderBy: { order: 'asc' },
+          },
         },
-      },
-    });
+      }),
+      this.childrenRepository.firstOrThrow({
+        id: childrenId,
+      }),
+      this.immunizationOptionalRecordRepository.find({
+        where: { childrenId },
+        orderBy: { createdAt: 'asc' },
+      }),
+    ]);
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Vaksinasi Anak');
 
-    // Set column width
-    worksheet.columns = [
-      { width: 30 }, // Nama Vaksin
-      { width: 30 }, // Nama Tahap
-      { width: 18 }, // Usia Disarankan
-      { width: 20 }, // Tanggal Pemberian
-      { width: 25 }, // Status
-      { width: 25 }, // Catatan
+    // --- SHEET 1: Imunisasi Wajib ---
+    const sheetWajib = workbook.addWorksheet('Imunisasi Wajib');
+    sheetWajib.columns = [
+      { width: 30 },
+      { width: 30 },
+      { width: 18 },
+      { width: 20 },
+      { width: 25 },
+      { width: 25 },
     ];
 
     // Title
-    worksheet.mergeCells('A1:F1');
-    const titleCell = worksheet.getCell('A1');
-    titleCell.value = 'LAPORAN STATUS VAKSINASI ANAK';
-    titleCell.font = { size: 14, bold: true };
-    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getRow(1).height = 28;
-
-    worksheet.addRow([]); // baris kosong
+    sheetWajib.mergeCells('A1:E1');
+    const title1 = sheetWajib.getCell('A1');
+    title1.value = `Laporan Imunisasi Wajib Anak ${child.name}`;
+    title1.font = { size: 14, bold: true };
+    title1.alignment = { vertical: 'middle', horizontal: 'center' };
+    sheetWajib.getRow(1).height = 28;
+    sheetWajib.addRow([]);
 
     for (const vaccine of childVaccines) {
-      // Nama Vaksin Header
-      const headerRow = worksheet.addRow([vaccine.name]);
-      worksheet.mergeCells(`A${headerRow.number}:F${headerRow.number}`);
+      const headerRow = sheetWajib.addRow([vaccine.name]);
+      sheetWajib.mergeCells(`A${headerRow.number}:E${headerRow.number}`);
       headerRow.font = { bold: true, size: 12 };
       headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
-      worksheet.getRow(headerRow.number).height = 22;
+      sheetWajib.getRow(headerRow.number).height = 22;
 
-      // Sub-header tahap vaksin
-      const subHeader = worksheet.addRow([
+      const subHeader = sheetWajib.addRow([
         'Nama Tahap',
         'Usia Disarankan',
         'Umur Pemberian',
@@ -200,16 +209,14 @@ export class ImmunizationRecordService {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
 
-      // Data tahap vaksin
       for (const stage of vaccine.childVaccineStage) {
-        const row = worksheet.addRow([
+        const row = sheetWajib.addRow([
           stage.name,
           stage.suggestedAge,
           formatMonthAge(stage.dateGiven),
           translateStatus(stage.vaccineStatus),
           stage.note || '-',
         ]);
-
         row.eachCell((cell) => {
           cell.border = {
             top: { style: 'thin' },
@@ -220,7 +227,73 @@ export class ImmunizationRecordService {
         });
       }
 
-      worksheet.addRow([]); // spacing antar vaksin
+      sheetWajib.addRow([]);
+    }
+
+    // --- SHEET 2: Imunisasi Tambahan ---
+    const sheetTambahan = workbook.addWorksheet('Imunisasi Tambahan');
+    sheetTambahan.columns = [
+      { width: 10 }, // No
+      { width: 20 }, // Tanggal Diberikan
+      { width: 30 }, // Nama Vaksin
+      { width: 20 }, // Umur Diberikan
+      { width: 40 }, // Catatan
+    ];
+
+    sheetTambahan.mergeCells('A1:E1');
+    const title2 = sheetTambahan.getCell('A1');
+    title2.value = `Laporan Imunisasi Tambahan Anak ${child.name}`;
+    title2.font = { size: 14, bold: true };
+    title2.alignment = { vertical: 'middle', horizontal: 'center' };
+    sheetTambahan.getRow(1).height = 28;
+    sheetTambahan.addRow([]);
+
+    const optionalHeader = sheetTambahan.addRow([
+      'No',
+      'Tanggal Diberikan',
+      'Nama Vaksin',
+      'Umur Diberikan',
+      'Catatan',
+    ]);
+
+    optionalHeader.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'D9D9D9' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    for (const [index, record] of optionalVaccines.entries()) {
+      const row = sheetTambahan.addRow([
+        index + 1,
+        DateTime.fromJSDate(record.createdAt)
+          .setLocale('id')
+          .toFormat('dd MMMM yyyy'),
+        record.name,
+        `${record.dateGiven} bulan`,
+        record.note || '-',
+      ]);
+
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+
+      // Center-kan isi kolom "No"
+      row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
     }
 
     const buffer = await workbook.xlsx.writeBuffer();

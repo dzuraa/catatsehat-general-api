@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostpartumRecordRepository } from '../repositories';
-import { SearchPostpartumRecordDto } from '../dtos';
+import { FilterPostpartumRecordDto } from '../dtos';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -9,10 +9,16 @@ export class PostpartumRecordAdminService {
     private readonly postPartumRecordRepository: PostpartumRecordRepository,
   ) {}
 
-  public paginate(paginateDto: SearchPostpartumRecordDto) {
+  public paginate(paginateDto: FilterPostpartumRecordDto) {
     const whereCondition: Prisma.PostPartumRecordWhereInput = {
       deletedAt: null,
     };
+
+    if (paginateDto.dayPostpartumId) {
+      whereCondition.dayPostPartum = {
+        id: paginateDto.dayPostpartumId,
+      };
+    }
 
     if (paginateDto.search) {
       whereCondition.OR = [

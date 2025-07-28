@@ -11,6 +11,7 @@ import { ChildVaccineStageModule } from '../child-vaccine-stage';
 import { VaccineStageModule } from '../vaccine-stage';
 import { VaccineModule } from '../vaccine';
 import { ChildrenModule } from '../children';
+import { ImmunizationOptionalRecordModule } from '../immunization-optional-record';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ChildrenModule } from '../children';
     VaccineStageModule,
     ChildVaccineModule,
     ChildVaccineStageModule,
+    ImmunizationOptionalRecordModule,
   ],
   controllers: [
     ImmunizationRecordAdminHttpController,

@@ -11,6 +11,7 @@ export type Filter = {
   take?: number;
   skip?: number;
   include?: Prisma.PostPartumRecordInclude;
+  select?: Prisma.PostPartumRecordSelect;
 };
 
 @Injectable()
@@ -90,13 +91,5 @@ export class PostpartumRecordRepository {
 
   public async find(filter: Filter) {
     return this.prismaService.postPartumRecord.findMany(filter);
-  }
-
-  public async count(filter: Omit<Filter, 'include'>) {
-    return this.prismaService.postPartumRecord.count(filter);
-  }
-
-  public async any(filter: Omit<Filter, 'include'>) {
-    return (await this.prismaService.postPartumRecord.count(filter)) > 0;
   }
 }

@@ -343,10 +343,23 @@ model WeekPregnancyMonitoring {
   weekNumber Int
   name       String @unique
 
+  trimesterId String?
+  trimester   Trimester? @relation(fields: [trimesterId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   PregnancyMonitoringRecord PregnancyMonitoringRecord[]
+}
+
+model Trimester {
+  id   String @id @unique @default(uuid())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  WeekPregnancyMonitoring WeekPregnancyMonitoring[]
 }
 
 model BloodRecord {
@@ -599,6 +612,7 @@ model Report {
   observation  String
   gender       Gender
   status       ReportStatus @default(PENDING)
+  note         String?
 
   userId             String
   user               User    @relation(fields: [userId], references: [id])
@@ -632,7 +646,8 @@ model HealthPost {
 }
 
 model Schedule {
-  id      String   @id @unique @default(uuid())
+  id      String    @id @unique @default(uuid())
+  date    DateTime?
   startAt DateTime
   endAt   DateTime
   address String
@@ -734,4 +749,18 @@ model Otp {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   isVerified Boolean  @default(false)
+}
+
+model BMICategory {
+  id     String    @id @unique @default(uuid())
+  minAge Float
+  maxAge Float
+  minBMI Float
+  maxBMI Float
+  gender Gender
+  status BMIStatus
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }

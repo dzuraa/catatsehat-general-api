@@ -24,6 +24,20 @@ export class CreateScheduleDto {
     example: '2025-12-01T08:00:00.000Z',
   })
   @IsNotEmpty({
+    message: 'date cannot be empty',
+  })
+  @IsISO8601(
+    {},
+    {
+      message: 'date must be a valid ISO 8601 datetime string',
+    },
+  )
+  date: string;
+
+  @ApiProperty({
+    example: '2025-12-01T08:00:00.000Z',
+  })
+  @IsNotEmpty({
     message: 'startAt cannot be empty',
   })
   @IsISO8601(

@@ -114,10 +114,16 @@ export class ChildrenService {
       throw new Error('Children not found');
     }
 
+    const birth = DateTime.fromISO(children.dateOfBirth.toISOString());
+    const now = DateTime.now();
+    const age = now.diff(birth, 'years').years;
+    const ageRounded = Math.floor(age);
+
     const url = this.generateChildAccessUrl(children.code as string);
 
     return {
       ...children,
+      age: ageRounded,
       url,
     };
   }

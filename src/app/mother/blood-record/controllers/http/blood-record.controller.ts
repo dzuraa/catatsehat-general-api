@@ -163,11 +163,11 @@ export class BloodRecordHttpController {
 
   @Get()
   public async index(
-    @Query('monthId') monthId: string,
+    @Query() filterDto: BloodRecordSearchDto,
     @UserDecorator() user: User,
   ) {
     try {
-      const data = await this.bloodRecordService.index(monthId, user);
+      const data = await this.bloodRecordService.index(filterDto, user);
       return new ResponseEntity({
         data,
         status: HttpStatus.OK,

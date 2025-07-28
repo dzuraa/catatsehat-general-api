@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PregnancyMonitoringRecordRepository } from '../repositories';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
-import { CreatePregnancyMonitoringRecordDto } from '../dtos';
+import {
+  CreatePregnancyMonitoringRecordDto,
+  SearchPregnancyMonitoringRecordDto,
+} from '../dtos';
 import { MotherRepository } from '../../mother/repositories';
 import { HealthStatus, Prisma, User } from '@prisma/client';
 
@@ -16,7 +19,10 @@ export class PregnancyMonitoringRecordService {
     return this.pregnancyMonitoringRecordRepository.paginate(paginateDto);
   }
 
-  public async index(weekPregnancyMonitoringId: string, user: User) {
+  public async index(
+    filterDto: SearchPregnancyMonitoringRecordDto,
+    user: User,
+  ) {
     const mother = await this.motherRepository.findFirst({
       userId: user.id,
       deletedAt: null,
@@ -27,12 +33,44 @@ export class PregnancyMonitoringRecordService {
     }
 
     const whereCondition: Prisma.PregnancyMonitoringRecordWhereInput = {
-      weekPregnancyMonitoringId,
       mother: {
         id: mother.id,
       },
       deletedAt: null,
     };
+
+    if (filterDto.weekPregnancyMonitoringId) {
+      whereCondition.weekPregnancyMonitoring = {
+        id: filterDto.weekPregnancyMonitoringId,
+      };
+    }
+
+    if (filterDto.trimesterId) {
+      whereCondition.weekPregnancyMonitoring = {
+        trimesterId: filterDto.trimesterId,
+      };
+    }
+
+    if (filterDto.search) {
+      whereCondition.OR = [
+        {
+          mother: {
+            name: {
+              contains: filterDto.search.trim(),
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          weekPregnancyMonitoring: {
+            name: {
+              contains: filterDto.search.trim(),
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
 
     return this.pregnancyMonitoringRecordRepository.find({
       where: whereCondition,
@@ -44,6 +82,30 @@ export class PregnancyMonitoringRecordService {
         weekPregnancyMonitoring: true,
       },
     });
+  }
+
+  public async getWeekUsed(user: User) {
+    const mother = await this.motherRepository.findFirst({
+      userId: user.id,
+      deletedAt: null,
+    });
+
+    if (!mother) {
+      throw new Error('Mother not found');
+    }
+
+    const records = await this.pregnancyMonitoringRecordRepository.find({
+      where: {
+        motherId: mother.id,
+        deletedAt: null,
+      },
+      select: {
+        weekPregnancyMonitoringId: true,
+      },
+    });
+
+    // Hasilnya array of IDs yang sudah digunakan
+    return records.map((r) => r.weekPregnancyMonitoringId);
   }
 
   public detail(id: string) {

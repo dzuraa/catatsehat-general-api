@@ -73,6 +73,16 @@ export class ChildVaccineStageRepository {
   }
 
   public async find(filter: Filter) {
-    return this.prismaService.childVaccineStage.findMany(filter);
+    const { include, select, ...rest } = filter;
+
+    if (include && select) {
+      throw new Error('Cannot use both `select` and `include` in Prisma query');
+    }
+
+    return this.prismaService.childVaccineStage.findMany({
+      ...rest,
+      ...(include ? { include: { ...include, vaccineStage: true } } : {}),
+      ...(select ? { select } : {}),
+    });
   }
 }
